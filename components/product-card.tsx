@@ -1,0 +1,125 @@
+"use client"
+
+import type React from "react"
+
+import Image from "next/image"
+import Link from "next/link"
+import { Heart, Star, ShoppingCart } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { useCart } from "@/contexts/cart-context"
+import { useWishlist } from "@/contexts/wishlist-context"
+import { useToast } from "@/hooks/use-toast"
+import type { Product } from "@/types/product"
+
+interface ProductCardProps {
+  product: Product
+}
+
+export function ProductCard({ product }: ProductCardProps) {
+  const { addToCart, isInCart } = useCart()
+  const { toggleWishlist, isInWishlist } = useWishlist()
+  const { toast } = useToast()
+
+  const discountPercentage = product.originalPrice
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : 0
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!product.inStock) {
+      toast({
+        title: "Out of stock",
+        description: "This item is currently out of stock.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    addToCart(product)
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+    })
+  }
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    toggleWishlist(product)
+    toast({
+      title: isInWishlist(product.id) ? "Removed from wishlist" : "Added to wishlist",
+      description: isInWishlist(product.id)
+        ? `${product.name} has been removed from your wishlist.`
+        : `${product.name} has been added to your wishlist.`,
+    })
+  }
+
+  return (
+    <div className="group relative bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+      <Link href={`/products/${product.id}`}>
+        <div className="relative aspect-square overflow-hidden">
+          <Image
+            src={product.images[0] || "/placeholder.svg"}
+            alt={product.name}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+          {discountPercentage > 0 && (
+            <Badge className="absolute top-2 left-2 bg-accent text-accent-foreground">-{discountPercentage}%</Badge>
+          )}
+          {product.newArrival && (
+            <Badge className="absolute top-2 right-2 bg-primary text-primary-foreground">New</Badge>
+          )}
+          {!product.inStock && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <Badge variant="destructive">Out of Stock</Badge>
+            </div>
+          )}
+        </div>
+      </Link>
+
+      <div className="p-4">
+        <Link href={`/products/${product.id}`}>
+          <h3 className="font-medium text-foreground group-hover:text-primary transition-colors line-clamp-2">
+            {product.name}
+          </h3>
+        </Link>
+
+        <div className="flex items-center gap-1 mt-2">
+          <div className="flex items-center">
+            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            <span className="text-sm text-muted-foreground ml-1">
+              {product.rating} ({product.reviewCount})
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 mt-2">
+          <span className="text-lg font-semibold text-foreground">${product.price}</span>
+          {product.originalPrice && (
+            <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
+          )}
+        </div>
+
+        <div className="flex gap-2 mt-3">
+          <Button className="flex-1" size="sm" onClick={handleAddToCart} disabled={!product.inStock}>
+            <ShoppingCart className="h-4 w-4 mr-2" />
+            {isInCart(product.id) ? "In Cart" : "Add to Cart"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleToggleWishlist}
+            className={isInWishlist(product.id) ? "text-red-500 border-red-200" : ""}
+          >
+            <Heart className={`h-4 w-4 ${isInWishlist(product.id) ? "fill-red-500" : ""}`} />
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
