@@ -6,7 +6,7 @@ export default function TermsPage() {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Terms & Conditions</h1>
-          <p className="text-gray-600">Last updated: January 15, 2024</p>
+          <p className="text-gray-600">Last updated: August 17, 2025</p>
         </div>
 
         <Card>
@@ -26,20 +26,20 @@ export default function TermsPage() {
 
             <h2>3. Pricing and Payment</h2>
             <p>
-              All prices are listed in USD and are subject to change without notice. We accept major credit cards,
-              PayPal, and other payment methods as displayed during checkout. Payment is due at the time of purchase.
+              All prices are listed in INR (Indian Rupees) and are subject to change without notice. We accept major credit cards,
+              UPI, Net Banking, and other payment methods as displayed during checkout. Payment is due at the time of purchase.
             </p>
 
             <h2>4. Shipping and Delivery</h2>
             <p>
-              We ship to addresses within the United States and internationally. Shipping costs and delivery times vary
-              by location and shipping method selected. Risk of loss passes to you upon delivery to the carrier.
+              We ship to addresses across India. Shipping costs and delivery times vary by location and shipping method selected.
+              Standard delivery typically takes 3-7 business days. Risk of loss passes to you upon delivery to the carrier.
             </p>
 
             <h2>5. Returns and Exchanges</h2>
             <p>
-              We accept returns within 30 days of purchase for unworn items in original packaging. Return shipping costs
-              are the responsibility of the customer unless the item was defective or incorrectly shipped.
+              We accept returns within 7 days of delivery for unworn items in original packaging with all tags attached.
+              Return shipping costs are the responsibility of the customer unless the item was defective or incorrectly shipped.
             </p>
 
             <h2>6. Privacy Policy</h2>
@@ -56,8 +56,13 @@ export default function TermsPage() {
 
             <h2>8. Contact Information</h2>
             <p>
-              If you have any questions about these Terms & Conditions, please contact us at legal@jewelrystore.com or
-              call +1 (555) 123-4567.
+              If you have any questions about these Terms & Conditions, please contact us at admin@houseofevolve.in or
+              call +91 9341330223. Our registered office is located at:
+              <br /><br />
+              IRA Jewelry<br />
+              123 Jewelry Street,<br />
+              Mumbai - 400001,<br />
+              Maharashtra, India
             </p>
           </CardContent>
         </Card>

@@ -15,57 +15,43 @@ interface AddressFormProps {
   onCancel: () => void
 }
 
-const US_STATES = [
-  { value: "AL", label: "Alabama" },
-  { value: "AK", label: "Alaska" },
-  { value: "AZ", label: "Arizona" },
-  { value: "AR", label: "Arkansas" },
-  { value: "CA", label: "California" },
-  { value: "CO", label: "Colorado" },
-  { value: "CT", label: "Connecticut" },
-  { value: "DE", label: "Delaware" },
-  { value: "FL", label: "Florida" },
-  { value: "GA", label: "Georgia" },
-  { value: "HI", label: "Hawaii" },
-  { value: "ID", label: "Idaho" },
-  { value: "IL", label: "Illinois" },
-  { value: "IN", label: "Indiana" },
-  { value: "IA", label: "Iowa" },
-  { value: "KS", label: "Kansas" },
-  { value: "KY", label: "Kentucky" },
-  { value: "LA", label: "Louisiana" },
-  { value: "ME", label: "Maine" },
-  { value: "MD", label: "Maryland" },
-  { value: "MA", label: "Massachusetts" },
-  { value: "MI", label: "Michigan" },
-  { value: "MN", label: "Minnesota" },
-  { value: "MS", label: "Mississippi" },
-  { value: "MO", label: "Missouri" },
-  { value: "MT", label: "Montana" },
-  { value: "NE", label: "Nebraska" },
-  { value: "NV", label: "Nevada" },
-  { value: "NH", label: "New Hampshire" },
-  { value: "NJ", label: "New Jersey" },
-  { value: "NM", label: "New Mexico" },
-  { value: "NY", label: "New York" },
-  { value: "NC", label: "North Carolina" },
-  { value: "ND", label: "North Dakota" },
-  { value: "OH", label: "Ohio" },
-  { value: "OK", label: "Oklahoma" },
-  { value: "OR", label: "Oregon" },
-  { value: "PA", label: "Pennsylvania" },
-  { value: "RI", label: "Rhode Island" },
-  { value: "SC", label: "South Carolina" },
-  { value: "SD", label: "South Dakota" },
-  { value: "TN", label: "Tennessee" },
-  { value: "TX", label: "Texas" },
-  { value: "UT", label: "Utah" },
-  { value: "VT", label: "Vermont" },
-  { value: "VA", label: "Virginia" },
-  { value: "WA", label: "Washington" },
-  { value: "WV", label: "West Virginia" },
-  { value: "WI", label: "Wisconsin" },
-  { value: "WY", label: "Wyoming" },
+const INDIAN_STATES = [
+  { value: "AN", label: "Andaman and Nicobar Islands" },
+  { value: "AP", label: "Andhra Pradesh" },
+  { value: "AR", label: "Arunachal Pradesh" },
+  { value: "AS", label: "Assam" },
+  { value: "BR", label: "Bihar" },
+  { value: "CG", label: "Chandigarh" },
+  { value: "CH", label: "Chhattisgarh" },
+  { value: "DN", label: "Dadra and Nagar Haveli" },
+  { value: "DD", label: "Daman and Diu" },
+  { value: "DL", label: "Delhi" },
+  { value: "GA", label: "Goa" },
+  { value: "GJ", label: "Gujarat" },
+  { value: "HR", label: "Haryana" },
+  { value: "HP", label: "Himachal Pradesh" },
+  { value: "JK", label: "Jammu and Kashmir" },
+  { value: "JH", label: "Jharkhand" },
+  { value: "KA", label: "Karnataka" },
+  { value: "KL", label: "Kerala" },
+  { value: "LD", label: "Lakshadweep" },
+  { value: "MP", label: "Madhya Pradesh" },
+  { value: "MH", label: "Maharashtra" },
+  { value: "MN", label: "Manipur" },
+  { value: "ML", label: "Meghalaya" },
+  { value: "MZ", label: "Mizoram" },
+  { value: "NL", label: "Nagaland" },
+  { value: "OR", label: "Odisha" },
+  { value: "PY", label: "Puducherry" },
+  { value: "PB", label: "Punjab" },
+  { value: "RJ", label: "Rajasthan" },
+  { value: "SK", label: "Sikkim" },
+  { value: "TN", label: "Tamil Nadu" },
+  { value: "TS", label: "Telangana" },
+  { value: "TR", label: "Tripura" },
+  { value: "UK", label: "Uttarakhand" },
+  { value: "UP", label: "Uttar Pradesh" },
+  { value: "WB", label: "West Bengal" },
 ]
 
 export function AddressForm({ address, onSave, onCancel }: AddressFormProps) {
@@ -78,7 +64,7 @@ export function AddressForm({ address, onSave, onCancel }: AddressFormProps) {
     city: address?.city || "",
     state: address?.state || "",
     zipCode: address?.zipCode || "",
-    country: address?.country || "United States",
+    country: address?.country || "India",
     phone: address?.phone || "",
   })
 
@@ -128,7 +114,7 @@ export function AddressForm({ address, onSave, onCancel }: AddressFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="address1">Address Line 1 *</Label>
+        <Label htmlFor="address1">Flat/House No., Building, Company, Apartment *</Label>
         <Input
           id="address1"
           value={formData.address1}
@@ -138,7 +124,7 @@ export function AddressForm({ address, onSave, onCancel }: AddressFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="address2">Address Line 2 (Optional)</Label>
+        <Label htmlFor="address2">Area, Street, Sector, Village</Label>
         <Input id="address2" value={formData.address2} onChange={(e) => handleChange("address2", e.target.value)} />
       </div>
 
@@ -154,7 +140,7 @@ export function AddressForm({ address, onSave, onCancel }: AddressFormProps) {
               <SelectValue placeholder="Select state" />
             </SelectTrigger>
             <SelectContent>
-              {US_STATES.map((state) => (
+              {INDIAN_STATES.map((state) => (
                 <SelectItem key={state.value} value={state.value}>
                   {state.label}
                 </SelectItem>
@@ -166,7 +152,7 @@ export function AddressForm({ address, onSave, onCancel }: AddressFormProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="zipCode">ZIP Code *</Label>
+          <Label htmlFor="zipCode">PIN Code *</Label>
           <Input
             id="zipCode"
             value={formData.zipCode}
@@ -175,8 +161,16 @@ export function AddressForm({ address, onSave, onCancel }: AddressFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="phone">Phone (Optional)</Label>
-          <Input id="phone" type="tel" value={formData.phone} onChange={(e) => handleChange("phone", e.target.value)} />
+          <Label htmlFor="phone">Phone *</Label>
+          <Input 
+            id="phone" 
+            type="tel" 
+            value={formData.phone} 
+            onChange={(e) => handleChange("phone", e.target.value)} 
+            pattern="[0-9]{10}"
+            title="Please enter a valid 10-digit phone number"
+            required
+          />
         </div>
       </div>
 

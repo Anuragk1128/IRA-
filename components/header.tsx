@@ -1,6 +1,7 @@
 "use client"
 
-import { ShoppingBag, User, Heart, Menu, LogOut } from "lucide-react"
+import { useState, useEffect } from "react"
+import { ShoppingBag, User, Heart, Menu, LogOut, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SearchBar } from "@/components/search/search-bar"
 import { useAuth } from "@/contexts/auth-context"
@@ -15,19 +16,48 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 export function Header() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { user, isAuthenticated, signOut } = useAuth()
   const { cart } = useCart()
   const { wishlist } = useWishlist()
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setIsMobileMenuOpen(false)
+    }
+    
+    window.addEventListener('routeChangeComplete', handleRouteChange)
+    return () => {
+      window.removeEventListener('routeChangeComplete', handleRouteChange)
+    }
+  }, [])
+
+  // Navigation links data
+  const navLinks = [
+    { href: "/categories", label: "Collections" },
+    { href: "/categories/rings", label: "Rings" },
+    { href: "/categories/necklaces", label: "Necklaces" },
+    { href: "/categories/earrings", label: "Earrings" },
+    { href: "/categories/bracelets", label: "Bracelets" },
+  ]
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Mobile menu button */}
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <Menu className="h-5 w-5" />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="md:hidden"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+          >
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
 
           {/* Logo */}
@@ -38,27 +68,29 @@ export function Header() {
             <span className="font-elegant text-xl font-semibold text-gradient">IRA Jewelry</span>
           </Link>
 
-          {/* Navigation - Hidden on mobile */}
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/categories" className="text-sm font-medium hover:text-primary transition-colors">
-              Collections
-            </Link>
-            <Link href="/categories/rings" className="text-sm font-medium hover:text-primary transition-colors">
-              Rings
-            </Link>
-            <Link href="/categories/necklaces" className="text-sm font-medium hover:text-primary transition-colors">
-              Necklaces
-            </Link>
-            <Link href="/categories/earrings" className="text-sm font-medium hover:text-primary transition-colors">
-              Earrings
-            </Link>
-            <Link href="/categories/bracelets" className="text-sm font-medium hover:text-primary transition-colors">
-              Bracelets
-            </Link>
+            {navLinks.map((link) => (
+              <Link 
+                key={link.href} 
+                href={link.href} 
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
 
           {/* Search bar - Hidden on mobile */}
           <div className="hidden md:flex items-center space-x-2 flex-1 max-w-sm mx-8">
+            <SearchBar />
+          </div>
+          
+          {/* Mobile Search - Only visible when menu is open */}
+          <div className={cn(
+            "md:hidden w-full px-4 py-3 bg-background border-b border-border",
+            isMobileMenuOpen ? 'block' : 'hidden'
+          )}>
             <SearchBar />
           </div>
 
@@ -124,6 +156,65 @@ export function Header() {
                 </span>
               )}
             </Button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        <div className={cn(
+          "md:hidden fixed inset-0 bg-background z-50 transition-all duration-300 ease-in-out transform border-t border-border",
+          isMobileMenuOpen 
+            ? "translate-y-16 opacity-100 visible" 
+            : "-translate-y-full opacity-0 invisible"
+        )}>
+          {/* Overlay to prevent interaction with content behind */}
+          <div className="absolute inset-0 bg-background/95 -z-10" />
+          <div className="container mx-auto px-0 py-2">
+            
+            {/* Mobile Navigation */}
+            <nav className="flex flex-col space-y-1">
+              {navLinks.map((link) => (
+                <Link 
+                  key={link.href} 
+                  href={link.href}
+                  className="px-4 py-3 text-lg font-medium hover:bg-accent/10 rounded-md transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              
+              {isAuthenticated ? (
+                <>
+                  <Link 
+                    href="/account" 
+                    className="px-4 py-3 text-lg font-medium hover:bg-accent/10 rounded-md transition-colors flex items-center gap-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <User className="h-5 w-5" />
+                    My Account
+                  </Link>
+                  <button
+                    onClick={() => {
+                      signOut()
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className="px-4 py-3 text-lg font-medium hover:bg-accent/10 rounded-md transition-colors text-left flex items-center gap-2 w-full"
+                  >
+                    <LogOut className="h-5 w-5" />
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link 
+                  href="/login" 
+                  className="px-4 py-3 text-lg font-medium hover:bg-accent/10 rounded-md transition-colors flex items-center gap-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <User className="h-5 w-5" />
+                  Sign In
+                </Link>
+              )}
+            </nav>
           </div>
         </div>
       </div>
