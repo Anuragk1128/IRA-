@@ -1,69 +1,93 @@
-import { Button } from "@/components/ui/button"
-import { ArrowRight, Sparkles } from "lucide-react"
+"use client"
+
+import { useEffect, useState } from 'react';
+
+const heroImages = [
+  {
+    src: "/hero.jpg",
+    alt: "Elegant jewelry collection",
+    position: "center 70%"
+  },
+  {
+    src: "/hero2.jpeg",
+    alt: "Elegant gold necklace",
+    position: "center 60%"
+  },
+  {
+    src: "/hero3.jpeg",
+    alt: "Elegant gold rings",
+    position: "center 50%"
+  },
+  {
+    src: "/hero4.jpeg",
+    alt: "Elegant gold bracelets",
+    position: "center 60%"
+  }
+];
 
 export function HeroSection() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentImageIndex((prevIndex) => 
+          prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
+        );
+        setIsTransitioning(false);
+      }, 500); // Half of the transition duration
+    }, 5000); // Change image every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-background via-muted/30 to-secondary/50">
-      <div className="container mx-auto px-4 py-20 md:py-32">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Content */}
-          <div className="space-y-8">
-            <div className="inline-flex items-center space-x-2 bg-accent/10 text-accent px-4 py-2 rounded-full text-sm font-medium">
-              <Sparkles className="h-4 w-4" />
-              <span>New Collection Available</span>
-            </div>
-
-            <div className="space-y-4">
-              <h1 className="text-4xl md:text-6xl font-elegant font-bold leading-tight">
-                Elegance
-                <span className="block text-gradient">Redefined</span>
-              </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed">
-                Discover our exquisite collection of artificial jewelry that brings luxury within reach. Every piece
-                tells a story of craftsmanship and style.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="group">
-                Shop Collection
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Button>
-              <Button variant="outline" size="lg">
-                View Lookbook
-              </Button>
-            </div>
-
-            {/* Stats */}
-            <div className="flex items-center space-x-8 pt-8 border-t border-border/50">
-              <div>
-                <div className="text-2xl font-bold text-primary">10K+</div>
-                <div className="text-sm text-muted-foreground">Happy Customers</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-primary">500+</div>
-                <div className="text-sm text-muted-foreground">Unique Designs</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-primary">4.9★</div>
-                <div className="text-sm text-muted-foreground">Customer Rating</div>
-              </div>
-            </div>
+    <section className="relative w-full h-screen max-h-[120vh] overflow-hidden">
+      <div className="relative w-full h-full">
+        {heroImages.map((image, index) => (
+          <div 
+            key={index}
+            className={`absolute inset-0 transition-opacity duration-1000 ${
+              index === currentImageIndex ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
+          >
+            <img
+              src={image.src}
+              alt={image.alt}
+              className="w-full h-full object-cover"
+              style={{
+                objectPosition: image.position,
+                width: '100%',
+                height: '100%',
+              }}
+              loading={index === 0 ? 'eager' : 'lazy'}
+              width={1920}
+              height={2560}
+              sizes="100vw"
+            />
+            <div 
+              className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"
+              aria-hidden="true"
+            />
           </div>
-
-          {/* Hero Image */}
-          <div className="relative">
-            <div className="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-muted to-secondary/50 p-8">
-              <img
-                src="/elegant-woman-jewelry.png"
-                alt="Elegant jewelry collection"
-                className="w-full h-full object-cover rounded-xl"
-              />
-            </div>
-            {/* Floating elements */}
-            <div className="absolute -top-4 -right-4 w-20 h-20 bg-accent/20 rounded-full blur-xl"></div>
-            <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-primary/20 rounded-full blur-xl"></div>
-          </div>
+        ))}
+        
+        {/* Navigation Dots */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+          {heroImages.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentImageIndex(index)}
+              className={`w-3 h-3 rounded-full transition-all ${
+                index === currentImageIndex 
+                  ? 'bg-white w-8' 
+                  : 'bg-white/50 hover:bg-white/75 w-3'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
         </div>
       </div>
     </section>

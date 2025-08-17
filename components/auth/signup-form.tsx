@@ -19,7 +19,6 @@ export function SignupForm() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    phone: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -39,17 +38,13 @@ export function SignupForm() {
     }))
   }
 
-  const validatePhone = (phone: string) => {
-    // Basic phone number validation (adjust the regex as needed)
-    const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
-    return phoneRegex.test(phone);
-  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Check for empty required fields
-    const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'password', 'confirmPassword'];
+    const requiredFields = ['firstName', 'lastName', 'email', 'password', 'confirmPassword'];
     const emptyFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
 
     if (emptyFields.length > 0) {
@@ -61,14 +56,7 @@ export function SignupForm() {
       return;
     }
 
-    if (!validatePhone(formData.phone)) {
-      toast({
-        title: "Invalid phone number",
-        description: "Please enter a valid phone number.",
-        variant: "destructive",
-      });
-      return;
-    }
+
 
     if (formData.password !== formData.confirmPassword) {
       toast({
@@ -102,7 +90,6 @@ export function SignupForm() {
     try {
       const { user, token } = await signUp({
         email: formData.email,
-        phone: formData.phone,
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -170,20 +157,7 @@ export function SignupForm() {
             required
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="phone">Phone</Label>
-          <Input
-            id="phone"
-            name="phone"
-            type="tel"
-            placeholder="Enter your phone number (e.g., +1234567890)"
-            value={formData.phone}
-            onChange={handleChange}
-            required
-            pattern="[\+]{0,1}[0-9]{1,4}[\s\-]?[0-9]{6,15}"
-            title="Please enter a valid phone number (e.g., +1234567890 or 123-456-7890)"
-          />  
-        </div>
+       
 
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>

@@ -20,7 +20,7 @@ const mockUser: User = {
       city: "New York",
       state: "NY",
       zipCode: "10001",
-      country: "United States",
+      country: "India",
       isDefault: true,
     },
   ],
@@ -95,7 +95,7 @@ export async function signUp(data: {
   password: string
   firstName: string
   lastName: string
-  phone: string
+  phone?: string
 }): Promise<{ user: User; token: string }> {
   try {
     console.log('Sending registration request with:', { email: data.email });
@@ -104,12 +104,11 @@ export async function signUp(data: {
       headers: {
         'Content-Type': 'application/json',
         'accept': 'application/json'
+
       },
       body: JSON.stringify({
-        firstName: data.firstName,
-        lastName: data.lastName,
+        name: `${data.firstName} ${data.lastName}`.trim(),
         email: data.email,
-        phone: data.phone,
         password: data.password
       })
     });
@@ -118,6 +117,9 @@ export async function signUp(data: {
     console.log('Registration API Response:', JSON.stringify(responseData, null, 2));
 
     if (!response.ok) {
+      if (response.status === 400 && responseData.error?.includes('Duplicate')) {
+        throw new Error('This email is already registered. Please use a different email or sign in.');
+      }
       throw new Error(responseData.error || 'Failed to register');
     }
 
@@ -131,7 +133,7 @@ export async function signUp(data: {
       email: data.email,
       firstName: data.firstName,
       lastName: data.lastName,
-      phone: data.phone,
+phone: data.phone || '',
       dateOfBirth: '',
       avatar: '/placeholder.svg?height=100&width=100',
       addresses: [],
