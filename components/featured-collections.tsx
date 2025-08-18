@@ -25,38 +25,38 @@ const collections = [
 
 export function FeaturedCollections() {
   return (
-    <section className="py-20 bg-muted/30">
+    <section className="py-14 md:py-16 bg-muted/30">
       <div className="container mx-auto px-4">
-        <div className="text-center space-y-4 mb-16">
-          <h2 className="text-3xl md:text-4xl font-elegant font-bold">
+        <div className="text-center space-y-3 mb-10 md:mb-14">
+          <h2 className="text-2xl md:text-4xl font-elegant font-bold">
             Curated <span className="text-gradient">Collections</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
             Each collection is thoughtfully designed to complement your unique style and personality
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5">
           {collections.map((collection, index) => (
             <Card
               key={index}
-              className="group overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-card/50 backdrop-blur"
+              className="group overflow-hidden rounded-xl border border-border/50 hover:border-primary/30 shadow-sm hover:shadow-md transition-all duration-300 bg-card/60 backdrop-blur"
             >
               <CardContent className="p-0">
-                <div className="aspect-[3/4] overflow-hidden">
+                <div className="aspect-[4/5] overflow-hidden">
                   <img
                     src={collection.image || "/placeholder.svg"}
                     alt={collection.title}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                   />
                 </div>
-                <div className="p-6 space-y-4">
+                <div className="p-4 space-y-3">
                   <div>
-                    <h3 className="text-xl font-elegant font-semibold mb-2">{collection.title}</h3>
-                    <p className="text-muted-foreground text-sm mb-3">{collection.description}</p>
-                    <p className="text-xs text-accent font-medium">{collection.itemCount}</p>
+                    <h3 className="text-base md:text-lg font-elegant font-semibold mb-1.5">{collection.title}</h3>
+                    <p className="text-muted-foreground text-xs md:text-sm mb-2">{collection.description}</p>
+                    <p className="text-[11px] md:text-xs text-accent font-medium">{collection.itemCount}</p>
                   </div>
-                  <Button variant="ghost" className="w-full group/btn justify-between">
+                  <Button variant="ghost" size="sm" className="w-full group/btn justify-between">
                     Explore Collection
                     <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                   </Button>

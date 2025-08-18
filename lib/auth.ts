@@ -1,44 +1,51 @@
-import type { User } from "@/types/user"
+import type { User, Address, UserPreferences } from "@/types/user"
 
-// Mock user data for demonstration
-const mockUser: User = {
-  id: "1",
-  email: "sarah.johnson@example.com",
-  firstName: "Sarah",
-  lastName: "Johnson",
-  phone: "+1 (555) 123-4567",
-  dateOfBirth: "1990-05-15",
-  avatar: "/placeholder.svg?height=100&width=100",
-  addresses: [
-    {
-      id: "1",
-      type: "shipping",
-      firstName: "Sarah",
-      lastName: "Johnson",
-      address1: "123 Main Street",
-      address2: "Apt 4B",
-      city: "New York",
-      state: "NY",
-      zipCode: "10001",
-      country: "India",
-      isDefault: true,
-    },
-  ],
-  preferences: {
-    emailNotifications: true,
-    smsNotifications: false,
-    marketingEmails: true,
-    currency: "USD",
-    language: "en",
-  },
-  createdAt: "2023-01-15T10:30:00Z",
-  updatedAt: "2024-01-15T10:30:00Z",
+// Helper to map API user to our User type safely
+function mapApiUserToUser(apiUser: any): User {
+  const addresses: Address[] = Array.isArray(apiUser?.addresses)
+    ? apiUser.addresses.map((a: any) => ({
+        id: String(a.id ?? ""),
+        type: (a.type === "billing" ? "billing" : "shipping") as Address["type"],
+        firstName: String(a.firstName ?? ""),
+        lastName: String(a.lastName ?? ""),
+        company: a.company ? String(a.company) : undefined,
+        address1: String(a.address1 ?? ""),
+        address2: a.address2 ? String(a.address2) : undefined,
+        city: String(a.city ?? ""),
+        state: String(a.state ?? ""),
+        zipCode: String(a.zipCode ?? ""),
+        country: String(a.country ?? ""),
+        isDefault: Boolean(a.isDefault),
+      }))
+    : []
+
+  const preferences: UserPreferences = {
+    emailNotifications: Boolean(apiUser?.preferences?.emailNotifications ?? true),
+    smsNotifications: Boolean(apiUser?.preferences?.smsNotifications ?? false),
+    marketingEmails: Boolean(apiUser?.preferences?.marketingEmails ?? true),
+    currency: String(apiUser?.preferences?.currency ?? "USD"),
+    language: String(apiUser?.preferences?.language ?? "en"),
+  }
+
+  return {
+    id: String(apiUser?.id ?? ""),
+    email: String(apiUser?.email ?? ""),
+    firstName: String(apiUser?.firstName ?? ""),
+    lastName: String(apiUser?.lastName ?? ""),
+    phone: apiUser?.phone ? String(apiUser.phone) : undefined,
+    dateOfBirth: apiUser?.dateOfBirth ? String(apiUser.dateOfBirth) : undefined,
+    avatar: apiUser?.avatar ? String(apiUser.avatar) : undefined,
+    addresses,
+    preferences,
+    createdAt: String(apiUser?.createdAt ?? new Date().toISOString()),
+    updatedAt: String(apiUser?.updatedAt ?? new Date().toISOString()),
+  }
 }
 
 export async function signIn(email: string, password: string): Promise<{ user: User; token: string }> {
   try {
     console.log('Sending login request with:', { email });
-    const response = await fetch('http://localhost:5000/api/v1/users/login', {
+    const response = await fetch('http://localhost:5000/api/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -51,39 +58,16 @@ export async function signIn(email: string, password: string): Promise<{ user: U
     console.log('API Response:', JSON.stringify(data, null, 2));
 
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to sign in');
+      throw new Error(data.message || data.error || 'Failed to sign in');
     }
 
     if (!data.token) {
       throw new Error('No token received in the response');
     }
 
-    // Since the API only returns a token, we'll create a minimal user object
-    // You might want to fetch the user profile in a separate API call
-    const user: User = {
-      id: 'temp-id', // This will be updated after we fetch the user profile
-      email,
-      firstName: email.split('@')[0],
-      lastName: '',
-      phone: '',
-      dateOfBirth: '',
-      avatar: '/placeholder.svg?height=100&width=100',
-      addresses: [],
-      preferences: {
-        emailNotifications: true,
-        smsNotifications: false,
-        marketingEmails: true,
-        currency: 'USD',
-        language: 'en',
-      },
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    const user: User = mapApiUserToUser(data.user ?? {});
 
-    return {
-      user,
-      token: data.token
-    };
+    return { user, token: data.token };
   } catch (error) {
     console.error('Sign in error:', error);
     throw new Error(error instanceof Error ? error.message : 'Failed to sign in');
@@ -96,10 +80,14 @@ export async function signUp(data: {
   firstName: string
   lastName: string
   phone?: string
+  dateOfBirth?: string
+  avatar?: string
+  addresses?: Address[]
+  preferences?: Partial<UserPreferences>
 }): Promise<{ user: User; token: string }> {
   try {
     console.log('Sending registration request with:', { email: data.email });
-    const response = await fetch('http://localhost:5000/api/v1/users/register', {
+    const response = await fetch('http://localhost:5000/api/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -107,9 +95,21 @@ export async function signUp(data: {
 
       },
       body: JSON.stringify({
-        name: `${data.firstName} ${data.lastName}`.trim(),
         email: data.email,
-        password: data.password
+        password: data.password,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone ?? "",
+        dateOfBirth: data.dateOfBirth ?? "",
+        avatar: data.avatar ?? "",
+        addresses: Array.isArray(data.addresses) ? data.addresses : [],
+        preferences: {
+          emailNotifications: data.preferences?.emailNotifications ?? true,
+          smsNotifications: data.preferences?.smsNotifications ?? true,
+          marketingEmails: data.preferences?.marketingEmails ?? true,
+          currency: data.preferences?.currency ?? 'USD',
+          language: data.preferences?.language ?? 'en',
+        },
       })
     });
 
@@ -120,38 +120,16 @@ export async function signUp(data: {
       if (response.status === 400 && responseData.error?.includes('Duplicate')) {
         throw new Error('This email is already registered. Please use a different email or sign in.');
       }
-      throw new Error(responseData.error || 'Failed to register');
+      throw new Error(responseData.message || responseData.error || 'Failed to register');
     }
 
     if (!responseData.token) {
       throw new Error('No token received in the response');
     }
 
-    // Create a minimal user object with the available data
-    const user: User = {
-      id: 'temp-id', // Will be updated after fetching user profile
-      email: data.email,
-      firstName: data.firstName,
-      lastName: data.lastName,
-phone: data.phone || '',
-      dateOfBirth: '',
-      avatar: '/placeholder.svg?height=100&width=100',
-      addresses: [],
-      preferences: {
-        emailNotifications: true,
-        smsNotifications: false,
-        marketingEmails: true,
-        currency: 'USD',
-        language: 'en',
-      },
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    const user: User = mapApiUserToUser(responseData.user ?? {});
 
-    return {
-      user,
-      token: responseData.token
-    };
+    return { user, token: responseData.token };
   } catch (error) {
     console.error('Registration error:', error);
     throw new Error(error instanceof Error ? error.message : 'Failed to register');
@@ -159,17 +137,16 @@ phone: data.phone || '',
 }
 
 export async function signOut(): Promise<void> {
-  // Simulate API call
-  await new Promise((resolve) => setTimeout(resolve, 500))
+  // Optionally call your backend to invalidate refresh tokens if applicable
+  await new Promise((resolve) => setTimeout(resolve, 200))
 }
 
 export async function getCurrentUser(): Promise<User | null> {
-  // Simulate checking stored token and fetching user
-  const token = localStorage.getItem("auth-token")
+  // If you expose a profile endpoint, fetch it here using the stored token.
+  const token = typeof window !== 'undefined' ? localStorage.getItem("auth-token") : null
   if (!token) return null
-
-  await new Promise((resolve) => setTimeout(resolve, 500))
-  return mockUser
+  // No profile endpoint configured yet, so return null to require fresh login
+  return null
 }
 
 export function setAuthToken(token: string): void {

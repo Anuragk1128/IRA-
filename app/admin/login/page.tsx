@@ -98,12 +98,6 @@ export default function AdminLoginPage() {
               Sign In to Admin Panel
             </Button>
           </form>
-
-          <div className="mt-6 text-center text-xs text-muted-foreground">
-            <p>Demo admin credentials:</p>
-            <p>Email: admin@luxejewelry.com</p>
-            <p>Password: admin123</p>
-          </div>
         </CardContent>
       </Card>
     </div>

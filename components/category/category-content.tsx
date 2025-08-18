@@ -43,26 +43,26 @@ export function CategoryContent({ category }: CategoryContentProps) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Category Header */}
-      <div className="relative h-64 rounded-lg overflow-hidden">
+      <div className="relative h-56 md:h-64 rounded-xl overflow-hidden">
         <Image src={category.image || "/placeholder.svg"} alt={category.name} fill className="object-cover" />
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
           <div className="text-center text-white">
-            <h1 className="text-4xl font-elegant mb-2">{category.name}</h1>
-            <p className="text-lg">{category.description}</p>
+            <h1 className="text-3xl md:text-4xl font-elegant mb-1.5 leading-tight">{category.name}</h1>
+            <p className="text-base md:text-lg">{category.description}</p>
           </div>
         </div>
       </div>
 
       {/* Subcategories */}
       {category.subcategories && category.subcategories.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-medium">Shop by Style</h2>
-          <div className="flex flex-wrap gap-2">
+        <div className="space-y-3">
+          <h2 className="text-lg md:text-xl font-medium">Shop by Style</h2>
+          <div className="flex flex-wrap gap-1.5">
             <button
               onClick={() => setFilters((prev) => ({ ...prev, subcategory: undefined }))}
-              className={`px-4 py-2 rounded-full text-sm transition-colors ${
+              className={`px-3 py-1.5 rounded-full text-xs md:text-sm transition-colors ${
                 !filters.subcategory ? "bg-primary text-primary-foreground" : "bg-secondary hover:bg-secondary/80"
               }`}
             >
@@ -72,7 +72,7 @@ export function CategoryContent({ category }: CategoryContentProps) {
               <button
                 key={subcategory.id}
                 onClick={() => handleSubcategoryClick(subcategory.slug)}
-                className={`px-4 py-2 rounded-full text-sm transition-colors ${
+                className={`px-3 py-1.5 rounded-full text-xs md:text-sm transition-colors ${
                   filters.subcategory === subcategory.slug
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary hover:bg-secondary/80"
@@ -85,7 +85,7 @@ export function CategoryContent({ category }: CategoryContentProps) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Filters Sidebar */}
         <div className="lg:col-span-1">
           <SearchFilters

@@ -9,6 +9,7 @@ import { getProducts } from "@/lib/products"
 import type { Product } from "@/types/product"
 import { Plus, Search, Edit, Trash2, Eye } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 
 export default function AdminProducts() {
   const [products] = useState<Product[]>(getProducts())
@@ -27,10 +28,12 @@ export default function AdminProducts() {
           <h1 className="text-3xl font-bold text-gray-900">Products</h1>
           <p className="text-gray-600 mt-2">Manage your jewelry inventory</p>
         </div>
-        <Button className="bg-rose-600 hover:bg-rose-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Product
-        </Button>
+        <Link href="/admin/products/new">
+          <Button className="bg-rose-600 hover:bg-rose-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Product
+          </Button>
+        </Link>
       </div>
 
       {/* Search and Filters */}

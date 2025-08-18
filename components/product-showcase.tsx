@@ -51,69 +51,69 @@ const products = [
 
 export function ProductShowcase() {
   return (
-    <section className="py-20">
+    <section className="py-12 md:py-16">
       <div className="container mx-auto px-4">
-        <div className="text-center space-y-4 mb-16">
+        <div className="text-center space-y-3 mb-10 md:mb-14">
           <h2 className="text-3xl md:text-4xl font-elegant font-bold">
             Bestselling <span className="text-gradient">Pieces</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
             Discover why these stunning pieces are loved by thousands of customers worldwide
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
           {products.map((product) => (
             <Card
               key={product.id}
-              className="group overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-card"
+              className="group overflow-hidden rounded-lg border border-border/50 hover:border-primary/30 shadow-sm hover:shadow-md transition-all duration-300 bg-card"
             >
               <CardContent className="p-0">
-                <div className="relative aspect-[3/4] overflow-hidden">
+                <div className="relative aspect-[5/6] overflow-hidden">
                   <img
                     src={product.image || "/placeholder.svg"}
                     alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                   />
 
                   {/* Badges */}
-                  <div className="absolute top-3 left-3 flex flex-col gap-2">
+                  <div className="absolute top-2 left-2 flex flex-col gap-1.5">
                     {product.isNew && (
-                      <span className="bg-accent text-accent-foreground text-xs px-2 py-1 rounded-full font-medium">
+                      <span className="bg-accent text-accent-foreground text-[11px] px-1.5 py-0.5 rounded-full font-medium">
                         New
                       </span>
                     )}
                   </div>
 
                   {/* Action buttons */}
-                  <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute top-1.5 right-1.5 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                       size="icon"
                       variant="secondary"
-                      className={`h-8 w-8 ${product.isFavorite ? "text-red-500" : ""}`}
+                      className={`h-6 w-6 ${product.isFavorite ? "text-red-500" : ""}`}
                     >
-                      <Heart className="h-4 w-4" fill={product.isFavorite ? "currentColor" : "none"} />
+                      <Heart className="h-3 w-3" fill={product.isFavorite ? "currentColor" : "none"} />
                     </Button>
-                    <Button size="icon" variant="secondary" className="h-8 w-8">
-                      <ShoppingBag className="h-4 w-4" />
+                    <Button size="icon" variant="secondary" className="h-6 w-6">
+                      <ShoppingBag className="h-3 w-3" />
                     </Button>
                   </div>
 
                   {/* Quick add button */}
-                  <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button size="sm" className="w-full">
+                  <div className="absolute bottom-1.5 left-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button size="sm" className="w-full h-7 text-[13px]">
                       Quick Add
                     </Button>
                   </div>
                 </div>
 
-                <div className="p-4 space-y-3">
+                <div className="p-2.5 space-y-1.5">
                   <div>
-                    <h3 className="font-medium text-sm mb-1 line-clamp-2">{product.name}</h3>
-                    <div className="flex items-center gap-1 mb-2">
+                    <h3 className="font-medium text-[12px] md:text-[13px] mb-0.5 line-clamp-2 leading-snug">{product.name}</h3>
+                    <div className="flex items-center gap-1 mb-1">
                       <div className="flex items-center">
                         <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                        <span className="text-xs text-muted-foreground ml-1">
+                        <span className="text-[10px] md:text-[11px] text-muted-foreground ml-1">
                           {product.rating} ({product.reviews})
                         </span>
                       </div>
@@ -121,9 +121,9 @@ export function ProductShowcase() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-primary">${product.price}</span>
-                    <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                    <span className="text-[13px] md:text-sm font-bold text-primary">${product.price}</span>
+                    <span className="text-[10px] md:text-[11px] text-muted-foreground line-through">${product.originalPrice}</span>
+                    <span className="text-[9px] md:text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
                       {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% off
                     </span>
                   </div>
@@ -133,7 +133,7 @@ export function ProductShowcase() {
           ))}
         </div>
 
-        <div className="text-center mt-12">
+        <div className="text-center mt-10 md:mt-12">
           <Button variant="outline" size="lg">
             View All Products
           </Button>

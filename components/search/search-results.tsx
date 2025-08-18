@@ -23,22 +23,22 @@ export function SearchResults({ products, totalCount, appliedFilters, onSortChan
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3.5">
       {/* Results Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-medium">
+          <h2 className="text-base md:text-lg font-medium">
             {totalCount} {totalCount === 1 ? "Product" : "Products"} Found
           </h2>
           {appliedFilters.category && (
-            <p className="text-sm text-muted-foreground capitalize">in {appliedFilters.category.replace("-", " ")}</p>
+            <p className="text-xs md:text-sm text-muted-foreground capitalize">in {appliedFilters.category.replace("-", " ")}</p>
           )}
         </div>
 
         <div className="flex items-center gap-2">
           {/* Sort Dropdown */}
           <Select value={appliedFilters.sortBy || "name"} onValueChange={handleSortChange}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-40 md:w-48">
               <SortAsc className="h-4 w-4 mr-2" />
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
@@ -81,22 +81,22 @@ export function SearchResults({ products, totalCount, appliedFilters, onSortChan
           <p className="text-sm text-muted-foreground">Try adjusting your filters or search terms.</p>
         </div>
       ) : viewMode === "grid" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           {products.map((product) => (
-            <div key={product.id} className="border rounded-lg p-4">
-              <div className="flex gap-4">
+            <div key={product.id} className="border rounded-lg p-3.5">
+              <div className="flex gap-3.5">
                 <div className="w-24 h-24 bg-muted rounded-lg flex-shrink-0"></div>
                 <div className="flex-1">
-                  <h3 className="font-medium">{product.name}</h3>
+                  <h3 className="font-medium leading-snug">{product.name}</h3>
                   <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="font-semibold">${product.price}</span>
+                  <div className="flex items-center justify-between mt-1.5">
+                    <span className="font-semibold text-sm md:text-base">${product.price}</span>
                     <Button size="sm">Add to Cart</Button>
                   </div>
                 </div>
