@@ -16,10 +16,19 @@ export interface SalesData {
 export interface AdminUser {
   id: string
   email: string
+  firstName: string
+  lastName: string
   role: "admin" | "manager" | "staff"
-  name: string
+  permissions: string[]
+  avatar?: string
+  createdAt: string
   lastLogin: string
-  status: "active" | "inactive"
+}
+
+export interface AdminAuthState {
+  adminUser: AdminUser | null
+  isAdminAuthenticated: boolean
+  isLoading: boolean
 }
 
 export interface ProductFormData {
@@ -37,3 +46,4 @@ export interface ProductFormData {
   featured: boolean
   tags: string[]
 }
+
