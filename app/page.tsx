@@ -3,6 +3,7 @@ import { HeroSection } from "@/components/hero-section"
 import { FeaturedCollections } from "@/components/featured-collections"
 import { ProductShowcase } from "@/components/product-showcase"
 import { Footer } from "@/components/footer"
+import { Reels } from "@/components/reels"
 
 export default function HomePage() {
   return (
@@ -11,6 +12,7 @@ export default function HomePage() {
       <main>
         <HeroSection />
         <FeaturedCollections />
+        <Reels />
         <ProductShowcase />
       </main>
       <Footer />

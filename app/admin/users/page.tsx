@@ -1,92 +1,84 @@
 "use client"
 
-import { useState } from "react"
-import { Search, MoreHorizontal, UserPlus, Mail, Phone, Calendar, Shield, Ban } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react"
+import { Search, Mail, Phone, Calendar } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-// Mock user data
-const users = [
-  {
-    id: "1",
-    name: "Sarah Johnson",
-    email: "sarah.johnson@email.com",
-    phone: "+1 (555) 123-4567",
-    avatar: "/placeholder.svg?height=40&width=40",
-    status: "active",
-    role: "customer",
-    joinDate: "2024-01-15",
-    orders: 12,
-    totalSpent: 2450.0,
-    lastActive: "2024-01-20",
-  },
-  {
-    id: "2",
-    name: "Michael Chen",
-    email: "michael.chen@email.com",
-    phone: "+1 (555) 234-5678",
-    avatar: "/placeholder.svg?height=40&width=40",
-    status: "active",
-    role: "customer",
-    joinDate: "2024-01-10",
-    orders: 8,
-    totalSpent: 1890.0,
-    lastActive: "2024-01-19",
-  },
-  {
-    id: "3",
-    name: "Emma Wilson",
-    email: "emma.wilson@email.com",
-    phone: "+1 (555) 345-6789",
-    avatar: "/placeholder.svg?height=40&width=40",
-    status: "inactive",
-    role: "customer",
-    joinDate: "2023-12-20",
-    orders: 3,
-    totalSpent: 567.0,
-    lastActive: "2024-01-05",
-  },
-  {
-    id: "4",
-    name: "Admin User",
-    email: "admin@jewelrystore.com",
-    phone: "+1 (555) 456-7890",
-    avatar: "/placeholder.svg?height=40&width=40",
-    status: "active",
-    role: "admin",
-    joinDate: "2023-11-01",
-    orders: 0,
-    totalSpent: 0,
-    lastActive: "2024-01-20",
-  },
-]
+import type { User } from "@/types/user"
+import { useToast } from "@/hooks/use-toast"
+import { getAdminAuthToken } from "@/lib/admin-auth"
+
+// API base resolves from env or defaults to backend
+const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL || "https://ira-be.onrender.com/api").replace(/\/$/, "")
 
 export default function UsersPage() {
+  const { toast } = useToast()
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [roleFilter, setRoleFilter] = useState("all")
 
   const filteredUsers = users.filter((user) => {
+    const fullName = `${user.firstName || ""} ${user.lastName || ""}`.trim()
     const matchesSearch =
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === "all" || user.status === statusFilter
-    const matchesRole = roleFilter === "all" || user.role === roleFilter
-
+    // Derive effective role from backend when available; default to 'customer'
+    const effectiveRole = String(((user as any).role ?? "customer")).toLowerCase()
+    const matchesStatus = statusFilter === "all"
+    const matchesRole = roleFilter === "all" || effectiveRole === roleFilter
     return matchesSearch && matchesStatus && matchesRole
   })
+
+  // Build dynamic list of roles from backend (fallback to 'customer' if missing)
+  const availableRoles = Array.from(
+    new Set(
+      users
+        .map((u) => ((u as any).role as string) || "customer")
+        .map((r) => r.toLowerCase())
+    )
+  )
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const token = getAdminAuthToken()
+        if (!token) throw new Error("Not authenticated. Please login as admin.")
+        const res = await fetch(`${API_BASE}/admin/users`, {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          cache: "no-store",
+        })
+        if (!res.ok) {
+          let msg = `Failed to fetch users (${res.status})`
+          try {
+            const data = await res.json()
+            msg = data?.message || data?.error || msg
+          } catch {}
+          throw new Error(msg)
+        }
+        const data = await res.json()
+        const list: User[] = Array.isArray(data) ? (data as User[]) : (data?.users as User[]) || []
+        setUsers(list)
+      } catch (err) {
+        toast({
+          title: "Could not load users",
+          description: err instanceof Error ? err.message : "",
+          variant: "destructive",
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchUsers()
+  }, [toast])
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -117,12 +109,8 @@ export default function UsersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-600">Manage customer accounts and permissions</p>
+          <p className="text-gray-600">View all customer accounts</p>
         </div>
-        <Button className="bg-rose-600 hover:bg-rose-700">
-          <UserPlus className="w-4 h-4 mr-2" />
-          Add User
-        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -133,7 +121,7 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{users.length}</div>
-            <p className="text-xs text-green-600">+12% from last month</p>
+            <p className="text-xs text-muted-foreground">&nbsp;</p>
           </CardContent>
         </Card>
         <Card>
@@ -141,8 +129,8 @@ export default function UsersPage() {
             <CardTitle className="text-sm font-medium text-gray-600">Active Users</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{users.filter((u) => u.status === "active").length}</div>
-            <p className="text-xs text-green-600">+8% from last month</p>
+            <div className="text-2xl font-bold">{users.length}</div>
+            <p className="text-xs text-muted-foreground">&nbsp;</p>
           </CardContent>
         </Card>
         <Card>
@@ -150,8 +138,8 @@ export default function UsersPage() {
             <CardTitle className="text-sm font-medium text-gray-600">New This Month</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2</div>
-            <p className="text-xs text-blue-600">January 2024</p>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">&nbsp;</p>
           </CardContent>
         </Card>
         <Card>
@@ -159,8 +147,8 @@ export default function UsersPage() {
             <CardTitle className="text-sm font-medium text-gray-600">Admin Users</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{users.filter((u) => u.role === "admin").length}</div>
-            <p className="text-xs text-gray-600">System administrators</p>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">System administrators</p>
           </CardContent>
         </Card>
       </div>
@@ -168,7 +156,7 @@ export default function UsersPage() {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle>Users</CardTitle>
+          <CardTitle>Users {loading ? "(loading...)" : `(${filteredUsers.length})`}</CardTitle>
           <CardDescription>A list of all users in your system</CardDescription>
         </CardHeader>
         <CardContent>
@@ -199,14 +187,20 @@ export default function UsersPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Roles</SelectItem>
-                <SelectItem value="customer">Customer</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
+                {availableRoles.map((role) => (
+                  <SelectItem key={role} value={role} className="capitalize">
+                    {role}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
           {/* Users Table */}
           <div className="space-y-4">
+            {!loading && filteredUsers.length === 0 && (
+              <div className="py-8 text-center text-sm text-muted-foreground">No users found.</div>
+            )}
             {filteredUsers.map((user) => (
               <div
                 key={user.id}
@@ -214,19 +208,20 @@ export default function UsersPage() {
               >
                 <div className="flex items-center space-x-4">
                   <Avatar>
-                    <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                    <AvatarImage src={user.avatar || "/placeholder.svg"} alt={`${user.firstName} ${user.lastName}`} />
                     <AvatarFallback>
-                      {user.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
+                      {`${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}` || "U"}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-medium text-gray-900">{user.name}</h3>
-                      <Badge className={getRoleColor(user.role)}>{user.role}</Badge>
-                      <Badge className={getStatusColor(user.status)}>{user.status}</Badge>
+                      <h3 className="font-medium text-gray-900">{`${user.firstName} ${user.lastName}`.trim()}</h3>
+                      {/* Show effective role if provided by backend; default to 'customer' */}
+                      {(() => {
+                        const effectiveRole = String(((user as any).role ?? "customer")).toLowerCase()
+                        return <Badge className={getRoleColor(effectiveRole)}>{effectiveRole}</Badge>
+                      })()}
+                      <Badge className={getStatusColor("active")}>active</Badge>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
                       <span className="flex items-center gap-1">
@@ -235,47 +230,16 @@ export default function UsersPage() {
                       </span>
                       <span className="flex items-center gap-1">
                         <Phone className="w-3 h-3" />
-                        {user.phone}
+                        {user.phone || "-"}
                       </span>
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        Joined {user.joinDate}
+                        Joined {new Date(user.createdAt).toLocaleDateString()}
                       </span>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right text-sm">
-                    <div className="font-medium">{user.orders} orders</div>
-                    <div className="text-gray-600">${user.totalSpent.toFixed(2)} spent</div>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem>View Profile</DropdownMenuItem>
-                      <DropdownMenuItem>View Orders</DropdownMenuItem>
-                      <DropdownMenuItem>Send Email</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      {user.role !== "admin" && (
-                        <>
-                          <DropdownMenuItem>
-                            <Shield className="w-4 h-4 mr-2" />
-                            Make Admin
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
-                            <Ban className="w-4 h-4 mr-2" />
-                            Ban User
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                {/* View-only: no actions on the right side */}
               </div>
             ))}
           </div>
