@@ -2,7 +2,7 @@ import type { User, Address, UserPreferences } from "@/types/user"
 
 // Public API base URL (include trailing /api if your env provides it)
 const API_BASE =
-  (process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://localhost:5000/api").replace(/\/$/, "")
+  (process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "https://ira-be.onrender.com/api").replace(/\/$/, "")
 
 // Helper to map API user to our User type safely
 function mapApiUserToUser(apiUser: any): User {

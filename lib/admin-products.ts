@@ -4,7 +4,7 @@ import type { CreateProductInput, Product } from "@/types/product"
 // Ensure API base comes from env and ends without trailing slash.
 // Expect env to include /api (e.g., https://ira-be.onrender.com/api)
 const API_BASE = (
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://localhost:5000/api"
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "https://ira-be.onrender.com/api"
 ).replace(/\/$/, "")
 
 export async function createProduct(input: CreateProductInput): Promise<Product> {
