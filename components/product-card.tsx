@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge"
 import { useWishlist } from "@/contexts/wishlist-context"
 import { useToast } from "@/hooks/use-toast"
 import type { Product } from "@/types/product"
-import { AddToCartButton } from "@/components/product/add-to-cart-button"
 
 interface ProductCardProps {
   product: Product
@@ -23,6 +22,26 @@ export function ProductCard({ product }: ProductCardProps) {
   const discountPercentage = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!product.inStock) {
+      toast({
+        title: "Out of stock",
+        description: "This item is currently out of stock.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    addToCart(product)
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+    })
+  }
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -85,13 +104,10 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         <div className="flex gap-2 mt-2.5">
-          <AddToCartButton
-            className="flex-1"
-            size="sm"
-            productId={product.id}
-            productName={product.name}
-            inStock={product.inStock}
-          />
+          <Button className="flex-1" size="sm" onClick={handleAddToCart} disabled={!product.inStock}>
+            <ShoppingCart className="h-4 w-4 mr-1.5" />
+            {isInCart(product.id) ? "In Cart" : "Add to Cart"}
+          </Button>
           <Button
             variant="outline"
             size="sm"

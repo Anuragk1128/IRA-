@@ -2,9 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Heart, Star } from "lucide-react"
-import Link from "next/link"
-import { AddToCartButton } from "@/components/product/add-to-cart-button"
+import { Heart, ShoppingBag, Star } from "lucide-react"
 
 const products = [
   {
@@ -54,6 +52,7 @@ const products = [
 ]
 
 export function ProductShowcase() {
+  const { toast } = useToast()
   return (
     <section className="py-12 md:py-16">
       <div className="container mx-auto px-4">
@@ -102,31 +101,16 @@ export function ProductShowcase() {
                     >
                       <Heart className="h-3 w-3" fill={product.isFavorite ? "currentColor" : "none"} />
                     </Button>
-                    <AddToCartButton
-                      size="icon"
-                      variant="secondary"
-                      className="h-6 w-6"
-                      productId={product.id}
-                      productName={product.name}
-                      inStock={true}
-                    />
+                    <Button size="icon" variant="secondary" className="h-6 w-6">
+                      <ShoppingBag className="h-3 w-3" />
+                    </Button>
                   </div>
 
                   {/* Quick add button */}
-                  <div
-                    className="absolute bottom-1.5 left-1.5 right-1.5 z-10 md:opacity-0 md:group-hover:opacity-100 opacity-100 transition-opacity"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                    }}
-                  >
-                    <AddToCartButton
-                      size="sm"
-                      className="w-full h-7 text-[13px]"
-                      productId={product.id}
-                      productName={product.name}
-                      inStock={true}
-                    />
+                  <div className="absolute bottom-1.5 left-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button size="sm" className="w-full h-7 text-[13px]">
+                      Quick Add
+                    </Button>
                   </div>
                 </div>
 

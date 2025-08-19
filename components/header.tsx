@@ -25,12 +25,11 @@ export function Header() {
   const { wishlist } = useWishlist()
   const [showHeader, setShowHeader] = useState(false)
 
-  // Close mobile menu when route changes
+  // Close mobile menu when route changes (fallback, may not trigger in App Router)
   useEffect(() => {
     const handleRouteChange = () => {
       setIsMobileMenuOpen(false)
     }
-    
     window.addEventListener('routeChangeComplete', handleRouteChange)
     return () => {
       window.removeEventListener('routeChangeComplete', handleRouteChange)
@@ -59,15 +58,7 @@ export function Header() {
   ]
 
   return (
-    <header
-      className={cn(
-        "fixed top-0 z-50 w-full border-b border-border/40 transition duration-200 ease-out transform",
-        isMobileMenuOpen
-          ? "bg-background"
-          : "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
-        showHeader ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
-      )}
-    >
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Mobile menu button */}
