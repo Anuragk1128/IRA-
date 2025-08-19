@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
+import Link from "next/link"
 
 const collections = [
   {
@@ -37,33 +38,42 @@ export function FeaturedCollections() {
         </div>
 
         <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3 md:gap-4 justify-items-center items-stretch max-w-5xl mx-auto">
-          {collections.map((collection, index) => (
-            <Card
-              key={index}
-              className="group h-full max-w-xs w-full overflow-hidden rounded-xl border border-border/50 hover:border-primary/30 shadow-sm hover:shadow-md transition-all duration-300 bg-card/60 backdrop-blur"
-            >
-              <CardContent className="p-0 h-full flex flex-col">
-                <div className="aspect-[3/4] overflow-hidden">
-                  <img
-                    src={collection.image || "/placeholder.svg"}
-                    alt={collection.title}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-                  />
-                </div>
-                <div className="p-3 space-y-2 flex-1 flex flex-col">
-                  <div>
-                    <h3 className="text-sm md:text-base font-elegant font-semibold mb-1">{collection.title}</h3>
-                    <p className="text-muted-foreground text-xs md:text-sm mb-1.5">{collection.description}</p>
-                    <p className="text-[10px] md:text-xs text-accent font-medium">{collection.itemCount}</p>
-                  </div>
-                  <Button variant="ghost" size="sm" className="w-full h-8 group/btn justify-between mt-auto">
-                    Explore Collection
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          {collections.map((collection, index) => {
+            const routeMap: Record<string, string> = {
+              "Everyday Elegance": "/categories/necklaces",
+              "Evening Glamour": "/categories/earrings",
+              "Bridal Collection": "/categories/rings",
+            }
+            const href = routeMap[collection.title] || "/categories"
+            return (
+              <Link key={index} href={href} className="w-full max-w-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl">
+                <Card className="group h-full w-full overflow-hidden rounded-xl border border-border/50 hover:border-primary/30 shadow-sm hover:shadow-md transition-all duration-300 bg-card/60 backdrop-blur">
+                  <CardContent className="p-0 h-full flex flex-col">
+                    <div className="aspect-[3/4] overflow-hidden">
+                      <img
+                        src={collection.image || "/placeholder.svg"}
+                        alt={collection.title}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                      />
+                    </div>
+                    <div className="p-3 space-y-2 flex-1 flex flex-col">
+                      <div>
+                        <h3 className="text-sm md:text-base font-elegant font-semibold mb-1">{collection.title}</h3>
+                        <p className="text-muted-foreground text-xs md:text-sm mb-1.5">{collection.description}</p>
+                        <p className="text-[10px] md:text-xs text-accent font-medium">{collection.itemCount}</p>
+                      </div>
+                      <Button asChild variant="ghost" size="sm" className="w-full h-8 group/btn justify-between mt-auto">
+                        <span>
+                          Explore Collection
+                          <ArrowRight className="ml-2 inline-block align-middle h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                        </span>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            )
+          })}
         </div>
       </div>
     </section>

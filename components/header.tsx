@@ -23,18 +23,30 @@ export function Header() {
   const { user, isAuthenticated, signOut } = useAuth()
   const { cart } = useCart()
   const { wishlist } = useWishlist()
+  const [showHeader, setShowHeader] = useState(false)
 
-  // Close mobile menu when route changes
+  // Close mobile menu when route changes (fallback, may not trigger in App Router)
   useEffect(() => {
     const handleRouteChange = () => {
       setIsMobileMenuOpen(false)
     }
-    
     window.addEventListener('routeChangeComplete', handleRouteChange)
     return () => {
       window.removeEventListener('routeChangeComplete', handleRouteChange)
     }
   }, [])
+
+  // Show header when user scrolls; keep it hidden at top unless menu is open
+  useEffect(() => {
+    const onScroll = () => {
+      const scrolled = window.scrollY > 0
+      setShowHeader(scrolled || isMobileMenuOpen)
+    }
+    // Initialize on mount
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [isMobileMenuOpen])
 
   // Navigation links data
   const navLinks = [
@@ -46,7 +58,12 @@ export function Header() {
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header
+      className={cn(
+        "fixed top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition duration-200 ease-out transform",
+        showHeader ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
+      )}
+    >
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Mobile menu button */}
@@ -56,6 +73,7 @@ export function Header() {
             className="md:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMobileMenuOpen}
           >
             {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>

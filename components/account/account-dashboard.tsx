@@ -51,8 +51,8 @@ export function AccountDashboard() {
                 <Package className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">12</div>
-                <p className="text-xs text-muted-foreground">+2 from last month</p>
+                <div className="text-2xl font-bold">—</div>
+                <p className="text-xs text-muted-foreground">Orders data will appear here</p>
               </CardContent>
             </Card>
             <Card>
@@ -61,8 +61,8 @@ export function AccountDashboard() {
                 <Heart className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">8</div>
-                <p className="text-xs text-muted-foreground">Items saved</p>
+                <div className="text-2xl font-bold">—</div>
+                <p className="text-xs text-muted-foreground">Wishlist count will appear here</p>
               </CardContent>
             </Card>
             <Card>
@@ -71,8 +71,8 @@ export function AccountDashboard() {
                 <Settings className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">$1,234</div>
-                <p className="text-xs text-muted-foreground">This year</p>
+                <div className="text-2xl font-bold">—</div>
+                <p className="text-xs text-muted-foreground">Spending summary will appear here</p>
               </CardContent>
             </Card>
           </div>
@@ -114,32 +114,13 @@ export function AccountDashboard() {
                 <CardDescription>Your latest purchases</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Order #12345</p>
-                      <p className="text-sm text-muted-foreground">Rose Gold Necklace</p>
-                    </div>
-                    <Badge>Delivered</Badge>
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div>
+                    <p className="font-medium">No recent orders</p>
+                    <p className="text-sm text-muted-foreground">Your recent orders will appear here</p>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Order #12344</p>
-                      <p className="text-sm text-muted-foreground">Diamond Earrings</p>
-                    </div>
-                    <Badge variant="secondary">Processing</Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Order #12343</p>
-                      <p className="text-sm text-muted-foreground">Pearl Bracelet</p>
-                    </div>
-                    <Badge>Delivered</Badge>
-                  </div>
+                  <Button variant="outline" size="sm" onClick={() => setActiveTab("orders")}>Go to Orders</Button>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => setActiveTab("orders")}>
-                  View All Orders
-                </Button>
               </CardContent>
             </Card>
           </div>
@@ -156,24 +137,11 @@ export function AccountDashboard() {
               <CardDescription>View and track your orders</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {[1, 2, 3, 4, 5].map((order) => (
-                  <div key={order} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="space-y-1">
-                      <p className="font-medium">Order #{12340 + order}</p>
-                      <p className="text-sm text-muted-foreground">Placed on Jan {order + 10}, 2024</p>
-                      <p className="text-sm">2 items • $156.98</p>
-                    </div>
-                    <div className="text-right space-y-1">
-                      <Badge variant={order % 2 === 0 ? "default" : "secondary"}>
-                        {order % 2 === 0 ? "Delivered" : "Processing"}
-                      </Badge>
-                      <Button variant="outline" size="sm">
-                        View Details
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <p className="font-medium">No orders yet</p>
+                  <p className="text-sm text-muted-foreground">Your orders will appear here after purchase</p>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -186,24 +154,11 @@ export function AccountDashboard() {
               <CardDescription>Items you've saved for later</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[1, 2, 3, 4, 5, 6].map((item) => (
-                  <div key={item} className="border rounded-lg p-4 space-y-3">
-                    <div className="aspect-square bg-muted rounded-lg"></div>
-                    <div>
-                      <h3 className="font-medium">Elegant Necklace {item}</h3>
-                      <p className="text-sm text-muted-foreground">$89.99</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" className="flex-1">
-                        Add to Cart
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        Remove
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <p className="font-medium">No wishlist items</p>
+                  <p className="text-sm text-muted-foreground">Items you save will appear here</p>
+                </div>
               </div>
             </CardContent>
           </Card>

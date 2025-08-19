@@ -7,17 +7,16 @@ import Link from "next/link"
 import { Heart, Star, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { useCart } from "@/contexts/cart-context"
 import { useWishlist } from "@/contexts/wishlist-context"
 import { useToast } from "@/hooks/use-toast"
 import type { Product } from "@/types/product"
+import { addToCartAPI } from "@/lib/cart"
 
 interface ProductCardProps {
   product: Product
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const { addToCart, isInCart } = useCart()
   const { toggleWishlist, isInWishlist } = useWishlist()
   const { toast } = useToast()
 
@@ -25,7 +24,7 @@ export function ProductCard({ product }: ProductCardProps) {
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
 
@@ -38,11 +37,16 @@ export function ProductCard({ product }: ProductCardProps) {
       return
     }
 
-    addToCart(product)
-    toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
-    })
+    try {
+      await addToCartAPI({ productId: String(product.id), quantity: 1 })
+      toast({ title: "Added to cart", description: `${product.name} has been added to your cart.` })
+    } catch (err) {
+      toast({
+        title: "Failed to add to cart",
+        description: err instanceof Error ? err.message : "Please try again",
+        variant: "destructive",
+      })
+    }
   }
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
@@ -108,7 +112,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="flex gap-2 mt-2.5">
           <Button className="flex-1" size="sm" onClick={handleAddToCart} disabled={!product.inStock}>
             <ShoppingCart className="h-4 w-4 mr-1.5" />
-            {isInCart(product.id) ? "In Cart" : "Add to Cart"}
+            Add to Cart
           </Button>
           <Button
             variant="outline"

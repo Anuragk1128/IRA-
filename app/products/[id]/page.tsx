@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import Image from "next/image"
-import { Star, Heart, Share2, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react"
+import { Star, Heart, Share2, Truck, Shield, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -9,6 +9,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ProductGrid } from "@/components/product-grid"
 import { getProductById, getProductsByCategory } from "@/lib/products"
+import { AddToCartButton } from "@/components/product/add-to-cart-button"
 
 interface ProductPageProps {
   params: {
@@ -126,10 +127,13 @@ export default function ProductPage({ params }: ProductPageProps) {
             </div>
 
             <div className="flex gap-3">
-              <Button className="flex-1" size="lg" disabled={!product.inStock}>
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                Add to Cart
-              </Button>
+              <AddToCartButton
+                className="flex-1"
+                size="lg"
+                productId={product.id}
+                productName={product.name}
+                inStock={product.inStock}
+              />
               <Button variant="outline" size="lg">
                 <Heart className="h-4 w-4" />
               </Button>
