@@ -2,17 +2,16 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Heart, ShoppingCart, Trash2, ArrowLeft } from "lucide-react"
+import { Heart, Trash2, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useWishlist } from "@/contexts/wishlist-context"
-import { useCart } from "@/contexts/cart-context"
 import { useToast } from "@/hooks/use-toast"
+import { AddToCartButton } from "@/components/product/add-to-cart-button"
 
 export function WishlistContent() {
   const { wishlist, removeFromWishlist, clearWishlist } = useWishlist()
-  const { addToCart } = useCart()
   const { toast } = useToast()
 
   const handleRemoveFromWishlist = (productId: string, productName: string) => {
@@ -23,41 +22,7 @@ export function WishlistContent() {
     })
   }
 
-  const handleAddToCart = (item: any) => {
-    if (!item.inStock) {
-      toast({
-        title: "Out of stock",
-        description: "This item is currently out of stock.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    // Convert wishlist item to product format for cart
-    const product = {
-      id: item.productId,
-      name: item.name,
-      price: item.price,
-      originalPrice: item.originalPrice,
-      images: [item.image],
-      material: item.material,
-      color: item.color,
-      size: item.size,
-      inStock: item.inStock,
-      // Add required fields with defaults
-      description: "",
-      category: "",
-      rating: 0,
-      reviewCount: 0,
-      tags: [],
-    }
-
-    addToCart(product)
-    toast({
-      title: "Added to cart",
-      description: `${item.name} has been added to your cart.`,
-    })
-  }
+  // Add to cart handled by AddToCartButton component
 
   const handleClearWishlist = () => {
     clearWishlist()
@@ -152,10 +117,13 @@ export function WishlistContent() {
                   )}
                 </div>
 
-                <Button className="w-full" size="sm" onClick={() => handleAddToCart(item)} disabled={!item.inStock}>
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  {item.inStock ? "Add to Cart" : "Out of Stock"}
-                </Button>
+                <AddToCartButton
+                  className="w-full"
+                  size="sm"
+                  productId={item.productId}
+                  productName={item.name}
+                  inStock={item.inStock}
+                />
               </CardContent>
             </Card>
           )

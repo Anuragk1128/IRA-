@@ -1,6 +1,10 @@
+"use client"
+
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Heart, ShoppingBag, Star } from "lucide-react"
+import { Heart, Star } from "lucide-react"
+import Link from "next/link"
+import { AddToCartButton } from "@/components/product/add-to-cart-button"
 
 const products = [
   {
@@ -64,29 +68,33 @@ export function ProductShowcase() {
 
         <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3 md:gap-4 justify-items-center items-stretch max-w-[60rem] mx-auto">
           {products.map((product) => (
-            <Card
-              key={product.id}
-              className="group h-full max-w-[14rem] w-full overflow-hidden rounded-lg border border-border/50 hover:border-primary/30 shadow-sm hover:shadow-md transition-all duration-300 bg-card"
-            >
-              <CardContent className="p-0 h-full flex flex-col">
-                <div className="relative aspect-[5/6] overflow-hidden">
-                  <img
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-                  />
+            <Link key={product.id} href={`/products/${product.id}`} className="w-full max-w-[14rem] rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+              <Card className="group h-full w-full overflow-hidden rounded-lg border border-border/50 hover:border-primary/30 shadow-sm hover:shadow-md transition-all duration-300 bg-card">
+                <CardContent className="p-0 h-full flex flex-col">
+                  <div className="relative aspect-[5/6] overflow-hidden">
+                    <img
+                      src={product.image || "/placeholder.svg"}
+                      alt={product.name}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                    />
 
-                  {/* Badges */}
-                  <div className="absolute top-2 left-2 flex flex-col gap-1.5">
-                    {product.isNew && (
-                      <span className="bg-accent text-accent-foreground text-[11px] px-1.5 py-0.5 rounded-full font-medium">
-                        New
+                    {/* Badges */}
+                    <div className="absolute top-2 left-2 flex flex-col gap-1.5">
+                      {product.isNew && (
+                        <span className="bg-accent text-accent-foreground text-[11px] px-1.5 py-0.5 rounded-full font-medium">
+                          New
                       </span>
                     )}
                   </div>
 
                   {/* Action buttons */}
-                  <div className="absolute top-1.5 right-1.5 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div
+                    className="absolute top-1.5 right-1.5 flex flex-col gap-1.5 z-10 md:opacity-0 md:group-hover:opacity-100 opacity-100 transition-opacity"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                    }}
+                  >
                     <Button
                       size="icon"
                       variant="secondary"
@@ -94,16 +102,31 @@ export function ProductShowcase() {
                     >
                       <Heart className="h-3 w-3" fill={product.isFavorite ? "currentColor" : "none"} />
                     </Button>
-                    <Button size="icon" variant="secondary" className="h-6 w-6">
-                      <ShoppingBag className="h-3 w-3" />
-                    </Button>
+                    <AddToCartButton
+                      size="icon"
+                      variant="secondary"
+                      className="h-6 w-6"
+                      productId={product.id}
+                      productName={product.name}
+                      inStock={true}
+                    />
                   </div>
 
                   {/* Quick add button */}
-                  <div className="absolute bottom-1.5 left-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button size="sm" className="w-full h-7 text-[13px]">
-                      Quick Add
-                    </Button>
+                  <div
+                    className="absolute bottom-1.5 left-1.5 right-1.5 z-10 md:opacity-0 md:group-hover:opacity-100 opacity-100 transition-opacity"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                    }}
+                  >
+                    <AddToCartButton
+                      size="sm"
+                      className="w-full h-7 text-[13px]"
+                      productId={product.id}
+                      productName={product.name}
+                      inStock={true}
+                    />
                   </div>
                 </div>
 
@@ -128,14 +151,15 @@ export function ProductShowcase() {
                     </span>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
 
         <div className="text-center mt-10 md:mt-12">
-          <Button variant="outline" size="lg">
-            View All Products
+          <Button asChild variant="outline" size="lg">
+            <Link href="/products">View All Products</Link>
           </Button>
         </div>
       </div>

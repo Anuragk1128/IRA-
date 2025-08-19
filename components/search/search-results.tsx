@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ProductCard } from "@/components/product-card"
 import type { Product } from "@/types/product"
 import type { ProductFilters } from "@/types/filters"
+import { AddToCartButton } from "@/components/product/add-to-cart-button"
 
 interface SearchResultsProps {
   products: Product[]
@@ -97,7 +98,12 @@ export function SearchResults({ products, totalCount, appliedFilters, onSortChan
                   <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
                   <div className="flex items-center justify-between mt-1.5">
                     <span className="font-semibold text-sm md:text-base">${product.price}</span>
-                    <Button size="sm">Add to Cart</Button>
+                    <AddToCartButton
+                      size="sm"
+                      productId={product.id}
+                      productName={product.name}
+                      inStock={product.inStock}
+                    />
                   </div>
                 </div>
               </div>

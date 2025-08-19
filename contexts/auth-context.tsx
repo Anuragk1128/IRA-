@@ -3,7 +3,7 @@
 import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 import type { User, AuthState } from "@/types/user"
-import { getCurrentUser, signOut as authSignOut, removeAuthToken } from "@/lib/auth"
+import { getCurrentUser, signOut as authSignOut, removeAuthToken, setAuthToken } from "@/lib/auth"
 
 interface AuthContextType extends AuthState {
   signIn: (user: User, token: string) => void
@@ -42,6 +42,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signIn = (user: User, token: string) => {
+    // Persist token for API usage (e.g., cart endpoints)
+    try {
+      setAuthToken(token)
+    } catch (e) {
+      console.error("Failed to persist auth token", e)
+    }
     setState({
       user,
       isAuthenticated: true,
