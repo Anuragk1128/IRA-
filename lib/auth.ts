@@ -1,5 +1,9 @@
 import type { User, Address, UserPreferences } from "@/types/user"
 
+// Public API base URL (include trailing /api if your env provides it)
+const API_BASE =
+  (process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://localhost:5000/api").replace(/\/$/, "")
+
 // Helper to map API user to our User type safely
 function mapApiUserToUser(apiUser: any): User {
   const addresses: Address[] = Array.isArray(apiUser?.addresses)
@@ -45,7 +49,7 @@ function mapApiUserToUser(apiUser: any): User {
 export async function signIn(email: string, password: string): Promise<{ user: User; token: string }> {
   try {
     console.log('Sending login request with:', { email });
-    const response = await fetch('http://localhost:5000/api/auth/login', {
+    const response = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -87,7 +91,7 @@ export async function signUp(data: {
 }): Promise<{ user: User; token: string }> {
   try {
     console.log('Sending registration request with:', { email: data.email });
-    const response = await fetch('http://localhost:5000/api/auth/register', {
+    const response = await fetch(`${API_BASE}/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

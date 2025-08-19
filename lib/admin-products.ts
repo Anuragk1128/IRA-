@@ -1,13 +1,17 @@
 import { getAdminAuthToken } from "@/lib/admin-auth"
 import type { CreateProductInput, Product } from "@/types/product"
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"
+// Ensure API base comes from env and ends without trailing slash.
+// Expect env to include /api (e.g., https://ira-be.onrender.com/api)
+const API_BASE = (
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://localhost:5000/api"
+).replace(/\/$/, "")
 
 export async function createProduct(input: CreateProductInput): Promise<Product> {
   const token = getAdminAuthToken()
   if (!token) throw new Error("Not authenticated. Please login as admin.")
 
-  const res = await fetch(`${API_BASE}/api/admin/products`, {
+  const res = await fetch(`${API_BASE}/admin/products`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

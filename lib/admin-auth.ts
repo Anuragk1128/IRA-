@@ -2,13 +2,17 @@ import type { AdminUser } from "@/types/admin"
 
 const ADMIN_TOKEN_KEY = "admin-auth-token"
 const ADMIN_USER_KEY = "admin-user"
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"
+// Ensure API base comes from env and ends without trailing slash.
+// Expect env to include /api (e.g., https://ira-be.onrender.com/api)
+const API_BASE = (
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "http://localhost:5000/api"
+).replace(/\/$/, "")
 
 export async function adminSignIn(
   email: string,
   password: string
 ): Promise<{ adminUser: AdminUser; token: string }> {
-  const res = await fetch(`${API_BASE}/api/admin/auth/login`, {
+  const res = await fetch(`${API_BASE}/admin/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
