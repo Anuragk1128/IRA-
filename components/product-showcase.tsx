@@ -62,13 +62,13 @@ export function ProductShowcase() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3 md:gap-4 justify-items-center items-stretch max-w-[60rem] mx-auto">
           {products.map((product) => (
             <Card
               key={product.id}
-              className="group overflow-hidden rounded-lg border border-border/50 hover:border-primary/30 shadow-sm hover:shadow-md transition-all duration-300 bg-card"
+              className="group h-full max-w-[14rem] w-full overflow-hidden rounded-lg border border-border/50 hover:border-primary/30 shadow-sm hover:shadow-md transition-all duration-300 bg-card"
             >
-              <CardContent className="p-0">
+              <CardContent className="p-0 h-full flex flex-col">
                 <div className="relative aspect-[5/6] overflow-hidden">
                   <img
                     src={product.image || "/placeholder.svg"}

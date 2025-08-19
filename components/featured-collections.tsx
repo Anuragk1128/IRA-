@@ -36,27 +36,27 @@ export function FeaturedCollections() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3 md:gap-4 justify-items-center items-stretch max-w-5xl mx-auto">
           {collections.map((collection, index) => (
             <Card
               key={index}
-              className="group overflow-hidden rounded-xl border border-border/50 hover:border-primary/30 shadow-sm hover:shadow-md transition-all duration-300 bg-card/60 backdrop-blur"
+              className="group h-full max-w-xs w-full overflow-hidden rounded-xl border border-border/50 hover:border-primary/30 shadow-sm hover:shadow-md transition-all duration-300 bg-card/60 backdrop-blur"
             >
-              <CardContent className="p-0">
-                <div className="aspect-[4/5] overflow-hidden">
+              <CardContent className="p-0 h-full flex flex-col">
+                <div className="aspect-[3/4] overflow-hidden">
                   <img
                     src={collection.image || "/placeholder.svg"}
                     alt={collection.title}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                   />
                 </div>
-                <div className="p-4 space-y-3">
+                <div className="p-3 space-y-2 flex-1 flex flex-col">
                   <div>
-                    <h3 className="text-base md:text-lg font-elegant font-semibold mb-1.5">{collection.title}</h3>
-                    <p className="text-muted-foreground text-xs md:text-sm mb-2">{collection.description}</p>
-                    <p className="text-[11px] md:text-xs text-accent font-medium">{collection.itemCount}</p>
+                    <h3 className="text-sm md:text-base font-elegant font-semibold mb-1">{collection.title}</h3>
+                    <p className="text-muted-foreground text-xs md:text-sm mb-1.5">{collection.description}</p>
+                    <p className="text-[10px] md:text-xs text-accent font-medium">{collection.itemCount}</p>
                   </div>
-                  <Button variant="ghost" size="sm" className="w-full group/btn justify-between">
+                  <Button variant="ghost" size="sm" className="w-full h-8 group/btn justify-between mt-auto">
                     Explore Collection
                     <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                   </Button>
