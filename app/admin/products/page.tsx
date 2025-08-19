@@ -1,25 +1,76 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { getProducts } from "@/lib/products"
 import type { Product } from "@/types/product"
 import { Plus, Search, Edit, Trash2, Eye } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { useToast } from "@/hooks/use-toast"
+import { getAdminAuthToken } from "@/lib/admin-auth"
 
 export default function AdminProducts() {
-  const [products] = useState<Product[]>(getProducts())
+  const { toast } = useToast()
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
   const [searchTerm, setSearchTerm] = useState("")
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewProduct, setPreviewProduct] = useState<Product | null>(null)
 
   const filteredProducts = products.filter(
     (product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.category.toLowerCase().includes(searchTerm.toLowerCase()),
   )
+
+  const API_BASE = useMemo(() => {
+    const base = (process.env.NEXT_PUBLIC_API_BASE_URL || "https://ira-be.onrender.com/api").replace(/\/$/, "")
+    return base
+  }, [])
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const token = getAdminAuthToken()
+        if (!token) {
+          throw new Error("Not authenticated. Please login as admin.")
+        }
+        const res = await fetch(`${API_BASE}/admin/products`, {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          cache: "no-store",
+        })
+        if (!res.ok) {
+          let msg = `Failed to fetch products (${res.status})`
+          try {
+            const data = await res.json()
+            msg = data?.message || data?.error || msg
+          } catch {}
+          throw new Error(msg)
+        }
+        const data = await res.json()
+        const list: Product[] = Array.isArray(data)
+          ? (data as Product[])
+          : (data?.products as Product[]) || []
+        setProducts(list)
+      } catch (err) {
+        toast({
+          title: "Could not load products",
+          description: err instanceof Error ? err.message : "",
+          variant: "destructive",
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProducts()
+  }, [API_BASE, toast])
 
   return (
     <div className="p-8">
@@ -58,7 +109,7 @@ export default function AdminProducts() {
       {/* Products Table */}
       <Card>
         <CardHeader>
-          <CardTitle>All Products ({filteredProducts.length})</CardTitle>
+          <CardTitle>All Products {loading ? "(loading...)" : `(${filteredProducts.length})`}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -74,6 +125,13 @@ export default function AdminProducts() {
                 </tr>
               </thead>
               <tbody>
+                {!loading && filteredProducts.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center text-sm text-muted-foreground">
+                      No products found.
+                    </td>
+                  </tr>
+                )}
                 {filteredProducts.map((product) => (
                   <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-4 px-4">
@@ -113,7 +171,14 @@ export default function AdminProducts() {
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-2">
-                        <Button size="sm" variant="ghost">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            setPreviewProduct(product)
+                            setPreviewOpen(true)
+                          }}
+                        >
                           <Eye className="w-4 h-4" />
                         </Button>
                         <Button size="sm" variant="ghost">
@@ -131,6 +196,28 @@ export default function AdminProducts() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Image Preview Dialog */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{previewProduct?.name || "Images"}</DialogTitle>
+          </DialogHeader>
+          {previewProduct && (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {(previewProduct.images || []).map((src, idx) => (
+                <div key={idx} className="relative w-full aspect-square overflow-hidden rounded">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src || "/placeholder.svg"} alt={`image ${idx + 1}`} className="h-full w-full object-cover" />
+                </div>
+              ))}
+              {(!previewProduct.images || previewProduct.images.length === 0) && (
+                <p className="text-sm text-muted-foreground">No images available.</p>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
