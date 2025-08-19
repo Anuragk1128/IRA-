@@ -58,20 +58,20 @@ const products = [
 export function ProductShowcase() {
   const { toast } = useToast()
   return (
-    <section className="py-12 md:py-16">
-      <div className="container mx-auto px-4">
-        <div className="text-center space-y-3 mb-10 md:mb-14">
-          <h2 className="text-3xl md:text-4xl font-elegant font-bold">
+    <section className="py-8 sm:py-10 md:py-16">
+      <div className="container mx-auto px-3 sm:px-4">
+        <div className="text-center space-y-2.5 sm:space-y-3 mb-8 sm:mb-10 md:mb-14">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-elegant font-bold">
             Bestselling <span className="text-gradient">Pieces</span>
           </h2>
-          <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm sm:text-[15px] md:text-base text-muted-foreground max-w-2xl mx-auto">
             Discover why these stunning pieces are loved by thousands of customers worldwide
           </p>
         </div>
 
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3 md:gap-4 justify-items-center items-stretch max-w-[60rem] mx-auto">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-2 sm:gap-3 md:gap-4 justify-items-center items-stretch max-w-[60rem] mx-auto">
           {products.map((product) => (
-            <Link key={product.id} href={`/products/${product.id}`} className="w-full max-w-[14rem] rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+            <Link key={product.id} href={`/products/${product.id}`} className="w-full max-w-[12rem] sm:max-w-[14rem] rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
               <Card className="group h-full w-full overflow-hidden rounded-lg border border-border/50 hover:border-primary/30 shadow-sm hover:shadow-md transition-all duration-300 bg-card">
                 <CardContent className="p-0 h-full flex flex-col">
                   <div className="relative aspect-[5/6] overflow-hidden">
@@ -128,13 +128,13 @@ export function ProductShowcase() {
                   </div>
                 </div>
 
-                <div className="p-2.5 space-y-1.5">
+                <div className="p-2.5 sm:p-3 space-y-1.5">
                   <div>
-                    <h3 className="font-medium text-[12px] md:text-[13px] mb-0.5 line-clamp-2 leading-snug">{product.name}</h3>
+                    <h3 className="font-medium text-[12px] sm:text-[13px] md:text-[13px] mb-0.5 line-clamp-2 leading-snug">{product.name}</h3>
                     <div className="flex items-center gap-1 mb-1">
                       <div className="flex items-center">
                         <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                        <span className="text-[10px] md:text-[11px] text-muted-foreground ml-1">
+                        <span className="text-[10px] sm:text-[10.5px] md:text-[11px] text-muted-foreground ml-1">
                           {product.rating} ({product.reviews})
                         </span>
                       </div>
@@ -142,9 +142,9 @@ export function ProductShowcase() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-[13px] md:text-sm font-bold text-primary">${product.price}</span>
-                    <span className="text-[10px] md:text-[11px] text-muted-foreground line-through">${product.originalPrice}</span>
-                    <span className="text-[9px] md:text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
+                    <span className="text-[13px] sm:text-[13.5px] md:text-sm font-bold text-primary">${product.price}</span>
+                    <span className="text-[10px] sm:text-[10.5px] md:text-[11px] text-muted-foreground line-through">${product.originalPrice}</span>
+                    <span className="text-[9px] sm:text-[9.5px] md:text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
                       {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% off
                     </span>
                   </div>
@@ -155,7 +155,7 @@ export function ProductShowcase() {
           ))}
         </div>
 
-        <div className="text-center mt-10 md:mt-12">
+        <div className="text-center mt-8 sm:mt-10 md:mt-12">
           <Button asChild variant="outline" size="lg">
             <Link href="/products">View All Products</Link>
           </Button>
