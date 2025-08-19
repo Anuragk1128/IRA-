@@ -38,6 +38,8 @@ export function HeroSection() {
   const [touchMoveX, setTouchMoveX] = useState<number | null>(null);
   const [mouseStartX, setMouseStartX] = useState<number | null>(null);
   const [mouseMoveX, setMouseMoveX] = useState<number | null>(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
+  const [isVideoMuted, setIsVideoMuted] = useState(true); // start muted for autoplay
 
   // Refs for timers and video
   const intervalRef = useRef<number | null>(null);
@@ -67,7 +69,7 @@ export function HeroSection() {
         v.currentTime = 0;
         v.muted = true; // allow autoplay
         // Try to play; if blocked, just wait for user
-        v.play().catch(() => {});
+        v.play().then(() => setIsVideoPlaying(true)).catch(() => setIsVideoPlaying(false));
 
         const onEnded = () => {
           setCurrentImageIndex((prev) => (prev === heroImages.length - 1 ? 0 : prev + 1));
@@ -176,12 +178,40 @@ export function HeroSection() {
                       width: '100%',
                       height: '100%',
                     }}
-                    muted
+                    muted={isVideoMuted}
                     // Do not loop: we will advance after full play
                     autoPlay
                     playsInline
                     controls={false}
+                    onPlay={() => setIsVideoPlaying(true)}
+                    onPause={() => setIsVideoPlaying(false)}
                   />
+                  {/* Controls overlay */}
+                  <div className="pointer-events-none absolute inset-0 flex items-end justify-center p-3">
+                    <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 text-white shadow-md">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const v = videoRef.current; if (!v) return; if (v.paused) { v.play(); setIsVideoPlaying(true); } else { v.pause(); setIsVideoPlaying(false); }
+                        }}
+                        className="rounded-full px-2 py-1 text-xs font-medium hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30"
+                        aria-label={isVideoPlaying ? "Pause video" : "Play video"}
+                      >
+                        {isVideoPlaying ? "Pause" : "Play"}
+                      </button>
+                      <span className="h-4 w-px bg-white/30" aria-hidden="true" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const v = videoRef.current; if (!v) return; const next = !v.muted; v.muted = next; setIsVideoMuted(next);
+                        }}
+                        className="rounded-full px-2 py-1 text-xs font-medium hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30"
+                        aria-label={isVideoMuted ? "Unmute video" : "Mute video"}
+                      >
+                        {isVideoMuted ? "Unmute" : "Mute"}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             ) : (
