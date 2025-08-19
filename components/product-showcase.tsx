@@ -3,6 +3,10 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Heart, ShoppingBag, Star } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import Link from "next/link"
+import { AddToCartButton } from "@/components/product/add-to-cart-button"
+
 
 const products = [
   {
@@ -107,10 +111,20 @@ export function ProductShowcase() {
                   </div>
 
                   {/* Quick add button */}
-                  <div className="absolute bottom-1.5 left-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button size="sm" className="w-full h-7 text-[13px]">
-                      Quick Add
-                    </Button>
+                  <div
+                    className="absolute bottom-1.5 left-1.5 right-1.5 md:opacity-0 md:group-hover:opacity-100 opacity-100 transition-opacity"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                    }}
+                  >
+                    <AddToCartButton
+                      size="sm"
+                      className="w-full h-7 text-[13px]"
+                      productId={String(product.id)}
+                      productName={product.name}
+                      inStock={true}
+                    />
                   </div>
                 </div>
 
