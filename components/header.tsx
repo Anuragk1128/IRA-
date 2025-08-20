@@ -82,10 +82,15 @@ export function Header() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">I</span>
+            <div className="h-8 w-8 rounded-full overflow-hidden ring-1 ring-border bg-muted flex items-center justify-center">
+              <img
+                src="/ira-logo.jpg"
+                alt="IRA by House of Evolve logo"
+                className="h-full w-full object-cover"
+                loading="eager"
+              />
             </div>
-            <span className="font-elegant text-xl font-semibold text-gradient">IRA Jewelry</span>
+            <span className="sr-only">IRA by House of Evolve</span>
           </Link>
 
           {/* Desktop Navigation */}

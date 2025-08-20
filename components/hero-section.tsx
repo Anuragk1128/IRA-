@@ -3,12 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 
 const heroImages = [
-  // Video FIRST
-  {
-    videoSrc: "/herovideo1.mp4",
-    alt: "Hero video preview",
-    position: "center"
-  },
   {
     src: "/hero.jpg",
     alt: "Elegant jewelry collection",
@@ -38,12 +32,9 @@ export function HeroSection() {
   const [touchMoveX, setTouchMoveX] = useState<number | null>(null);
   const [mouseStartX, setMouseStartX] = useState<number | null>(null);
   const [mouseMoveX, setMouseMoveX] = useState<number | null>(null);
-  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
-  const [isVideoMuted, setIsVideoMuted] = useState(true); // start muted for autoplay
 
   // Refs for timers and video
   const intervalRef = useRef<number | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   // Helper to clear interval safely
   const clearSlideInterval = () => {
@@ -53,45 +44,20 @@ export function HeroSection() {
     }
   };
 
-  // Auto-advance behavior:
-  // - For images: advance every 5s
-  // - For video: wait until video ends (no loop), then advance
+  // Auto-advance behavior for images: advance every 5s
   useEffect(() => {
     clearSlideInterval();
-
-    const current = heroImages[currentImageIndex] as any;
-    const isVideo = Boolean(current.videoSrc);
-
-    if (isVideo) {
-      // Ensure video plays and advance on end
-      const v = videoRef.current;
-      if (v) {
-        v.currentTime = 0;
-        v.muted = true; // allow autoplay
-        // Try to play; if blocked, just wait for user
-        v.play().then(() => setIsVideoPlaying(true)).catch(() => setIsVideoPlaying(false));
-
-        const onEnded = () => {
-          setCurrentImageIndex((prev) => (prev === heroImages.length - 1 ? 0 : prev + 1));
-        };
-        v.addEventListener('ended', onEnded, { once: true });
-        return () => {
-          v.removeEventListener('ended', onEnded);
-        };
-      }
-    } else {
-      // Image: auto-advance on interval
-      intervalRef.current = window.setInterval(() => {
-        setIsTransitioning(true);
-        setTimeout(() => {
-          setCurrentImageIndex((prevIndex) => 
-            prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
-          );
-          setIsTransitioning(false);
-        }, 500);
-      }, 5000);
-      return () => clearSlideInterval();
-    }
+    // Image: auto-advance on interval
+    intervalRef.current = window.setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentImageIndex((prevIndex) => 
+          prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
+        );
+        setIsTransitioning(false);
+      }, 500);
+    }, 5000);
+    return () => clearSlideInterval();
   }, [currentImageIndex]);
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
@@ -165,71 +131,20 @@ export function HeroSection() {
               index === currentImageIndex ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
           >
-            {image.videoSrc ? (
-              // Mobile: full-bleed; Desktop: framed 9:16 container centered (similar to reels)
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="relative w-full h-full md:h-auto md:w-auto md:max-w-[540px] lg:max-w-[720px] md:aspect-[9/16] overflow-hidden md:rounded-xl md:shadow-lg md:bg-black">
-                  <video
-                    ref={index === currentImageIndex ? videoRef : undefined}
-                    src={image.videoSrc as string}
-                    className="w-full h-full object-cover"
-                    style={{
-                      objectPosition: (image as any).position,
-                      width: '100%',
-                      height: '100%',
-                    }}
-                    muted={isVideoMuted}
-                    // Do not loop: we will advance after full play
-                    autoPlay
-                    playsInline
-                    controls={false}
-                    onPlay={() => setIsVideoPlaying(true)}
-                    onPause={() => setIsVideoPlaying(false)}
-                  />
-                  {/* Controls overlay */}
-                  <div className="pointer-events-none absolute inset-0 flex items-end justify-center p-3">
-                    <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 text-white shadow-md">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const v = videoRef.current; if (!v) return; if (v.paused) { v.play(); setIsVideoPlaying(true); } else { v.pause(); setIsVideoPlaying(false); }
-                        }}
-                        className="rounded-full px-2 py-1 text-xs font-medium hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30"
-                        aria-label={isVideoPlaying ? "Pause video" : "Play video"}
-                      >
-                        {isVideoPlaying ? "Pause" : "Play"}
-                      </button>
-                      <span className="h-4 w-px bg-white/30" aria-hidden="true" />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const v = videoRef.current; if (!v) return; const next = !v.muted; v.muted = next; setIsVideoMuted(next);
-                        }}
-                        className="rounded-full px-2 py-1 text-xs font-medium hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30"
-                        aria-label={isVideoMuted ? "Unmute video" : "Mute video"}
-                      >
-                        {isVideoMuted ? "Unmute" : "Mute"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <img
-                src={(image as any).src}
-                alt={image.alt}
-                className="w-full h-full object-cover"
-                style={{
-                  objectPosition: image.position,
-                  width: '100%',
-                  height: '100%',
-                }}
-                loading={index === 0 ? 'eager' : 'lazy'}
-                width={1920}
-                height={2560}
-                sizes="100vw"
-              />
-            )}
+            <img
+              src={(image as any).src}
+              alt={image.alt}
+              className="w-full h-full object-cover"
+              style={{
+                objectPosition: image.position,
+                width: '100%',
+                height: '100%',
+              }}
+              loading={index === 0 ? 'eager' : 'lazy'}
+              width={1920}
+              height={2560}
+              sizes="100vw"
+            />
             <div 
               className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"
               aria-hidden="true"

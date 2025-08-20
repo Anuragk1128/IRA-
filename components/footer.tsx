@@ -10,10 +10,15 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">I</span>
+              <div className="h-8 w-8 rounded-full overflow-hidden ring-1 ring-border bg-muted flex items-center justify-center">
+                <img
+                  src="/ira-logo.jpg.jpg"
+                  alt="IRA by House of Evolve logo"
+                  className="h-full w-full object-cover"
+                  loading="eager"
+                />
               </div>
-              <span className="font-elegant text-xl font-semibold text-gradient">IRA Jewelry</span>
+              <span className="sr-only">IRA by House of Evolve</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Crafting affordable luxury jewelry that celebrates your unique style and personality. Every piece is
@@ -120,7 +125,7 @@ export function Footer() {
         </div>
 
         <div className="border-t border-border/50 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">© 2025 IRA Jewelry. All rights reserved.</p>
+          <p className="text-sm text-muted-foreground">© 2025 IRA — by house of evolve. All rights reserved.</p>
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <a href="/privacy" className="hover:text-primary transition-colors">
               Privacy Policy
