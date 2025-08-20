@@ -21,7 +21,7 @@ const heroImages = [
     position: "center center",
   },
   {
-    src: "iramodel4.jpg",
+    src: "iramodel5.jpg",
     alt: "Jewelry collection showcase",
     position: "center center",
   },
