@@ -5,6 +5,8 @@ import { ProductShowcase } from "@/components/product-showcase"
 import { Footer } from "@/components/footer"
 import { Reels } from "@/components/reels"
 import { Newsletter } from "@/components/newsletter"
+import BrandStory from "@/components/brandstory"
+import { SocialProof } from "@/components/social-proof"
 
 export default function HomePage() {
   return (
@@ -16,7 +18,10 @@ export default function HomePage() {
         
         <Reels />
         <ProductShowcase />
+        <BrandStory />
         <Newsletter/>
+        <SocialProof />
+        
       </main>
       <Footer />
     </div>
