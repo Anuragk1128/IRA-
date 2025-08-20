@@ -21,8 +21,8 @@ export default function AboutPage() {
               </p>
               <div className="grid grid-cols-2 gap-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-rose-600">10+</div>
-                  <div className="text-gray-600">Years Experience</div>
+                  <div className="text-3xl font-bold text-rose-600">1</div>
+                  <div className="text-gray-600">Year Experience</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-rose-600">50K+</div>
@@ -110,7 +110,7 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Our Story</h2>
           <div className="prose prose-lg mx-auto text-gray-600">
             <p className="mb-6">
-              Founded in 2014 by jewelry enthusiast Maria Rodriguez, our company began as a small studio with a simple
+              Founded in 2024 by Subham and Sakshi, our company began as a small studio with a simple
               mission: to make beautiful, high-quality jewelry accessible to everyone. What started as a passion project
               has grown into a trusted brand serving customers worldwide.
             </p>
