@@ -98,7 +98,7 @@ export function SignupForm() {
       authSignIn(user, token)
       toast({
         title: "Account created!",
-        description: "Welcome to Luxe Jewelry. Your account has been created successfully.",
+        description: "Welcome to Ira by House of Evolve. Your account has been created successfully.",
       })
       router.push("/account")
     } catch (error) {
