@@ -1,18 +1,17 @@
-import { Facebook, Instagram, Twitter, Mail, Phone } from "lucide-react"
+import { Facebook, Instagram, Twitter } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 
 export function Footer() {
   return (
-    <footer className="bg-muted/50 border-t border-border/50">
+    <footer className="bg/none border-t border-border/50">
       <div className="container mx-auto px-4 py-16">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="h-8 w-8 rounded-full overflow-hidden ring-1 ring-border bg-muted flex items-center justify-center">
                 <img
-                  src="/ira-logo.jpg.jpg"
+                  src="/ira-logo.jpg"
                   alt="IRA by House of Evolve logo"
                   className="h-full w-full object-cover"
                   loading="eager"
@@ -100,32 +99,10 @@ export function Footer() {
               </li>
             </ul>
           </div>
-
-          {/* Newsletter */}
-          <div className="space-y-4">
-            <h3 className="font-semibold">Stay Updated</h3>
-            <p className="text-sm text-muted-foreground">
-              Subscribe to get special offers, new arrivals, and styling tips.
-            </p>
-            <div className="space-y-2">
-              <Input placeholder="Enter your email" className="bg-background" />
-              <Button className="w-full">Subscribe</Button>
-            </div>
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4" />
-                <span>+919341330223 </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                <span>admin@houseofevolve.in</span>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div className="border-t border-border/50 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">© 2025 IRA — by house of evolve. All rights reserved.</p>
+          <p className="text-sm text-muted-foreground"> 2025 IRA — by house of evolve. All rights reserved.</p>
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <a href="/privacy" className="hover:text-primary transition-colors">
               Privacy Policy
