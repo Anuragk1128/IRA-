@@ -11,7 +11,7 @@ const heroImages = [
     position: "center 30%",
   },
   {
-    src: "iramodel2.jpg",
+    src: "iramodel2.JPG",
     alt: "Statement circular disc necklace",
     position: "center 20%",
   },

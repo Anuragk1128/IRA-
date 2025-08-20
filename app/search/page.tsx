@@ -29,6 +29,14 @@ export default function SearchPage() {
     setSearchResult(result)
   }, [query, filters])
 
+  // Keep local state in sync with URL search params when they change (e.g., new search from Header)
+  useEffect(() => {
+    const nextQuery = searchParams.get("q") || ""
+    const nextCategory = searchParams.get("category") || undefined
+    setQuery(nextQuery)
+    setFilters((prev) => ({ ...prev, category: nextCategory }))
+  }, [searchParams])
+
   const handleSearch = (newQuery: string) => {
     setQuery(newQuery)
   }
