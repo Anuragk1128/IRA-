@@ -14,7 +14,12 @@ import { useAuth } from "@/contexts/auth-context"
 import { signIn, setAuthToken } from "@/lib/auth"
 import { useToast } from "@/hooks/use-toast"
 
-export function LoginForm() {
+type LoginFormProps = {
+  redirectToAccount?: boolean
+  onSwitchToSignup?: () => void
+}
+
+export function LoginForm({ redirectToAccount = true, onSwitchToSignup }: LoginFormProps) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -35,7 +40,9 @@ export function LoginForm() {
         title: "Welcome back!",
         description: "You have been successfully signed in.",
       })
-      router.push("/account")
+      if (redirectToAccount) {
+        router.push("/account")
+      }
     } catch (error) {
       toast({
         title: "Sign in failed",
@@ -143,9 +150,15 @@ export function LoginForm() {
 
       <p className="text-center text-sm text-muted-foreground">
         Don't have an account?{" "}
-        <Link href="/signup" className="text-primary hover:underline">
-          Sign up
-        </Link>
+        {onSwitchToSignup ? (
+          <button type="button" className="text-primary hover:underline" onClick={onSwitchToSignup}>
+            Sign up
+          </button>
+        ) : (
+          <Link href="/signup" className="text-primary hover:underline">
+            Sign up
+          </Link>
+        )}
       </p>
 
       
