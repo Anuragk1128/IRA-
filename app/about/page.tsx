@@ -32,7 +32,7 @@ export default function AboutPage() {
             </div>
             <div className="relative">
               <Image
-                src="/placeholder-0jco0.png"
+                src="/pearl-bridal-jewelry.png"
                 alt="Jewelry crafting process"
                 width={500}
                 height={500}
