@@ -15,7 +15,12 @@ import { useAuth } from "@/contexts/auth-context"
 import { signUp, setAuthToken } from "@/lib/auth"
 import { useToast } from "@/hooks/use-toast"
 
-export function SignupForm() {
+type SignupFormProps = {
+  redirectToAccount?: boolean
+  onSwitchToLogin?: () => void
+}
+
+export function SignupForm({ redirectToAccount = true, onSwitchToLogin }: SignupFormProps) {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -100,7 +105,9 @@ export function SignupForm() {
         title: "Account created!",
         description: "Welcome to Ira by House of Evolve. Your account has been created successfully.",
       })
-      router.push("/account")
+      if (redirectToAccount) {
+        router.push("/account")
+      }
     } catch (error) {
       toast({
         title: "Sign up failed",
@@ -272,9 +279,15 @@ export function SignupForm() {
 
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="text-primary hover:underline">
-          Sign in
-        </Link>
+        {onSwitchToLogin ? (
+          <button type="button" className="text-primary hover:underline" onClick={onSwitchToLogin}>
+            Sign in
+          </button>
+        ) : (
+          <Link href="/login" className="text-primary hover:underline">
+            Sign in
+          </Link>
+        )}
       </p>
     </div>
   )

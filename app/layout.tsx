@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/auth-context"
 import { CartProvider } from "@/contexts/cart-context"
 import { WishlistProvider } from "@/contexts/wishlist-context"
 import { Toaster } from "@/components/ui/toaster"
+import { SignupPopup } from "@/components/auth/signup-popup"
 
 const geist = Geist({
   subsets: ["latin"],
@@ -40,6 +41,8 @@ export default function RootLayout({
             <WishlistProvider>
               {children}
               <Toaster />
+              {/* Lightweight signup popup for unauthenticated visitors */}
+              <SignupPopup />
             </WishlistProvider>
           </CartProvider>
         </AuthProvider>

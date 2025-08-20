@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { PincodeChecker } from "@/components/pincode-checker"
 import { categories as allCategories } from "@/lib/products"
 
 export function Header() {
@@ -146,6 +147,11 @@ export function Header() {
               )
             })}
           </nav>
+
+          {/* Pincode checker - Desktop only */}
+          <div className="hidden md:flex items-center ml-4">
+            <PincodeChecker />
+          </div>
 
           {/* Search bar - Hidden on mobile */}
           <div className="hidden md:flex items-center space-x-2 flex-1 max-w-sm mx-8">
