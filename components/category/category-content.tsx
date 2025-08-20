@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
+import { useSearchParams } from "next/navigation"
 import { SearchFilters } from "@/components/search/search-filters"
 import { SearchResults } from "@/components/search/search-results"
 import { searchProducts } from "@/lib/search"
@@ -13,6 +14,7 @@ interface CategoryContentProps {
 }
 
 export function CategoryContent({ category }: CategoryContentProps) {
+  const searchParams = useSearchParams()
   const [filters, setFilters] = useState<ProductFilters>({
     category: category.slug,
     sortBy: "name",
@@ -25,6 +27,13 @@ export function CategoryContent({ category }: CategoryContentProps) {
     const result = searchProducts("", filters)
     setSearchResult(result)
   }, [filters])
+
+  // Initialize subcategory from URL (?sub=slug)
+  useEffect(() => {
+    const sub = searchParams.get("sub") || undefined
+    setFilters((prev) => ({ ...prev, subcategory: sub }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   const handleFiltersChange = (newFilters: ProductFilters) => {
     setFilters({ ...newFilters, category: category.slug })
