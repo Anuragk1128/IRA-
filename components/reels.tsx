@@ -4,20 +4,26 @@ import { useEffect, useRef, useState } from "react"
 
 // Media grid: multiple reels (videos) and Instagram posts (images)
 // Single video tile with per-tile controls
-function VideoTile({ src }: { src: string }) {
+function VideoTile({ src, active, onEnded }: { src: string; active: boolean; onEnded: () => void }) {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [isPlaying, setIsPlaying] = useState(true)
   const [isMuted, setIsMuted] = useState(true)
 
+  // Initialize video element
   useEffect(() => {
     const v = videoRef.current
     if (!v) return
-    v.muted = true
-    v.loop = true
+    v.muted = isMuted
+    v.loop = false // we advance to next on ended
     v.playsInline = true
-    v.autoplay = true
-    v.play().catch(() => setIsPlaying(false))
-  }, [])
+    if (active) {
+      v.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
+    } else {
+      v.pause();
+      v.currentTime = 0
+      setIsPlaying(false)
+    }
+  }, [active])
 
   const togglePlay = () => {
     const v = videoRef.current
@@ -45,13 +51,12 @@ function VideoTile({ src }: { src: string }) {
         ref={videoRef}
         src={src}
         className="absolute inset-0 h-full w-full object-cover"
-        muted
-        loop
+        muted={isMuted}
         playsInline
-        autoPlay
         controls={false}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
+        onEnded={onEnded}
         onError={(e) => {
           const target = e.currentTarget as HTMLVideoElement
           target.outerHTML = `\n            <a href=\"https://www.instagram.com/ira_by_evolve/\" target=\"_blank\" rel=\"noopener noreferrer\"\n               class=\"flex h-full w-full items-center justify-center text-white/90 bg-black\">\n              View on Instagram\n            </a>\n          `
@@ -97,7 +102,21 @@ export function Reels() {
     { type: "image", src: "/diamond-earrings-ear.png", aspect: "1/1" },
   ]
 
-  // no global video side-effects; each tile manages its own playback
+  // Track which media index (of mediaItems) is the active video
+  const videoIndices = mediaItems
+    .map((item, i) => (item.type === "video" ? i : null))
+    .filter((v): v is number => v !== null)
+  const [activeMediaVideoIndex, setActiveMediaVideoIndex] = useState<number | null>(
+    videoIndices.length > 0 ? videoIndices[0] : null
+  )
+
+  const handleVideoEnded = (endedIndex: number) => {
+    // If the ended video is the current active one, advance to next available video (wrap)
+    const pos = videoIndices.indexOf(endedIndex)
+    if (pos === -1) return
+    const nextPos = (pos + 1) % videoIndices.length
+    setActiveMediaVideoIndex(videoIndices[nextPos])
+  }
 
   return (
     <section className="w-full mx-auto px-4 py-10">
@@ -111,7 +130,11 @@ export function Reels() {
             <div key={idx} className="relative overflow-hidden rounded-xl shadow-sm bg-black/5">
               <div className={`relative w-full ${item.aspect === "9/16" ? "aspect-[9/16]" : "aspect-square"}`}>
                 {item.type === "video" ? (
-                  <VideoTile src={item.src} />
+                  <VideoTile
+                    src={item.src}
+                    active={activeMediaVideoIndex === idx}
+                    onEnded={() => handleVideoEnded(idx)}
+                  />
                 ) : (
                   <img
                     src={item.src}
