@@ -13,7 +13,7 @@ const collections = [
   {
     title: "Evening Glamour",
     description: "Statement pieces for special occasions",
-    image: "/placeholder-m4769.png",
+    image: "/elegant-gold-earrings.png",
     itemCount: "18 pieces",
   },
   {
@@ -37,6 +37,25 @@ export function FeaturedCollections() {
           </p>
         </div>
 
+        {/* Compact reels-style video tile */}
+        <div className="mb-8 sm:mb-10 md:mb-14 flex justify-center bg-black rounded-xl overflow-hidden">
+          <div className="relative w-full max-w-[360px] sm:max-w-[420px] md:max-w-[520px] px-4 py-4">
+            <div className="relative w-full aspect-[9/16]">
+              <video
+                src="/ira_hoe.mp4"
+                className="absolute inset-0 h-full w-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                controls={false}
+              />
+            </div>
+            <h3 className="mt-3 text-center text-white text-lg sm:text-xl md:text-2xl font-semibold">Collections you'll love</h3>
+            <p className="mt-2 text-center text-white text-sm sm:text-base md:text-lg">Let's take a glimpse at our featured collections before diving in!</p>
+          </div>
+        </div>
+        
         <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-2 sm:gap-3 md:gap-4 justify-items-center items-stretch max-w-5xl mx-auto">
           {collections.map((collection, index) => {
             const routeMap: Record<string, string> = {

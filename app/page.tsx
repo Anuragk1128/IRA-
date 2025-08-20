@@ -4,6 +4,7 @@ import { FeaturedCollections } from "@/components/featured-collections"
 import { ProductShowcase } from "@/components/product-showcase"
 import { Footer } from "@/components/footer"
 import { Reels } from "@/components/reels"
+import { Newsletter } from "@/components/newsletter"
 
 export default function HomePage() {
   return (
@@ -12,8 +13,10 @@ export default function HomePage() {
       <main>
         <HeroSection />
         <FeaturedCollections />
+        
         <Reels />
         <ProductShowcase />
+        <Newsletter/>
       </main>
       <Footer />
     </div>

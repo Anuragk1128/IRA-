@@ -4,22 +4,22 @@ import { useEffect, useRef, useState } from 'react';
 
 const heroImages = [
   {
-    src: "/hero.jpg",
+    src: "/iramodel1.JPG",
     alt: "Elegant jewelry collection",
     position: "center 70%"
   },
   {
-    src: "/hero2.jpeg",
+    src: "/iramodel2.JPG",
     alt: "Elegant gold necklace",
     position: "center 60%"
   },
   {
-    src: "/hero3.jpeg",
+    src: "/iramodel3.png",
     alt: "Elegant gold rings",
     position: "center 50%"
   },
   {
-    src: "/hero4.jpeg",
+    src: "/iramodel4.JPG",
     alt: "Elegant gold bracelets",
     position: "center 60%"
   }
