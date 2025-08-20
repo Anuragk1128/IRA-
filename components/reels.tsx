@@ -121,7 +121,10 @@ export function Reels() {
   return (
     <section className="w-full mx-auto px-4 py-10">
       {/* Section Title */}
-      <h2 className="text-2xl font-semibold tracking-tight mb-6">Media</h2>
+      <div className="mb-6 text-center group">
+        <h2 className="text-2xl font-semibold tracking-tight">Media</h2>
+        <div className="mx-auto mt-2 h-px w-0 bg-muted-foreground/60 transition-all duration-300 group-hover:w-24" />
+      </div>
 
       {/* Grid of media */}
       <div className="mx-auto max-w-6xl">
