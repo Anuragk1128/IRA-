@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { categories as allCategories } from "@/lib/products"
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -81,23 +82,69 @@ export function Header() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">I</span>
+            <div className="h-8 w-8 rounded-full overflow-hidden ring-1 ring-border bg-muted flex items-center justify-center">
+              <img
+                src="/ira-logo.jpg"
+                alt="IRA by House of Evolve logo"
+                className="h-full w-full object-cover"
+                loading="eager"
+              />
             </div>
-            <span className="font-elegant text-xl font-semibold text-gradient">IRA Jewelry</span>
+            <span className="sr-only">IRA by House of Evolve</span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link 
-                key={link.href} 
-                href={link.href} 
-                className="text-sm font-medium hover:text-primary transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const matchedCategory = allCategories.find(
+                (c) => link.href === `/categories/${c.slug}`
+              )
+              const hasSubcats = matchedCategory && matchedCategory.subcategories && matchedCategory.subcategories.length > 0
+              if (!hasSubcats) {
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="text-sm font-medium hover:text-primary transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                )
+              }
+              return (
+                <div key={link.href} className="relative group">
+                  <Link
+                    href={link.href}
+                    className="text-sm font-medium hover:text-primary transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                  {/* Subcategories dropdown */}
+                  <div
+                    className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 absolute left-1/2 -translate-x-1/2 mt-2 min-w-[14rem] rounded-md border border-border bg-popover text-popover-foreground shadow-lg"
+                  >
+                    <div className="py-1">
+                      {matchedCategory!.subcategories!.map((sub) => (
+                        <Link
+                          key={sub.id}
+                          href={`/categories/${matchedCategory!.slug}?sub=${sub.slug}`}
+                          className="block px-3 py-2 text-sm hover:bg-accent/10"
+                        >
+                          {sub.name}
+                        </Link>
+                      ))}
+                      <div className="my-1 h-px bg-border" />
+                      <Link
+                        href={`/categories/${matchedCategory!.slug}`}
+                        className="block px-3 py-2 text-sm font-medium hover:bg-accent/10"
+                      >
+                        View all {matchedCategory!.name}
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
           </nav>
 
           {/* Search bar - Hidden on mobile */}

@@ -148,11 +148,7 @@ export function LoginForm() {
         </Link>
       </p>
 
-      <div className="text-center text-xs text-muted-foreground">
-        <p>Demo credentials:</p>
-        <p>Email: demo@example.com</p>
-        <p>Password: password</p>
-      </div>
+      
     </div>
   )
 }

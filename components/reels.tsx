@@ -2,25 +2,28 @@
 
 import { useEffect, useRef, useState } from "react"
 
-// Clean Reel preview: HTML5 video only + CTA to visit Instagram profile.
-// Drop a short vertical video file at public/reel-preview.mp4
-// Requirements to autoplay: must be muted, loop, and playsInline.
-export function Reels() {
+// Media grid: multiple reels (videos) and Instagram posts (images)
+// Single video tile with per-tile controls
+function VideoTile({ src, active, onEnded }: { src: string; active: boolean; onEnded: () => void }) {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [isPlaying, setIsPlaying] = useState(true)
-  const [isMuted, setIsMuted] = useState(true) // must start muted for autoplay
+  const [isMuted, setIsMuted] = useState(true)
 
-  // Ensure initial mute + autoplay behavior on mount
+  // Initialize video element
   useEffect(() => {
     const v = videoRef.current
     if (!v) return
-    v.muted = true
-    // try play on mount (should succeed when muted)
-    const playPromise = v.play()
-    if (playPromise && typeof playPromise.then === "function") {
-      playPromise.catch(() => setIsPlaying(false))
+    v.muted = isMuted
+    v.loop = false // we advance to next on ended
+    v.playsInline = true
+    if (active) {
+      v.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
+    } else {
+      v.pause();
+      v.currentTime = 0
+      setIsPlaying(false)
     }
-  }, [])
+  }, [active])
 
   const togglePlay = () => {
     const v = videoRef.current
@@ -43,56 +46,113 @@ export function Reels() {
   }
 
   return (
-    <section className="w-full mx-auto px-4 py-8">
-      <div className="mx-auto max-w-[420px]">
-        <div className="relative overflow-hidden rounded-xl shadow-lg bg-black">
-          {/* 9:16 vertical aspect ratio container */}
-          <div className="relative w-full aspect-[9/16]">
-            <video
-              ref={videoRef}
-              src="/instareel1.mp4"
-              className="absolute inset-0 h-full w-full object-cover"
-              muted={isMuted}
-              loop
-              autoPlay
-              playsInline
-              controls={false}
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              // If the video fails to load, keep a clean fallback background
-              onError={(e) => {
-                const target = e.currentTarget as HTMLVideoElement
-                target.outerHTML = `\n                  <a href="https://www.instagram.com/ira_by_evolve/" target="_blank" rel="noopener noreferrer"\n                     class=\"flex h-full w-full items-center justify-center text-white/90\">\n                    View on Instagram\n                  </a>\n                `
-              }}
-            />
+    <>
+      <video
+        ref={videoRef}
+        src={src}
+        className="absolute inset-0 h-full w-full object-cover"
+        muted={isMuted}
+        playsInline
+        controls={false}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onEnded={onEnded}
+        onError={(e) => {
+          const target = e.currentTarget as HTMLVideoElement
+          target.outerHTML = `\n            <a href=\"https://www.instagram.com/ira_by_evolve/\" target=\"_blank\" rel=\"noopener noreferrer\"\n               class=\"flex h-full w-full items-center justify-center text-white/90 bg-black\">\n              View on Instagram\n            </a>\n          `
+        }}
+      />
+      <div className="pointer-events-none absolute inset-0 flex items-end justify-center p-3">
+        <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 text-white shadow-md">
+          <button
+            type="button"
+            onClick={togglePlay}
+            className="rounded-full px-2 py-1 text-xs font-medium hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30"
+            aria-label={isPlaying ? "Pause video" : "Play video"}
+          >
+            {isPlaying ? "Pause" : "Play"}
+          </button>
+          <span className="h-4 w-px bg-white/30" aria-hidden="true" />
+          <button
+            type="button"
+            onClick={toggleMute}
+            className="rounded-full px-2 py-1 text-xs font-medium hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30"
+            aria-label={isMuted ? "Unmute video" : "Mute video"}
+          >
+            {isMuted ? "Unmute" : "Mute"}
+          </button>
+        </div>
+      </div>
+    </>
+  )
+}
 
-            {/* Controls overlay */}
-            <div className="pointer-events-none absolute inset-0 flex items-end justify-center p-3">
-              <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 text-white shadow-md">
-                <button
-                  type="button"
-                  onClick={togglePlay}
-                  className="rounded-full px-2 py-1 text-xs font-medium hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30"
-                  aria-label={isPlaying ? "Pause video" : "Play video"}
-                >
-                  {isPlaying ? "Pause" : "Play"}
-                </button>
-                <span className="h-4 w-px bg-white/30" aria-hidden="true" />
-                <button
-                  type="button"
-                  onClick={toggleMute}
-                  className="rounded-full px-2 py-1 text-xs font-medium hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30"
-                  aria-label={isMuted ? "Unmute video" : "Mute video"}
-                >
-                  {isMuted ? "Unmute" : "Mute"}
-                </button>
+export function Reels() {
+  const mediaItems: Array<
+    | { type: "video"; src: string; aspect?: "9/16" | "1/1" }
+    | { type: "image"; src: string; aspect?: "9/16" | "1/1" }
+  > = [
+    { type: "video", src: "/herovideo1.mp4", aspect: "9/16" },
+    // Duplicate the same reel if no others yet; replace with more files when available
+    { type: "video", src: "/instareel1.mp4", aspect: "9/16" },
+    // Square image posts from public assets
+    { type: "image", src: "/elegant-gold-earrings.png", aspect: "1/1" },
+    { type: "image", src: "/elegant-gold-rings.png", aspect: "1/1" },
+    { type: "image", src: "/elegant-gold-bracelets.png", aspect: "1/1" },
+    { type: "image", src: "/diamond-earrings-ear.png", aspect: "1/1" },
+  ]
+
+  // Track which media index (of mediaItems) is the active video
+  const videoIndices = mediaItems
+    .map((item, i) => (item.type === "video" ? i : null))
+    .filter((v): v is number => v !== null)
+  const [activeMediaVideoIndex, setActiveMediaVideoIndex] = useState<number | null>(
+    videoIndices.length > 0 ? videoIndices[0] : null
+  )
+
+  const handleVideoEnded = (endedIndex: number) => {
+    // If the ended video is the current active one, advance to next available video (wrap)
+    const pos = videoIndices.indexOf(endedIndex)
+    if (pos === -1) return
+    const nextPos = (pos + 1) % videoIndices.length
+    setActiveMediaVideoIndex(videoIndices[nextPos])
+  }
+
+  return (
+    <section className="w-full mx-auto px-4 py-10">
+      {/* Section Title */}
+      <div className="mb-6 text-center group">
+        <h2 className="text-2xl font-semibold tracking-tight">Media</h2>
+        <div className="mx-auto mt-2 h-px w-0 bg-muted-foreground/60 transition-all duration-300 group-hover:w-24" />
+      </div>
+
+      {/* Grid of media */}
+      <div className="mx-auto max-w-6xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {mediaItems.map((item, idx) => (
+            <div key={idx} className="relative overflow-hidden rounded-xl shadow-sm bg-black/5">
+              <div className={`relative w-full ${item.aspect === "9/16" ? "aspect-[9/16]" : "aspect-square"}`}>
+                {item.type === "video" ? (
+                  <VideoTile
+                    src={item.src}
+                    active={activeMediaVideoIndex === idx}
+                    onEnded={() => handleVideoEnded(idx)}
+                  />
+                ) : (
+                  <img
+                    src={item.src}
+                    alt="Instagram post"
+                    className="absolute inset-0 h-full w-full object-cover"
+                    loading={idx < 3 ? "eager" : "lazy"}
+                  />
+                )}
               </div>
             </div>
-          </div>
+          ))}
         </div>
 
         {/* CTA to visit profile */}
-        <div className="mt-4 flex justify-center">
+        <div className="mt-6 flex justify-center">
           <a
             href="https://www.instagram.com/ira_by_evolve/"
             target="_blank"
