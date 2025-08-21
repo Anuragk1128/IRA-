@@ -14,10 +14,10 @@ export default function BrandStory() {
         <div className="mx-auto max-w-5xl">
           {/* Header */}
           <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
-              Our <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Brand Story</span>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-black">
+              Our <span className="text-black">Brand Story</span>
             </h2>
-            <p className="mt-3 text-sm sm:text-base text-muted-foreground">
+            <p className="mt-3 text-sm sm:text-base text-black">
               Crafted with passion, guided by heritage. Discover what makes IRA unique.
             </p>
             <div className="mx-auto mt-5 h-px w-20 bg-border" />
@@ -39,8 +39,8 @@ export default function BrandStory() {
 
             {/* Text side */}
             <div>
-              <h3 className="text-xl sm:text-2xl font-semibold">Timeless Craft. Modern Design.</h3>
-              <p className="mt-3 text-sm sm:text-base leading-relaxed text-muted-foreground">
+              <h3 className="text-xl sm:text-2xl font-semibold text-black">Timeless Craft. Modern Design.</h3>
+              <p className="mt-3 text-sm sm:text-base leading-relaxed text-black">
                 At IRA, every piece is a narrative — of artisanship, precision, and emotion. We blend
                 contemporary aesthetics with traditional techniques to create jewelry that feels intimate and
                 looks iconic.

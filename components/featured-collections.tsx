@@ -29,10 +29,10 @@ export function FeaturedCollections() {
     <section className="py-8 sm:py-10 md:py-16 bg-muted/30">
       <div className="container mx-auto px-3 sm:px-4">
         <div className="text-center space-y-2.5 sm:space-y-3 mb-8 sm:mb-10 md:mb-14">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-elegant font-bold">
-            Curated <span className="text-gradient">Collections</span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-elegant font-bold text-black">
+            Curated <span>Collections</span>
           </h2>
-          <p className="text-sm sm:text-[15px] md:text-base text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm sm:text-[15px] md:text-base text-black max-w-2xl mx-auto">
             Each collection is thoughtfully designed to complement your unique style and personality
           </p>
         </div>
