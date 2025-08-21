@@ -1,20 +1,29 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Register OPTIBodoni Antiqua font */
+@font-face {
+  font-family: "OPTIBodoni Antiqua";
+  src: url("/OPTIBodoni-Antiqua.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* Updated color palette for luxury jewelry brand */
   --background: oklch(1 0 0); /* Pure white for clean backgrounds */
-  --foreground: oklch(0.35 0 0); /* Sophisticated dark gray for text */
+  --foreground: oklch(0 0 0); /* Solid black for text */
   --card: oklch(0.98 0 0); /* Neutral light gray for product cards */
-  --card-foreground: oklch(0.35 0 0);
+  --card-foreground: oklch(0 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.35 0 0);
+  --popover-foreground: oklch(0 0 0);
   --primary: oklch(0.4 0 0); /* Neutral dark gray for primary text/elements */
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.98 0 0); /* Neutral light gray background */
-  --secondary-foreground: oklch(0.35 0 0);
+  --secondary-foreground: oklch(0 0 0);
   --muted: oklch(0.96 0 0); /* Very subtle neutral gray */
-  --muted-foreground: oklch(0.45 0 0);
+  --muted-foreground: oklch(0 0 0);
   --accent: oklch(0.65 0 0); /* Medium gray accent */
   --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.45 0 0);
@@ -29,11 +38,11 @@
   --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.5rem; /* Slightly reduced for modern elegance */
   --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.35 0 0);
+  --sidebar-foreground: oklch(0 0 0);
   --sidebar-primary: oklch(0.45 0.22 348);
   --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.98 0.01 340);
-  --sidebar-accent-foreground: oklch(0.35 0 0);
+  --sidebar-accent-foreground: oklch(0 0 0);
   --sidebar-border: oklch(0.92 0.005 340);
   --sidebar-ring: oklch(0.45 0.22 348 / 0.5);
 }
@@ -112,8 +121,8 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   /* Added custom font variables for jewelry brand typography */
-  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+  --font-sans: "OPTIBodoni Antiqua", ui-serif, Georgia, serif;
+  --font-serif: "OPTIBodoni Antiqua", "Playfair Display", ui-serif, Georgia, serif;
 }
 
 @layer base {
@@ -121,20 +130,30 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground font-serif antialiased;
   }
 
   /* Added elegant typography styles for jewelry brand */
   .font-elegant {
-    font-family: "Playfair Display", ui-serif, Georgia, serif;
+    font-family: "OPTIBodoni Antiqua", ui-serif, Georgia, serif;
     font-weight: 400;
     letter-spacing: -0.025em;
   }
 
   .text-gradient {
-    background: linear-gradient(135deg, var(--primary), var(--accent));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    -webkit-text-fill-color: initial !important;
+    background-clip: initial !important;
+    color: #000 !important;
+  }
+
+  /* Force Tailwind gradient text combos to solid black */
+  .bg-clip-text.text-transparent {
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    background-clip: initial !important;
+    -webkit-text-fill-color: initial !important;
+    color: #000 !important;
   }
 }
