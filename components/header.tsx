@@ -78,7 +78,7 @@ export function Header() {
   return (
     <header
       className={cn(
-        "fixed top-0 z-50 w-full border-b border-border/40 bg-black text-white"
+        "fixed top-0 z-50 w-full border-b border-border/40 bg-black text-white px-2"
       )}
     >
       <div className="container mx-auto px-4">
