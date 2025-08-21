@@ -10,12 +10,12 @@ const heroImages = [
   {
     src: "iramodel1.JPG",
     alt: "Elegant layered gold jewelry collection",
-    position: "center 30%",
+    position: "center 10%",
   },
   {
     src: "iramodel2.JPG",
     alt: "Statement circular disc necklace",
-    position: "center 20%",
+    position: "center 10%",
   },
   {
     src: "iramodel3.png",
@@ -83,7 +83,7 @@ export function HeroSection() {
               return (
                 <div key={index} className="pl-4 shrink-0 basis-[88%] sm:basis-[75%] md:basis-[65%] lg:basis-[58%]">
                   <div
-                    className={`relative h-[240px] sm:h-[320px] md:h-[380px] lg:h-[420px] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-black/5 transition-all duration-500 ${
+                    className={`relative h-[240px] sm:h-[320px] md:h-[380px] lg:h-[460px] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-black/5 transition-all duration-500 ${
                       isActive ? "scale-100 opacity-100" : "scale-[0.95] opacity-80"
                     }`}
                   >
