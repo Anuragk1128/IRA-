@@ -67,8 +67,8 @@ export function HeroSection() {
   }, [emblaApi, paused])
 
   return (
-    <section className="relative w-full pt-2 md:pt-3 pb-8 md:pb-10">
-      <div className="mx-auto max-w-[1200px] px-4">
+    <section className="relative w-full pt-28 md:pt-32 pb-10 md:pb-14">
+      <div className="mx-auto max-w-[1570px] px-4">
         {/* Viewport */}
         <div
           className="relative overflow-hidden"
@@ -83,7 +83,7 @@ export function HeroSection() {
               return (
                 <div key={index} className="pl-4 shrink-0 basis-[88%] sm:basis-[75%] md:basis-[65%] lg:basis-[58%]">
                   <div
-                    className={`relative h-[320px] sm:h-[420px] md:h-[520px] lg:h-[560px] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-black/5 transition-all duration-500 ${
+                    className={`relative h-[240px] sm:h-[320px] md:h-[380px] lg:h-[420px] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-black/5 transition-all duration-500 ${
                       isActive ? "scale-100 opacity-100" : "scale-[0.95] opacity-80"
                     }`}
                   >
