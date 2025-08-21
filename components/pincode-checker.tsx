@@ -16,9 +16,9 @@ interface PincodeCheckerProps {
 function getPincodeMessage(pin: string) {
   if (!/^\d{6}$/.test(pin)) return { ok: false, text: "Enter a valid 6-digit pincode" }
   // Example messages based on prefix
-  if (pin.startsWith("56") || pin.startsWith("40")) return { ok: true, text: "Delivery in 2-4 days" }
-  if (pin.startsWith("11") || pin.startsWith("12")) return { ok: true, text: "Delivery in 3-5 days" }
-  return { ok: true, text: "Delivery in 4-7 days" }
+  if (pin.startsWith("56") || pin.startsWith("40")) return { ok: true, text: "Delivering in 2-4 days" }
+  if (pin.startsWith("11") || pin.startsWith("12")) return { ok: true, text: "Delivering in 3-5 days" }
+  return { ok: true, text: "Delivering in 4-7 days" }
 }
 
 export function PincodeChecker({ className, initialPincode }: PincodeCheckerProps) {
@@ -85,7 +85,7 @@ export function PincodeChecker({ className, initialPincode }: PincodeCheckerProp
       >
         <MapPin className="h-4 w-4" />
         <span className="hidden sm:inline">
-          {selectedPin ? `Deliver to ${selectedPin}` : "Check delivery"}
+          {selectedPin ? `Delivering to ${selectedPin}` : "Check delivery"}
         </span>
         <span className="sm:hidden">Pincode</span>
       </button>
