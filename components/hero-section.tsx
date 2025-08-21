@@ -2,7 +2,9 @@
 
 import type React from "react"
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
+import useEmblaCarousel from "embla-carousel-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 const heroImages = [
   {
@@ -28,143 +30,105 @@ const heroImages = [
 ]
 
 export function HeroSection() {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [isTransitioning, setIsTransitioning] = useState(false)
-  const [touchStartX, setTouchStartX] = useState<number | null>(null)
-  const [touchMoveX, setTouchMoveX] = useState<number | null>(null)
-  const [mouseStartX, setMouseStartX] = useState<number | null>(null)
-  const [mouseMoveX, setMouseMoveX] = useState<number | null>(null)
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: true,
+    align: "center",
+    containScroll: "trimSnaps",
+    skipSnaps: false,
+  })
 
-  // Refs for timers and video
-  const intervalRef = useRef<number | null>(null)
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return
+    setSelectedIndex(emblaApi.selectedScrollSnap())
+  }, [emblaApi])
 
-  // Helper to clear interval safely
-  const clearSlideInterval = () => {
-    if (intervalRef.current) {
-      window.clearInterval(intervalRef.current)
-      intervalRef.current = null
-    }
-  }
+  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi])
+  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi])
+  const scrollTo = useCallback((idx: number) => emblaApi && emblaApi.scrollTo(idx), [emblaApi])
 
-  // Auto-advance behavior for images: advance every 5s
   useEffect(() => {
-    clearSlideInterval()
-    // Image: auto-advance on interval
-    intervalRef.current = window.setInterval(() => {
-      setIsTransitioning(true)
-      setTimeout(() => {
-        setCurrentImageIndex((prevIndex) => (prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1))
-        setIsTransitioning(false)
-      }, 500)
+    if (!emblaApi) return
+    onSelect()
+    emblaApi.on("select", onSelect)
+    return () => {
+      emblaApi.off("select", onSelect)
+    }
+  }, [emblaApi, onSelect])
+
+  // Autoplay (no external plugin needed)
+  useEffect(() => {
+    if (!emblaApi) return
+    const id = window.setInterval(() => {
+      if (!paused) emblaApi.scrollNext()
     }, 5000)
-    return () => clearSlideInterval()
-  }, [currentImageIndex])
-
-  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    setTouchStartX(e.touches[0].clientX)
-    setTouchMoveX(null)
-  }
-
-  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    setTouchMoveX(e.touches[0].clientX)
-  }
-
-  const handleTouchEnd = () => {
-    if (touchStartX === null || touchMoveX === null) return
-    const deltaX = touchMoveX - touchStartX
-    const threshold = 50 // px to trigger swipe
-    if (Math.abs(deltaX) > threshold) {
-      setCurrentImageIndex((prev) => {
-        if (deltaX < 0) {
-          // swipe left -> next
-          return prev === heroImages.length - 1 ? 0 : prev + 1
-        } else {
-          // swipe right -> prev
-          return prev === 0 ? heroImages.length - 1 : prev - 1
-        }
-      })
-    }
-    setTouchStartX(null)
-    setTouchMoveX(null)
-  }
-
-  // Desktop mouse drag swipe
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    setMouseStartX(e.clientX)
-    setMouseMoveX(null)
-  }
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (mouseStartX !== null) {
-      setMouseMoveX(e.clientX)
-    }
-  }
-  const handleMouseUp = () => {
-    if (mouseStartX === null || mouseMoveX === null) return setMouseStartX(null)
-    const deltaX = mouseMoveX - mouseStartX
-    const threshold = 50
-    if (Math.abs(deltaX) > threshold) {
-      setCurrentImageIndex((prev) => {
-        if (deltaX < 0) return prev === heroImages.length - 1 ? 0 : prev + 1
-        return prev === 0 ? heroImages.length - 1 : prev - 1
-      })
-    }
-    setMouseStartX(null)
-    setMouseMoveX(null)
-  }
+    return () => window.clearInterval(id)
+  }, [emblaApi, paused])
 
   return (
-    <section className="relative w-full h-screen min-h-[600px] max-h-[100vh] overflow-hidden">
-      <div
-        className="relative w-full h-full"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-      >
-        {heroImages.map((image, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
-              index === currentImageIndex ? "opacity-100" : "opacity-0 pointer-events-none"
-            }`}
-          >
-            <div className="relative w-full h-full overflow-hidden">
-              <img
-                src={image.src || "/placeholder.svg"}
-                alt={image.alt}
-                className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
-                style={{
-                  objectPosition: image.position,
-                  objectFit: "cover",
-                }}
-                loading={index === 0 ? "eager" : "lazy"}
-                sizes="100vw"
-              />
-              <div
-                className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"
-                aria-hidden="true"
-              />
-              <div
-                className="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-black/10"
-                aria-hidden="true"
-              />
-            </div>
+    <section className="relative w-full pt-28 md:pt-32 pb-10 md:pb-14">
+      <div className="mx-auto max-w-[1570px] px-4">
+        {/* Viewport */}
+        <div
+          className="relative overflow-hidden"
+          ref={emblaRef}
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
+          {/* Container */}
+          <div className="flex -ml-4">
+            {heroImages.map((image, index) => {
+              const isActive = index === selectedIndex
+              return (
+                <div key={index} className="pl-4 shrink-0 basis-[88%] sm:basis-[75%] md:basis-[65%] lg:basis-[58%]">
+                  <div
+                    className={`relative h-[240px] sm:h-[320px] md:h-[380px] lg:h-[420px] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-black/5 transition-all duration-500 ${
+                      isActive ? "scale-100 opacity-100" : "scale-[0.95] opacity-80"
+                    }`}
+                  >
+                    <img
+                      src={image.src || "/placeholder.svg"}
+                      alt={image.alt}
+                      className="w-full h-full object-cover"
+                      style={{ objectPosition: image.position }}
+                      loading={index === 0 ? "eager" : "lazy"}
+                    />
+                    {/* Optional gradient overlays for text legibility */}
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
+                  </div>
+                </div>
+              )
+            })}
           </div>
-        ))}
+        </div>
 
-        {/* Navigation Dots */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
-          {heroImages.map((_, index) => (
+        {/* Arrows */}
+        <button
+          onClick={scrollPrev}
+          aria-label="Previous slide"
+          className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md ring-1 ring-black/10 hover:bg-white"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <button
+          onClick={scrollNext}
+          aria-label="Next slide"
+          className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md ring-1 ring-black/10 hover:bg-white"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+
+        {/* Dots */}
+        <div className="mt-6 flex items-center justify-center gap-2">
+          {heroImages.map((_, i) => (
             <button
-              key={index}
-              onClick={() => setCurrentImageIndex(index)}
-              className={`rounded-full transition-all duration-300 ${
-                index === currentImageIndex ? "bg-white w-8 h-3" : "bg-white/50 hover:bg-white/75 w-3 h-3"
+              key={i}
+              onClick={() => scrollTo(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              className={`h-2 rounded-full transition-all ${
+                i === selectedIndex ? "w-8 bg-neutral-800" : "w-2 bg-neutral-300 hover:bg-neutral-400"
               }`}
-              aria-label={`Go to slide ${index + 1}`}
             />
           ))}
         </div>

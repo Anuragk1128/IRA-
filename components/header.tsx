@@ -25,7 +25,8 @@ export function Header() {
   const { user, isAuthenticated, signOut } = useAuth()
   const { cart } = useCart()
   const { wishlist } = useWishlist()
-  const [showHeader, setShowHeader] = useState(false)
+  const [openMegaFor, setOpenMegaFor] = useState<string | null>(null)
+  const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false)
 
   // Close mobile menu when route changes (fallback, may not trigger in App Router)
   useEffect(() => {
@@ -38,17 +39,7 @@ export function Header() {
     }
   }, [])
 
-  // Show header when user scrolls; keep it hidden at top unless menu is open
-  useEffect(() => {
-    const onScroll = () => {
-      const scrolled = window.scrollY > 0
-      setShowHeader(scrolled || isMobileMenuOpen)
-    }
-    // Initialize on mount
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [isMobileMenuOpen])
+  // Header is always visible now; removed scroll-based show/hide logic
 
   // Navigation links data
   const navLinks = [
@@ -59,15 +50,39 @@ export function Header() {
     { href: "/categories/bracelets", label: "Bracelets" },
   ]
 
+  // Facets for mega menu
+  const materials = [
+    { label: "Silver coated", slug: "diamond" },
+    { label: "Gold coated", slug: "platinum" },
+    { label: "Stainless Steel", slug: "gemstone" },
+    { label: "Copper", slug: "gold" },
+  ] as const
+
+  const priceRanges = [
+    { label: "Under ₹10K", min: 0, max: 10000 },
+    { label: "₹10K - ₹20K", min: 10000, max: 20000 },
+    { label: "₹20K - ₹30K", min: 20000, max: 30000 },
+    { label: "₹30K - ₹50K", min: 30000, max: 50000 },
+    { label: "₹50K - ₹75K", min: 50000, max: 75000 },
+    { label: "Over ₹75K", min: 75000, max: undefined as number | undefined },
+  ] as const
+
+  const occasions = [
+    { label: "Daily Wear", slug: "daily" },
+    { label: "Casual Outings", slug: "casual" },
+    { label: "Festive", slug: "festive" },
+    { label: "Anniversary", slug: "anniversary" },
+    { label: "Wedding", slug: "wedding" },
+  ] as const
+
   return (
     <header
       className={cn(
-        "fixed top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
-        "transform transition-all duration-300",
-        showHeader ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
+        "fixed top-0 z-50 w-full border-b border-border/40 bg-white text-black"
       )}
     >
       <div className="container mx-auto px-4">
+        {/* Top bar */}
         <div className="flex h-16 items-center justify-between">
           {/* Mobile menu button */}
           <Button 
@@ -94,81 +109,112 @@ export function Header() {
             <span className="sr-only">IRA by House of Evolve</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => {
-              const matchedCategory = allCategories.find(
-                (c) => link.href === `/categories/${c.slug}`
-              )
-              const hasSubcats = matchedCategory && matchedCategory.subcategories && matchedCategory.subcategories.length > 0
-              if (!hasSubcats) {
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="text-sm font-medium hover:text-primary transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                )
-              }
-              return (
-                <div key={link.href} className="relative group">
-                  <Link
-                    href={link.href}
-                    className="text-sm font-medium hover:text-primary transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                  {/* Subcategories dropdown */}
-                  <div
-                    className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 absolute left-1/2 -translate-x-1/2 mt-2 min-w-[14rem] rounded-md border border-border bg-popover text-popover-foreground shadow-lg"
-                  >
-                    <div className="py-1">
-                      {matchedCategory!.subcategories!.map((sub) => (
-                        <Link
-                          key={sub.id}
-                          href={`/categories/${matchedCategory!.slug}?sub=${sub.slug}`}
-                          className="block px-3 py-2 text-sm hover:bg-accent/10"
-                        >
-                          {sub.name}
-                        </Link>
-                      ))}
-                      <div className="my-1 h-px bg-border" />
-                      <Link
-                        href={`/categories/${matchedCategory!.slug}`}
-                        className="block px-3 py-2 text-sm font-medium hover:bg-accent/10"
-                      >
-                        View all {matchedCategory!.name}
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </nav>
-
-          {/* Pincode checker - Desktop only */}
-          <div className="hidden md:flex items-center ml-4">
-            <PincodeChecker />
+          {/* Desktop Search centered in top bar */}
+          <div className="hidden md:flex items-center space-x-2 flex-1 max-w-lg mx-8 justify-center">
+            <SearchBar />
           </div>
 
-          {/* Search bar - Hidden on mobile */}
-          <div className="hidden md:flex items-center space-x-2 flex-1 max-w-sm mx-8">
-            <SearchBar />
+          {/* Fixed mega menu panel (desktop) */}
+          {openMegaFor && (
+            <div
+              className={cn(
+                "hidden md:block fixed left-0 right-0 top-28 z-40 border-t border-border/40 bg-white text-black shadow-xl",
+              )}
+              onMouseLeave={() => setOpenMegaFor(null)}
+              onMouseEnter={() => void 0}
+              role="menu"
+              aria-label="Category mega menu"
+            >
+              {(() => {
+                const cat = allCategories.find((c) => c.slug === openMegaFor)
+                if (!cat) return null
+                return (
+                  <div className="w-full px-4 md:px-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-4 md:p-6 max-h-[70vh] overflow-y-auto">
+                      <div>
+                        <div className="text-xs uppercase tracking-wide text-muted-foreground mb-3">Shop by Style</div>
+                        <div className="space-y-1">
+                          {cat.subcategories?.map((sub) => (
+                            <Link key={sub.id} href={`/categories/${cat.slug}?sub=${sub.slug}`} className="block px-2 py-1.5 text-sm rounded hover:bg-black/5">
+                              {sub.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="text-xs uppercase tracking-wide text-muted-foreground mb-3">Shop by Material</div>
+                        <div className="space-y-1">
+                          {materials.map((m) => (
+                            <Link key={m.slug} href={`/categories/${cat.slug}?material=${m.slug}`} className="block px-2 py-1.5 text-sm rounded hover:bg-black/5">
+                              {m.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="text-xs uppercase tracking-wide text-muted-foreground mb-3">Shop for</div>
+                        <div className="space-y-1">
+                          {priceRanges.map((pr, idx) => {
+                            const params = new URLSearchParams()
+                            if (typeof pr.min === 'number') params.set('min', String(pr.min))
+                            if (typeof pr.max === 'number') params.set('max', String(pr.max))
+                            return (
+                              <Link key={idx} href={`/categories/${cat.slug}?${params.toString()}`} className="block px-2 py-1.5 text-sm rounded hover:bg-black/5">
+                                {pr.label}
+                              </Link>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="text-xs uppercase tracking-wide text-muted-foreground mb-3">Shop by Occasion</div>
+                        <div className="space-y-1">
+                          {occasions.map((o) => (
+                            <Link key={o.slug} href={`/categories/${cat.slug}?occasion=${o.slug}`} className="block px-2 py-1.5 text-sm rounded hover:bg-black/5">
+                              {o.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="border-top border-border/40 px-6 py-3 flex items-center justify-between">
+                      <Link href={`/categories/${cat.slug}`} className="text-sm font-medium hover:text-black/80">
+                        View all {cat.name}
+                      </Link>
+                      <div className="hidden md:flex items-center gap-3">
+                        <div className="h-16 w-28 rounded-md overflow-hidden ring-1 ring-border bg-muted">
+                          <img src={cat.image ?? '/placeholder.svg?height=128&width=224'} alt={cat.name} className="h-full w-full object-cover" />
+                        </div>
+                        <div className="text-xs text-black/70 max-w-[18rem]">
+                          Explore curated {cat.name.toLowerCase()} crafted for every style and occasion.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })()}
+            </div>
+          )}
+
+          {/* Pincode checker - Desktop only */}
+          <div className="hidden md:flex items-center ml-4 text-black">
+            <PincodeChecker />
           </div>
           
           {/* Mobile Search - Only visible when menu is open */}
           <div className={cn(
-            "md:hidden w-full px-4 py-3 bg-background border-b border-border",
+            "md:hidden w-full px-4 py-3 bg-white text-black border-b border-border/40",
             isMobileMenuOpen ? 'block' : 'hidden'
           )}>
             <SearchBar />
           </div>
 
-          {/* Action buttons */}
+          {/* Action buttons (right) */}
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative text-black">
               <Link href="/wishlist">
                 <Heart className="h-5 w-5" />
               </Link>
@@ -182,7 +228,7 @@ export function Header() {
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" className="text-black">
                     <User className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -211,14 +257,14 @@ export function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button variant="ghost" size="icon" asChild>
+              <Button variant="ghost" size="icon" asChild className="text-black">
                 <Link href="/login">
                   <User className="h-5 w-5" />
                 </Link>
               </Button>
             )}
 
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative text-black">
               <Link href="/cart">
                 <ShoppingBag className="h-5 w-5" />
               </Link>
@@ -231,15 +277,40 @@ export function Header() {
           </div>
         </div>
 
+        {/* Bottom bar: Collections and Categories (desktop) */}
+        <div className="hidden md:flex h-12 items-center justify-center">
+          <nav className="flex items-center gap-6">
+            {/* Collections root */}
+            <Link
+              href="/categories"
+              className="text-sm font-medium hover:text-black/80 transition-colors"
+              onMouseEnter={() => setOpenMegaFor(null)}
+            >
+              Collections
+            </Link>
+            {/* Dynamic categories */}
+            {allCategories.map((cat) => (
+              <Link
+                key={cat.slug}
+                href={`/categories/${cat.slug}`}
+                className="text-sm font-medium hover:text-black/80 transition-colors"
+                onMouseEnter={() => setOpenMegaFor(cat.slug)}
+              >
+                {cat.name}
+              </Link>
+            ))}
+          </nav>
+        </div>
+
         {/* Mobile Menu */}
         <div className={cn(
-          "md:hidden fixed inset-0 bg-background z-50 transition-all duration-300 ease-in-out transform border-t border-border",
+          "md:hidden fixed inset-0 bg-white text-black z-50 transition-all duration-300 ease-in-out transform border-t border-border/40",
           isMobileMenuOpen 
-            ? "translate-y-16 opacity-100 visible" 
+            ? "translate-y-28 opacity-100 visible" 
             : "-translate-y-full opacity-0 invisible"
         )}>
           {/* Overlay to prevent interaction with content behind */}
-          <div className="absolute inset-0 bg-background -z-10" />
+          <div className="absolute inset-0 bg-white -z-10" />
           <div className="container mx-auto px-0 py-2">
             
             {/* Mobile Navigation */}
@@ -248,18 +319,62 @@ export function Header() {
                 <Link 
                   key={link.href} 
                   href={link.href}
-                  className="px-4 py-3 text-lg font-medium hover:bg-accent/10 rounded-md transition-colors"
+                  className="px-4 py-3 text-lg font-medium text-black hover:bg-black/5 rounded-md transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {link.label}
                 </Link>
               ))}
+
+              {/* Mobile Categories Dropdown (dark) */}
+              <button
+                className="px-4 py-3 text-lg font-semibold rounded-md bg-black/5 hover:bg-black/10 transition-colors text-black text-left flex items-center justify-between"
+                onClick={() => setIsMobileCategoriesOpen((v) => !v)}
+                aria-expanded={isMobileCategoriesOpen}
+                aria-controls="mobile-categories-panel"
+              >
+                <span>Categories</span>
+                <span className="text-black/70">{isMobileCategoriesOpen ? "−" : "+"}</span>
+              </button>
+              <div
+                id="mobile-categories-panel"
+                className={cn(
+                  "rounded-md overflow-hidden",
+                  isMobileCategoriesOpen ? "block" : "hidden"
+                )}
+              >
+                {allCategories.map((cat) => (
+                  <div key={cat.slug} className="px-2 py-2">
+                    <Link
+                      href={`/categories/${cat.slug}`}
+                      className="block px-2 py-2 rounded text-base hover:bg-black/5"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {cat.name}
+                    </Link>
+                    {!!cat.subcategories?.length && (
+                      <div className="pl-4">
+                        {cat.subcategories.map((sub) => (
+                          <Link
+                            key={sub.id}
+                            href={`/categories/${cat.slug}?sub=${sub.slug}`}
+                            className="block px-2 py-1.5 text-sm text-black/90 rounded hover:bg-black/5"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {sub.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
               
               {isAuthenticated ? (
                 <>
                   <Link 
                     href="/account" 
-                    className="px-4 py-3 text-lg font-medium hover:bg-accent/10 rounded-md transition-colors flex items-center gap-2"
+                    className="px-4 py-3 text-lg font-medium text-black hover:bg-black/5 rounded-md transition-colors flex items-center gap-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <User className="h-5 w-5" />
@@ -270,7 +385,7 @@ export function Header() {
                       signOut()
                       setIsMobileMenuOpen(false)
                     }}
-                    className="px-4 py-3 text-lg font-medium hover:bg-accent/10 rounded-md transition-colors text-left flex items-center gap-2 w-full"
+                    className="px-4 py-3 text-lg font-medium text-black hover:bg-black/5 rounded-md transition-colors text-left flex items-center gap-2 w-full"
                   >
                     <LogOut className="h-5 w-5" />
                     Sign Out
@@ -279,7 +394,7 @@ export function Header() {
               ) : (
                 <Link 
                   href="/login" 
-                  className="px-4 py-3 text-lg font-medium hover:bg-accent/10 rounded-md transition-colors flex items-center gap-2"
+                  className="px-4 py-3 text-lg font-medium text-black hover:bg-black/5 rounded-md transition-colors flex items-center gap-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <User className="h-5 w-5" />

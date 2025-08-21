@@ -6,7 +6,7 @@ export const categories: ProductCategory[] = [
     name: "Necklaces",
     slug: "necklaces",
     description: "Elegant necklaces for every occasion",
-    image: "/placeholder-4e5qy.png",
+    image: "/rose-gold-layered-necklace.png",
     subcategories: [
       { id: "1", name: "Statement Necklaces", slug: "statement", description: "Bold and eye-catching pieces" },
       { id: "2", name: "Delicate Chains", slug: "delicate", description: "Subtle and refined designs" },

@@ -16,9 +16,9 @@ interface PincodeCheckerProps {
 function getPincodeMessage(pin: string) {
   if (!/^\d{6}$/.test(pin)) return { ok: false, text: "Enter a valid 6-digit pincode" }
   // Example messages based on prefix
-  if (pin.startsWith("56") || pin.startsWith("40")) return { ok: true, text: "Delivery in 2-4 days" }
-  if (pin.startsWith("11") || pin.startsWith("12")) return { ok: true, text: "Delivery in 3-5 days" }
-  return { ok: true, text: "Delivery in 4-7 days" }
+  if (pin.startsWith("56") || pin.startsWith("40")) return { ok: true, text: "Delivering in 2-4 days" }
+  if (pin.startsWith("11") || pin.startsWith("12")) return { ok: true, text: "Delivering in 3-5 days" }
+  return { ok: true, text: "Delivering in 4-7 days" }
 }
 
 export function PincodeChecker({ className, initialPincode }: PincodeCheckerProps) {
@@ -77,15 +77,15 @@ export function PincodeChecker({ className, initialPincode }: PincodeCheckerProp
       <button
         type="button"
         className={cn(
-          "flex items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-1.5 text-sm hover:bg-muted/60 transition-colors",
+          "flex items-center gap-1 rounded-md border border-border bg-muted/40 px-2 h-6 text-xs hover:bg-muted/60 transition-colors",
           open && "bg-muted"
         )}
         aria-haspopup="true"
         aria-expanded={open}
       >
-        <MapPin className="h-4 w-4" />
+        <MapPin className="h-3 w-3" />
         <span className="hidden sm:inline">
-          {selectedPin ? `Deliver to ${selectedPin}` : "Check delivery"}
+          {selectedPin ? `Delivering to ${selectedPin}` : "Check delivery"}
         </span>
         <span className="sm:hidden">Pincode</span>
       </button>
@@ -93,7 +93,7 @@ export function PincodeChecker({ className, initialPincode }: PincodeCheckerProp
       {/* Dropdown */}
       <Card
         className={cn(
-          "absolute left-0 mt-2 w-72 p-3 shadow-lg border border-border bg-popover text-popover-foreground",
+          "absolute left-0 mt-2 w-64 p-2 shadow-lg border border-border bg-popover text-popover-foreground",
           "invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0",
           open && "visible opacity-100 translate-y-0",
           "transition-all duration-150 z-50"
@@ -109,21 +109,21 @@ export function PincodeChecker({ className, initialPincode }: PincodeCheckerProp
             placeholder="Enter 6-digit pincode"
             value={pin}
             onChange={(e) => setPin(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
-            className="flex-1"
+            className="flex-1 h-8 text-sm"
           />
-          <Button size="sm" onClick={handleCheck}>
+          <Button size="sm" className="h-8 px-3 text-xs" onClick={handleCheck}>
             Check
           </Button>
         </div>
         {message && (
-          <div className={cn("mt-2 flex items-center gap-2 text-sm", message.ok ? "text-green-600" : "text-red-600")}
+          <div className={cn("mt-1 flex items-center gap-1 text-sm", message.ok ? "text-green-600" : "text-red-600")}
           >
-            {message.ok ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
+            {message.ok ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
             <span>{message.text}</span>
           </div>
         )}
         {!!selectedPin && (
-          <div className="mt-2 text-xs text-muted-foreground">Saved pincode: {selectedPin}</div>
+          <div className="mt-1 text-xs text-muted-foreground">Saved pincode: {selectedPin}</div>
         )}
       </Card>
     </div>

@@ -58,8 +58,7 @@ export function SignupPopup() {
           <div className="mb-3">
             {mode === "signup" ? (
               <>
-                <h3 className="text-lg font-semibold">Join IRA by House of Evolve</h3>
-                <p className="text-sm text-muted-foreground">Create an account to save your wishlist and track orders.</p>
+              
               </>
             ) : (
               <>
