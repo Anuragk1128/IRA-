@@ -34,6 +34,47 @@ export function HeroSection() {
   const [touchMoveX, setTouchMoveX] = useState<number | null>(null)
   const [mouseStartX, setMouseStartX] = useState<number | null>(null)
   const [mouseMoveX, setMouseMoveX] = useState<number | null>(null)
+  const [showSideBars, setShowSideBars] = useState(false)
+
+  // Container to compute aspect ratio and detect letterboxing
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  // Cache natural sizes so we can recompute without relying on onLoad
+  const imageSizesRef = useRef<Record<number, { w: number; h: number }>>({})
+
+  // Determine if side bars (left/right) will appear due to object-contain on wide screens
+  const computeLetterbox = (imgWidth?: number, imgHeight?: number) => {
+    const el = containerRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const containerAR = rect.width / rect.height
+    let imageAR: number | null = null
+    if (imgWidth && imgHeight) {
+      imageAR = imgWidth / imgHeight
+    }
+    // If we don't have image AR from onLoad, bail until we do
+    if (!imageAR) return
+
+    // If image AR is smaller than container AR, vertical bars appear (left/right)
+    const hasSideBars = imageAR < containerAR
+    setShowSideBars(hasSideBars)
+  }
+
+  // Recompute on resize using cached natural size for current slide
+  useEffect(() => {
+    const onResize = () => {
+      const size = imageSizesRef.current[currentImageIndex]
+      if (size) computeLetterbox(size.w, size.h)
+    }
+    window.addEventListener("resize", onResize)
+    return () => window.removeEventListener("resize", onResize)
+  }, [currentImageIndex])
+
+  // Recompute when current slide changes
+  useEffect(() => {
+    const size = imageSizesRef.current[currentImageIndex]
+    if (size) computeLetterbox(size.w, size.h)
+    else setShowSideBars(false)
+  }, [currentImageIndex])
 
   // Refs for timers and video
   const intervalRef = useRef<number | null>(null)
@@ -116,6 +157,7 @@ export function HeroSection() {
     <section className="relative w-full h-screen min-h-[600px] max-h-[100vh] overflow-hidden">
       <div
         className="relative w-full h-full"
+        ref={containerRef}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -135,10 +177,22 @@ export function HeroSection() {
               <img
                 src={image.src || "/placeholder.svg"}
                 alt={image.alt}
-                className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
+                className="absolute inset-0 w-full h-full object-cover lg:object-contain object-center transition-transform duration-700 hover:scale-105"
                 style={{
                   objectPosition: image.position,
-                  objectFit: "cover",
+                }}
+                onLoad={(e) => {
+                  // Only compute for the currently visible slide to avoid flicker
+                  if (index !== currentImageIndex) {
+                    // Still cache size for later use
+                    const t = e.currentTarget as HTMLImageElement
+                    imageSizesRef.current[index] = { w: t.naturalWidth, h: t.naturalHeight }
+                    return
+                  }
+                  const target = e.currentTarget as HTMLImageElement
+                  const { naturalWidth, naturalHeight } = target
+                  imageSizesRef.current[index] = { w: naturalWidth, h: naturalHeight }
+                  computeLetterbox(naturalWidth, naturalHeight)
                 }}
                 loading={index === 0 ? "eager" : "lazy"}
                 sizes="100vw"
@@ -168,6 +222,24 @@ export function HeroSection() {
             />
           ))}
         </div>
+
+        {/* Side animations when image doesn't fill width (desktop only) */}
+        {showSideBars && (
+          <>
+            <div
+              className="hidden lg:block pointer-events-none absolute inset-y-0 left-0 w-[12%] z-10"
+              aria-hidden="true"
+            >
+              <div className="w-full h-full bg-gradient-to-r from-white/20 via-white/10 to-transparent animate-pulse" />
+            </div>
+            <div
+              className="hidden lg:block pointer-events-none absolute inset-y-0 right-0 w-[12%] z-10"
+              aria-hidden="true"
+            >
+              <div className="w-full h-full bg-gradient-to-l from-white/20 via-white/10 to-transparent animate-pulse" />
+            </div>
+          </>
+        )}
       </div>
     </section>
   )

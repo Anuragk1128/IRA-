@@ -32,8 +32,8 @@ export default function AboutPage() {
             </div>
             <div className="relative">
               <Image
-                src="/pearl-bridal-jewelry.png"
-                alt="Jewelry crafting process"
+                src="/Ceo.JPG"
+                alt=""
                 width={500}
                 height={500}
                 className="rounded-2xl shadow-2xl"
@@ -110,7 +110,7 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Our Story</h2>
           <div className="prose prose-lg mx-auto text-gray-600">
             <p className="mb-6">
-              Founded in 2024 by Subham and Sakshi, our company began as a small studio with a simple
+              Founded in 2024 by Sakshi Vats, our company began as a small studio with a simple
               mission: to make beautiful, high-quality jewelry accessible to everyone. What started as a passion project
               has grown into a trusted brand serving customers worldwide.
             </p>
