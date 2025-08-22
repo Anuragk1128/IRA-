@@ -10,12 +10,12 @@ const heroImages = [
   {
     src: "iramodel1.JPG",
     alt: "Elegant layered gold jewelry collection",
-    position: "center 10%",
+    position: "center 4%",
   },
   {
     src: "iramodel2.JPG",
     alt: "Statement circular disc necklace",
-    position: "center 10%",
+    position: "center 8%",
   },
   {
     src: "iramodel3.png",
@@ -67,7 +67,7 @@ export function HeroSection() {
   }, [emblaApi, paused])
 
   return (
-    <section className="relative w-full pt-28 md:pt-32 pb-10 md:pb-14">
+    <section className="relative w-full pt-2 lg:pt-2 md:pt-2 pb-6 lg:pb-6 md:pb-10">
       <div className="mx-auto max-w-[1570px] px-4">
         {/* Viewport */}
         <div

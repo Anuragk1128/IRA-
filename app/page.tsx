@@ -7,11 +7,13 @@ import { Reels } from "@/components/reels"
 import { Newsletter } from "@/components/newsletter"
 import BrandStory from "@/components/brandstory"
 import { SocialProof } from "@/components/social-proof"
+import Sale  from "@/components/sale"
 
 export default function HomePage() {
   return (
     <div className="min-h-screen">
       <Header />
+      <Sale />
       <main>
         <HeroSection />
         <FeaturedCollections />

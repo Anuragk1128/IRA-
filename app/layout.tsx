@@ -35,7 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geist.variable} ${playfair.variable} antialiased`}>
-      <body className="min-h-screen bg-background font-sans">
+      <body className="min-h-screen bg-background font-sans pt-14 md:pt-28">
         <AuthProvider>
           <CartProvider>
             <WishlistProvider>
