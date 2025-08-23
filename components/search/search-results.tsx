@@ -97,7 +97,7 @@ export function SearchResults({ products, totalCount, appliedFilters, onSortChan
                   <h3 className="font-medium leading-snug">{product.name}</h3>
                   <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
                   <div className="flex items-center justify-between mt-1.5">
-                    <span className="font-semibold text-sm md:text-base">${product.price}</span>
+                    <span className="font-semibold text-sm md:text-base">₹{product.price}</span>
                     <AddToCartButton
                       size="sm"
                       productId={product.id}

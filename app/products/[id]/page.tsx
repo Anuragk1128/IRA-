@@ -95,9 +95,9 @@ export default function ProductPage({ params }: ProductPageProps) {
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="text-3xl font-bold text-foreground">${product.price}</span>
+              <span className="text-3xl font-bold text-foreground">₹{product.price}</span>
               {product.originalPrice && (
-                <span className="text-xl text-muted-foreground line-through">${product.originalPrice}</span>
+                <span className="text-xl text-muted-foreground line-through">₹{product.originalPrice}</span>
               )}
             </div>
 

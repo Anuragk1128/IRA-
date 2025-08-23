@@ -80,9 +80,9 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         <div className="flex items-center gap-2 mt-2">
-          <span className="text-base font-semibold text-foreground">${product.price}</span>
+          <span className="text-base font-semibold text-foreground">₹{product.price}</span>
           {product.originalPrice && (
-            <span className="text-xs text-muted-foreground line-through">${product.originalPrice}</span>
+            <span className="text-xs text-muted-foreground line-through">₹{product.originalPrice}</span>
           )}
         </div>
 

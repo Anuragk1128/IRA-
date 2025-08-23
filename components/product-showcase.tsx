@@ -142,8 +142,8 @@ export function ProductShowcase() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-[13px] sm:text-[13.5px] md:text-sm font-bold text-primary">${product.price}</span>
-                    <span className="text-[10px] sm:text-[10.5px] md:text-[11px] text-muted-foreground line-through">${product.originalPrice}</span>
+                    <span className="text-[13px] sm:text-[13.5px] md:text-sm font-bold text-primary">₹{product.price}</span>
+                    <span className="text-[10px] sm:text-[10.5px] md:text-[11px] text-muted-foreground line-through">₹{product.originalPrice}</span>
                     <span className="text-[9px] sm:text-[9.5px] md:text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
                       {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% off
                     </span>

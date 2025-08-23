@@ -81,7 +81,7 @@ export function ReviewStep() {
                   </div>
                   <div className="flex justify-between items-center mt-2">
                     <span className="text-sm">Qty: {item.quantity}</span>
-                    <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                    <span className="font-medium">₹{(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -98,22 +98,22 @@ export function ReviewStep() {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span>Subtotal ({cart.itemCount} items)</span>
-                <span>${cart.subtotal.toFixed(2)}</span>
+                <span>₹{cart.subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
                 <span>
-                  {cart.shipping === 0 ? <span className="text-green-600">Free</span> : `$${cart.shipping.toFixed(2)}`}
+                  {cart.shipping === 0 ? <span className="text-green-600">Free</span> : `₹${cart.shipping.toFixed(2)}`}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Tax</span>
-                <span>${cart.tax.toFixed(2)}</span>
+                <span>₹{cart.tax.toFixed(2)}</span>
               </div>
               <Separator />
               <div className="flex justify-between font-semibold text-lg">
                 <span>Total</span>
-                <span>${cart.total.toFixed(2)}</span>
+                <span>₹{cart.total.toFixed(2)}</span>
               </div>
             </div>
           </CardContent>
@@ -173,7 +173,7 @@ export function ReviewStep() {
         </Button>
         <Button onClick={handlePlaceOrder} disabled={isPlacingOrder} size="lg">
           {isPlacingOrder && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-          {isPlacingOrder ? "Placing Order..." : `Place Order - $${cart.total.toFixed(2)}`}
+          {isPlacingOrder ? "Placing Order..." : `Place Order - ₹${cart.total.toFixed(2)}`}
         </Button>
       </div>
     </div>

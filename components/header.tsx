@@ -98,7 +98,7 @@ export function Header() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="h-8 w-8 rounded-full overflow-hidden ring-1 ring-border bg-muted flex items-center justify-center">
+            <div className="h-12 w-12 rounded-full overflow-hidden ring-1 ring-border bg-muted flex items-center justify-center">
               <img
                 src="/ira-logo.jpg"
                 alt="IRA by House of Evolve logo"
