@@ -26,6 +26,11 @@ export const metadata: Metadata = {
   description:
     "Discover our exquisite collection of artificial jewelry. Affordable luxury that doesn't compromise on style.",
   generator: "v0.app",
+  icons: {
+    icon: "/Ira_Logo.svg",
+    shortcut: "/Ira_Logo.svg",
+    apple: "/Ira_Logo.svg",
+  },
 }
 
 export default function RootLayout({
