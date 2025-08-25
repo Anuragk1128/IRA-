@@ -7,8 +7,6 @@ import { useRouter } from "next/navigation"
 import { Search, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { getPopularSearches } from "@/lib/search"
 
 interface SearchBarProps {
   initialQuery?: string
@@ -24,8 +22,6 @@ export function SearchBar({
   showSuggestions = true,
 }: SearchBarProps) {
   const [query, setQuery] = useState(initialQuery)
-  const [showDropdown, setShowDropdown] = useState(false)
-  const [suggestions] = useState(getPopularSearches())
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -39,14 +35,11 @@ export function SearchBar({
     } else {
       router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
     }
-    setShowDropdown(false)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleSearch()
-    } else if (e.key === "Escape") {
-      setShowDropdown(false)
     }
   }
 
@@ -64,10 +57,8 @@ export function SearchBar({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          onFocus={() => showSuggestions && setShowDropdown(true)}
-          onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
           placeholder={placeholder}
-          className="pl-10 pr-10 bg-muted/50 border-0 focus-visible:ring-1"
+          className="pl-10 pr-10 bg-white border border-black focus-visible:ring-1 focus-visible:ring-black"
         />
         {query && (
           <Button
@@ -80,24 +71,6 @@ export function SearchBar({
           </Button>
         )}
       </div>
-
-      {showDropdown && showSuggestions && (
-        <Card className="absolute top-full left-0 right-0 mt-1 z-50 max-h-64 overflow-y-auto">
-          <div className="p-2">
-            <div className="text-xs font-medium text-muted-foreground mb-2 px-2">Popular Searches</div>
-            {suggestions.map((suggestion, index) => (
-              <button
-                key={index}
-                className="w-full text-left px-2 py-2 text-sm hover:bg-muted rounded-sm transition-colors"
-                onClick={() => handleSearch(suggestion)}
-              >
-                <Search className="h-3 w-3 inline mr-2 text-muted-foreground" />
-                {suggestion}
-              </button>
-            ))}
-          </div>
-        </Card>
-      )}
     </div>
   )
 }

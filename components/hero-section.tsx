@@ -68,7 +68,7 @@ export function HeroSection() {
 
   return (
     <section className="relative w-full pt-2 lg:pt-2 md:pt-2 pb-6 lg:pb-6 md:pb-10">
-      <div className="mx-auto max-w-[1570px] px-4">
+      <div className="mx-auto max-w-[1570px] px-2">
         {/* Viewport */}
         <div
           className="relative overflow-hidden"

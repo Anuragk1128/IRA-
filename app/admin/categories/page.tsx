@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -11,14 +11,16 @@ import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Plus, FolderTree, FolderPlus, ImageIcon } from "lucide-react"
 import type { ProductCategory, ProductSubcategory } from "@/types/product"
-import { categories as userCategories } from "@/lib/products"
 import { useToast } from "@/hooks/use-toast"
+import { fetchAdminCategories, createAdminCategory, createAdminSubcategory } from "@/lib/admin-categories"
 
 export default function AdminCategoriesPage() {
   const { toast } = useToast()
-  // Seed from user-side categories for now; admin can add locally (not persisted yet)
-  const [categories, setCategories] = useState<ProductCategory[]>(userCategories)
-  const [selectedId, setSelectedId] = useState<string | null>(categories[0]?.id ?? null)
+  // Loaded from backend
+  const [categories, setCategories] = useState<ProductCategory[]>([])
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string>("")
 
   // New Category form state
   const [name, setName] = useState("")
@@ -33,54 +35,81 @@ export default function AdminCategoriesPage() {
 
   const selectedCategory = useMemo(() => categories.find((c) => c.id === selectedId) || null, [categories, selectedId])
 
-  const handleAddCategory = () => {
+  useEffect(() => {
+    let active = true
+    ;(async () => {
+      setLoading(true)
+      setError("")
+      try {
+        const list = await fetchAdminCategories()
+        if (!active) return
+        setCategories(list)
+        setSelectedId(list[0]?.id ?? null)
+      } catch (e: any) {
+        const msg = e?.message || "Failed to load categories"
+        setError(msg)
+        toast({ title: msg, variant: "destructive" })
+      } finally {
+        if (active) setLoading(false)
+      }
+    })()
+    return () => {
+      active = false
+    }
+  }, [toast])
+
+  const handleAddCategory = async () => {
     if (!name.trim() || !slug.trim()) {
       toast({ title: "Name and slug are required", variant: "destructive" })
       return
     }
-    const newCat: ProductCategory = {
-      id: crypto.randomUUID(),
-      name: name.trim(),
-      slug: slug.trim(),
-      description: description.trim(),
-      image: image.trim() || "/placeholder.svg",
-      subcategories: [],
+    try {
+      const created = await createAdminCategory({
+        name: name.trim(),
+        slug: slug.trim(),
+        description: description.trim(),
+        image: image.trim() || "/placeholder.svg",
+      })
+      setCategories((prev) => [created, ...prev])
+      setSelectedId(created.id)
+      setName("")
+      setSlug("")
+      setDescription("")
+      setImage("")
+      toast({ title: "Category created" })
+    } catch (e: any) {
+      toast({ title: e?.message || "Failed to create category", variant: "destructive" })
     }
-    setCategories((prev) => [newCat, ...prev])
-    setSelectedId(newCat.id)
-    // Reset form
-    setName("")
-    setSlug("")
-    setDescription("")
-    setImage("")
-    toast({ title: "Category added (UI only)", description: "Not yet saved to backend. Wire API to persist." })
   }
 
-  const handleAddSubcategory = () => {
+  const handleAddSubcategory = async () => {
     if (!selectedCategory) return
     if (!subName.trim() || !subSlug.trim()) {
       toast({ title: "Subcategory name and slug are required", variant: "destructive" })
       return
     }
-    const newSub: ProductSubcategory = {
-      id: crypto.randomUUID(),
-      name: subName.trim(),
-      slug: subSlug.trim(),
-      description: subDescription.trim(),
+    try {
+      const created = await createAdminSubcategory(selectedCategory.id, {
+        name: subName.trim(),
+        slug: subSlug.trim(),
+        description: subDescription.trim(),
+      })
+      setCategories((prev) =>
+        prev.map((c) => (c.id === selectedCategory.id ? { ...c, subcategories: [created, ...(c.subcategories || [])] } : c)),
+      )
+      setSubName("")
+      setSubSlug("")
+      setSubDescription("")
+      toast({ title: "Subcategory created" })
+    } catch (e: any) {
+      toast({ title: e?.message || "Failed to create subcategory", variant: "destructive" })
     }
-    setCategories((prev) =>
-      prev.map((c) => (c.id === selectedCategory.id ? { ...c, subcategories: [newSub, ...(c.subcategories || [])] } : c)),
-    )
-    setSubName("")
-    setSubSlug("")
-    setSubDescription("")
-    toast({ title: "Subcategory added (UI only)", description: "Not yet saved to backend. Wire API to persist." })
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-2">
           <FolderTree className="w-6 h-6 text-rose-600" /> Categories
         </h1>
         <p className="text-gray-600 mt-1">Manage categories and subcategories. UI is ready for backend integration.</p>
@@ -115,26 +144,34 @@ export default function AdminCategoriesPage() {
               <CardTitle className="text-sm">Categories</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <ScrollArea className="h-[420px]">
+              <ScrollArea className="h-[320px] md:h-[420px]">
                 <div className="flex flex-col">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setSelectedId(cat.id)}
-                      className={`flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 ${
-                        selectedId === cat.id ? "bg-rose-50" : ""
-                      }`}
-                    >
-                      <div className="relative w-10 h-10 rounded-md overflow-hidden border">
-                        <Image src={cat.image || "/placeholder.svg"} alt={cat.name} fill className="object-cover" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-900">{cat.name}</div>
-                        <div className="text-xs text-gray-600">/{cat.slug}</div>
-                      </div>
-                      <Badge variant="secondary">{cat.subcategories?.length || 0}</Badge>
-                    </button>
-                  ))}
+                  {loading ? (
+                    <div className="px-4 py-3 text-sm text-gray-500">Loading...</div>
+                  ) : error ? (
+                    <div className="px-4 py-3 text-sm text-red-600">{error}</div>
+                  ) : categories.length === 0 ? (
+                    <div className="px-4 py-3 text-sm text-gray-500">No categories found</div>
+                  ) : (
+                    categories.map((cat) => (
+                      <button
+                        key={cat.id}
+                        onClick={() => setSelectedId(cat.id)}
+                        className={`flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 ${
+                          selectedId === cat.id ? "bg-rose-50" : ""
+                        }`}
+                      >
+                        <div className="relative w-10 h-10 rounded-md overflow-hidden border">
+                          <Image src={cat.image || "/placeholder.svg"} alt={cat.name} fill className="object-cover" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900">{cat.name}</div>
+                          <div className="text-xs text-gray-600">/{cat.slug}</div>
+                        </div>
+                        <Badge variant="secondary">{cat.subcategories?.length || 0}</Badge>
+                      </button>
+                    ))
+                  )}
                 </div>
               </ScrollArea>
             </CardContent>

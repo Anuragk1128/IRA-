@@ -1,11 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ShoppingBag, User, Heart, Menu, LogOut, X } from "lucide-react"
+import {  User, Heart, Menu, LogOut, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SearchBar } from "@/components/search/search-bar"
 import { useAuth } from "@/contexts/auth-context"
-import { useCart } from "@/contexts/cart-context"
 import { useWishlist } from "@/contexts/wishlist-context"
 import {
   DropdownMenu,
@@ -23,7 +22,6 @@ import { categories as allCategories } from "@/lib/products"
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { user, isAuthenticated, signOut } = useAuth()
-  const { cart } = useCart()
   const { wishlist } = useWishlist()
   const [openMegaFor, setOpenMegaFor] = useState<string | null>(null)
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false)
@@ -264,16 +262,7 @@ export function Header() {
               </Button>
             )}
 
-            <Button variant="ghost" size="icon" className="relative text-black">
-              <Link href="/cart">
-                <ShoppingBag className="h-5 w-5" />
-              </Link>
-              {cart.itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
-                  {cart.itemCount}
-                </span>
-              )}
-            </Button>
+          
           </div>
         </div>
 

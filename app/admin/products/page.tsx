@@ -12,6 +12,7 @@ import Link from "next/link"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
 import { getAdminAuthToken } from "@/lib/admin-auth"
+import { deleteProduct } from "@/lib/admin-products"
 
 export default function AdminProducts() {
   const { toast } = useToast()
@@ -20,6 +21,7 @@ export default function AdminProducts() {
   const [searchTerm, setSearchTerm] = useState("")
   const [previewOpen, setPreviewOpen] = useState(false)
   const [previewProduct, setPreviewProduct] = useState<Product | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const filteredProducts = products.filter(
     (product) =>
@@ -72,11 +74,30 @@ export default function AdminProducts() {
     fetchProducts()
   }, [API_BASE, toast])
 
+  const onDelete = async (id: string) => {
+    const ok = typeof window !== "undefined" ? window.confirm("Delete this product? This action cannot be undone.") : true
+    if (!ok) return
+    setDeletingId(id)
+    try {
+      await deleteProduct(id)
+      setProducts((prev) => prev.filter((p) => p.id !== id))
+      toast({ title: "Product deleted", variant: "default" })
+    } catch (err) {
+      toast({
+        title: "Failed to delete",
+        description: err instanceof Error ? err.message : "",
+        variant: "destructive",
+      })
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Products</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Products</h1>
           <p className="text-gray-600 mt-2">Manage your jewelry inventory</p>
         </div>
         <Link href="/admin/products/new">
@@ -89,8 +110,8 @@ export default function AdminProducts() {
 
       {/* Search and Filters */}
       <Card className="mb-6">
-        <CardContent className="p-6">
-          <div className="flex gap-4">
+        <CardContent className="p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
@@ -100,14 +121,87 @@ export default function AdminProducts() {
                 className="pl-10"
               />
             </div>
-            <Button variant="outline">Filter</Button>
-            <Button variant="outline">Export</Button>
+            <div className="flex gap-2 sm:justify-end">
+              <Button variant="outline" className="flex-1 sm:flex-none">Filter</Button>
+              <Button variant="outline" className="flex-1 sm:flex-none">Export</Button>
+            </div>
           </div>
         </CardContent>
       </Card>
 
+      {/* Mobile list */}
+      <div className="md:hidden space-y-3 mb-6">
+        {loading ? (
+          <Card>
+            <CardContent className="py-6 text-center text-sm text-muted-foreground">Loading...</CardContent>
+          </Card>
+        ) : filteredProducts.length === 0 ? (
+          <Card>
+            <CardContent className="py-6 text-center text-sm text-muted-foreground">No products found.</CardContent>
+          </Card>
+        ) : (
+          filteredProducts.map((product) => (
+            <Card key={product.id}>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                    <Image
+                      src={product.images[0] || "/placeholder.svg"}
+                      alt={product.name}
+                      width={56}
+                      height={56}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-medium text-gray-900 truncate">{product.name}</p>
+                      <Badge variant="secondary" className="flex-shrink-0">{product.category}</Badge>
+                    </div>
+                    <div className="text-sm text-gray-600 mt-0.5">${product.price}</div>
+                    <div className="mt-1">
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                          product.inStock ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {product.inStock ? "In Stock" : "Out of Stock"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-end gap-1.5">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setPreviewProduct(product)
+                      setPreviewOpen(true)
+                    }}
+                  >
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                  <Button size="sm" variant="ghost">
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-red-600 hover:text-red-700"
+                    onClick={() => onDelete(product.id)}
+                    disabled={deletingId === product.id}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
+
       {/* Products Table */}
-      <Card>
+      <Card className="hidden md:block">
         <CardHeader>
           <CardTitle>All Products {loading ? "(loading...)" : `(${filteredProducts.length})`}</CardTitle>
         </CardHeader>
@@ -184,7 +278,13 @@ export default function AdminProducts() {
                         <Button size="sm" variant="ghost">
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="text-red-600 hover:text-red-700">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-red-600 hover:text-red-700"
+                          onClick={() => onDelete(product.id)}
+                          disabled={deletingId === product.id}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>

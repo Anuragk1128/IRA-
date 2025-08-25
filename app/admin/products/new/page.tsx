@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, FormEvent } from "react"
+import { useState, FormEvent, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -9,22 +9,27 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
-import { createProduct } from "@/lib/admin-products"
-import type { CreateProductInput } from "@/types/product"
+import { createAdminProduct, type CreateAdminProductInput } from "@/lib/admin-products"
+import { fetchAdminCategories } from "@/lib/admin-categories"
+import type { ProductCategory, ProductSubcategory } from "@/types/product"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function NewProductPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [categories, setCategories] = useState<ProductCategory[]>([])
+  const [catLoading, setCatLoading] = useState<boolean>(true)
+  const [categoryId, setCategoryId] = useState<string>("")
+  const [subcategoryId, setSubcategoryId] = useState<string>("")
 
-  const [form, setForm] = useState<CreateProductInput>({
+  // Product fields excluding category/subcategory which now use IDs
+  const [form, setForm] = useState<Omit<CreateAdminProductInput, "categoryId" | "subcategoryId">>({
     name: "",
     description: "",
     price: 0,
     originalPrice: undefined,
     images: [],
-    category: "",
-    subcategory: undefined,
     material: "",
     color: "",
     size: undefined,
@@ -40,11 +45,31 @@ export default function NewProductPage() {
   const [imagesInput, setImagesInput] = useState("")
   const [tagsInput, setTagsInput] = useState("")
 
+  useEffect(() => {
+    const load = async () => {
+      setCatLoading(true)
+      try {
+        const list = await fetchAdminCategories()
+        setCategories(list)
+      } catch (err) {
+        toast({ title: "Failed to load categories", description: err instanceof Error ? err.message : "", variant: "destructive" })
+      } finally {
+        setCatLoading(false)
+      }
+    }
+    load()
+  }, [toast])
+
+  const subcategories: ProductSubcategory[] = useMemo(() => {
+    const cat = categories.find((c) => c.id === categoryId)
+    return cat?.subcategories || []
+  }, [categories, categoryId])
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
     try {
-      const payload: CreateProductInput = {
+      const payload: CreateAdminProductInput = {
         ...form,
         images: imagesInput
           .split(/\n|,/) // allow comma or newline separated
@@ -54,14 +79,20 @@ export default function NewProductPage() {
           .split(/\n|,/) // allow comma or newline separated
           .map((s) => s.trim())
           .filter(Boolean),
+        categoryId,
+        subcategoryId: subcategoryId || undefined,
       }
 
       // Remove undefined optional fields to keep payload clean
       const cleanPayload = Object.fromEntries(
         Object.entries(payload).filter(([_, v]) => v !== undefined)
-      ) as CreateProductInput
+      ) as CreateAdminProductInput
 
-      await createProduct(cleanPayload)
+      if (!cleanPayload.categoryId) {
+        throw new Error("Please select a category")
+      }
+
+      await createAdminProduct(cleanPayload)
 
       toast({
         title: "Product created",
@@ -124,22 +155,29 @@ export default function NewProductPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Input
-                  id="category"
-                  placeholder="e.g. Ring"
-                  value={form.category}
-                  onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  required
-                />
+                <Select value={categoryId} onValueChange={(val) => { setCategoryId(val); setSubcategoryId("") }}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={catLoading ? "Loading..." : "Select category"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="subcategory">Subcategory (optional)</Label>
-                <Input
-                  id="subcategory"
-                  placeholder="e.g. Cocktail Ring"
-                  value={form.subcategory ?? ""}
-                  onChange={(e) => setForm({ ...form, subcategory: e.target.value || undefined })}
-                />
+                <Select value={subcategoryId} onValueChange={setSubcategoryId} disabled={!categoryId}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={!categoryId ? "Select category first" : (subcategories.length ? "Select subcategory" : "No subcategories") } />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subcategories.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="material">Material</Label>
