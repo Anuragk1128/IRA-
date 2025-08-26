@@ -39,22 +39,21 @@ export function Header() {
   }, [])
 
   // Header is always visible now; removed scroll-based show/hide logic
-  // Toggle header theme based on hero sentinel presence (homepage only)
+  // Toggle header theme based on scroll position if hero sentinel exists (homepage only)
   useEffect(() => {
     const sentinel = document.getElementById('hero-sentinel')
     if (!sentinel) {
       setOverHero(false) // default solid white on non-home pages
       return
     }
-    const obs = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0]
-        setOverHero(entry.isIntersecting)
-      },
-      { root: null, threshold: 0 }
-    )
-    obs.observe(sentinel)
-    return () => obs.disconnect()
+    const onScroll = () => {
+      // Immediately turn white once user scrolls down any amount; transparent only at very top
+      setOverHero(window.scrollY <= 0)
+    }
+    // Initialize state on mount
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   // Navigation links data
