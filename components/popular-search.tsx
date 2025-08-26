@@ -42,7 +42,7 @@ export default function PopularSearches({
               href={href}
               className={
                 variant === "chip"
-                  ? "inline-flex items-center rounded-full border border-black/20 px-3 py-1 text-xs hover:bg-black hover:text-white transition-colors"
+                  ? "inline-flex items-center rounded-full border border-black/20 px-3 py-1 text-xl-2 hover:bg-black hover:text-white transition-colors"
                   : "inline-flex items-center rounded-md border border-black px-3 py-1.5 text-sm hover:bg-black hover:text-white transition-colors"
               }
             >
