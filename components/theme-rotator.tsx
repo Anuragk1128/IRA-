@@ -84,7 +84,7 @@ export default function ThemeRotator() {
             rgba(255, 0, 0, 0) 100%
           );
           background-size: 300% 100%;
-          animation: IraThemeShift 1s ease-in-out infinite;
+          animation: IraThemeShift 2s ease-in-out infinite;
           mix-blend-mode: overlay;
           opacity: 0.24;
           pointer-events: none;
