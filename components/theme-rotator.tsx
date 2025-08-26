@@ -13,9 +13,9 @@ export default function ThemeRotator() {
           100% { background-position: 0% 50%; }
         }
         .ira-theme-animated {
-          background-image: linear-gradient(135deg, rgb(230, 232, 235)0%, rgb(210, 212, 215) 33%, rgb(220, 222, 225) 66%,rgb(200, 202, 205) 100%);
+          background-image: linear-gradient(135deg, rgb(230, 232, 235)0%, rgb(215, 210, 210) 33%, rgb(162, 160, 160) 66%,rgb(83, 81, 81) 100%);
           background-size: 400% 400%;
-          animation: IraThemeShift 28s ease-in-out infinite;
+          animation: IraThemeShift 22s ease-in-out infinite;
           will-change: background-position;
         }
       `}</style>
