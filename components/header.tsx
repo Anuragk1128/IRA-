@@ -25,6 +25,7 @@ export function Header() {
   const { wishlist } = useWishlist()
   const [openMegaFor, setOpenMegaFor] = useState<string | null>(null)
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false)
+  const [overHero, setOverHero] = useState(false)
 
   // Close mobile menu when route changes (fallback, may not trigger in App Router)
   useEffect(() => {
@@ -38,6 +39,23 @@ export function Header() {
   }, [])
 
   // Header is always visible now; removed scroll-based show/hide logic
+  // Toggle header theme based on hero sentinel presence (homepage only)
+  useEffect(() => {
+    const sentinel = document.getElementById('hero-sentinel')
+    if (!sentinel) {
+      setOverHero(false) // default solid white on non-home pages
+      return
+    }
+    const obs = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0]
+        setOverHero(entry.isIntersecting)
+      },
+      { root: null, threshold: 0 }
+    )
+    obs.observe(sentinel)
+    return () => obs.disconnect()
+  }, [])
 
   // Navigation links data
   const navLinks = [
@@ -76,12 +94,13 @@ export function Header() {
   return (
     <header
       className={cn(
-        "fixed top-0 z-50 w-full border-b border-border/40 bg-white text-black"
+        "fixed top-0 z-50 w-full text-black",
+        overHero ? "bg-transparent border-b border-transparent" : "bg-white border-b border-border/40"
       )}
     >
       <div className="container mx-auto px-4">
         {/* Top bar */}
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-16 items-center justify-between relative">
           {/* Mobile menu button */}
           <Button 
             variant="ghost" 
@@ -107,8 +126,8 @@ export function Header() {
             <span className="sr-only">IRA by House of Evolve</span>
           </Link>
 
-          {/* Desktop Search centered in top bar */}
-          <div className="hidden md:flex items-center space-x-2 flex-1 max-w-lg mx-8 justify-center">
+          {/* Desktop Search: dead center via absolute positioning */}
+          <div className="hidden md:flex items-center justify-center md:absolute md:left-1/2 md:-translate-x-1/2 w-full max-w-xl px-4">
             <SearchBar />
           </div>
 
@@ -197,11 +216,6 @@ export function Header() {
             </div>
           )}
 
-          {/* Pincode checker - Desktop only */}
-          <div className="hidden md:flex items-center ml-4 text-black">
-            <PincodeChecker />
-          </div>
-          
           {/* Mobile Search - Only visible when menu is open */}
           <div className={cn(
             "md:hidden w-full px-4 py-3 bg-white text-black border-b border-border/40",
@@ -212,6 +226,10 @@ export function Header() {
 
           {/* Action buttons (right) */}
           <div className="flex items-center space-x-2">
+            {/* Pincode checker - Desktop only, placed with icons */}
+            <div className="hidden md:flex items-center mr-2 text-black">
+              <PincodeChecker />
+            </div>
             <Button variant="ghost" size="icon" className="relative text-black">
               <Link href="/wishlist">
                 <Heart className="h-5 w-5" />

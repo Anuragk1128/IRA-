@@ -37,10 +37,10 @@ export function FeaturedCollections() {
           </p>
         </div>
 
-        {/* Compact reels-style video tile */}
-        <div className="mb-8 sm:mb-10 md:mb-14 flex justify-center bg-black rounded-xl overflow-hidden">
-          <div className="relative w-full max-w-[360px] sm:max-w-[420px] md:max-w-[520px] px-4 py-4">
-            <div className="relative w-full aspect-[9/16]">
+        {/* Full-width video tile */}
+        <div className="mb-8 sm:mb-10 md:mb-14 bg-black rounded-xl overflow-hidden">
+          <div className="relative w-full px-0 py-0">
+            <div className="relative w-full aspect-video">
               <video
                 src="/ira_hoe.mp4"
                 className="absolute inset-0 h-full w-full object-cover"
