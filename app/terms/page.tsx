@@ -19,7 +19,7 @@ export default function TermsPage() {
 
             <h2>2. Products and Services</h2>
             <p>
-              All products displayed on our website are artificial jewelry items. We strive to display accurate colors
+              All products displayed on our website are artificial jewellery items. We strive to display accurate colors
               and images of our products, but we cannot guarantee that your device's display will accurately reflect the
               actual product colors.
             </p>
@@ -59,8 +59,8 @@ export default function TermsPage() {
               If you have any questions about these Terms & Conditions, please contact us at admin@houseofevolve.in or
               call +91 9341330223. Our registered office is located at:
               <br /><br />
-              IRA Jewelry<br />
-              123 Jewelry Street,<br />
+              IRA jewellery<br />
+              123 jewellery Street,<br />
               Mumbai - 400001,<br />
               Maharashtra, India
             </p>

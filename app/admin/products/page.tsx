@@ -98,7 +98,7 @@ export default function AdminProducts() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Products</h1>
-          <p className="text-gray-600 mt-2">Manage your jewelry inventory</p>
+          <p className="text-gray-600 mt-2">Manage your jewellery inventory</p>
         </div>
         <Link href="/admin/products/new">
           <Button className="bg-rose-600 hover:bg-rose-700">

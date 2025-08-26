@@ -42,7 +42,7 @@ export default function BrandStory() {
               <h3 className="text-xl sm:text-2xl font-semibold text-black">Timeless Craft. Modern Design.</h3>
               <p className="mt-3 text-sm sm:text-base leading-relaxed text-black">
                 At IRA, every piece is a narrative — of artisanship, precision, and emotion. We blend
-                contemporary aesthetics with traditional techniques to create jewelry that feels intimate and
+                contemporary aesthetics with traditional techniques to create jewellery that feels intimate and
                 looks iconic.
               </p>
 

@@ -20,7 +20,7 @@ export function Footer() {
               <span className="sr-only">IRA by House of Evolve</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Crafting affordable luxury jewelry that celebrates your unique style and personality. Every piece is
+              Crafting affordable luxury jewellery that celebrates your unique style and personality. Every piece is
               designed with love and attention to detail.
             </p>
             <div className="flex space-x-2">

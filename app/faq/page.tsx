@@ -51,7 +51,7 @@ const faqData = [
       {
         question: "Are your products hypoallergenic?",
         answer:
-          "Most of our jewelry is nickel-free and suitable for sensitive skin. Products containing nickel or other potential allergens are clearly marked in the product description. Check individual product details for specific material information.",
+          "Most of our jewellery is nickel-free and suitable for sensitive skin. Products containing nickel or other potential allergens are clearly marked in the product description. Check individual product details for specific material information.",
       },
       {
         question: "How do I determine my ring size?",
@@ -59,9 +59,9 @@ const faqData = [
           "Use our ring size guide in the Size Guide section. You can measure an existing ring or use our printable ring sizer. When in doubt, size up slightly as rings can be resized down more easily than up.",
       },
       {
-        question: "How should I care for my artificial jewelry?",
+        question: "How should I care for my artificial jewellery?",
         answer:
-          "Store pieces separately to prevent scratching, avoid exposure to water, perfumes, and lotions. Clean gently with a soft cloth. Avoid sleeping or exercising while wearing jewelry to extend its lifespan.",
+          "Store pieces separately to prevent scratching, avoid exposure to water, perfumes, and lotions. Clean gently with a soft cloth. Avoid sleeping or exercising while wearing jewellery to extend its lifespan.",
       },
     ],
   },
@@ -154,7 +154,7 @@ export default function FAQPage() {
                 Contact Us
               </a>
               <a
-                href="mailto:support@jewelrystore.com"
+                href="mailto:support@jewellerystore.com"
                 className="inline-flex items-center justify-center px-6 py-3 border border-rose-600 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-colors"
               >
                 Email Support

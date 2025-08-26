@@ -16,10 +16,10 @@ import { Separator } from "@/components/ui/separator"
 export default function SettingsPage() {
   const [settings, setSettings] = useState({
     // General Settings
-    siteName: "Elegant Jewelry Store",
-    siteDescription: "Premium artificial jewelry for modern elegance",
-    contactEmail: "contact@jewelrystore.com",
-    supportEmail: "support@jewelrystore.com",
+    siteName: "Elegant jewellery Store",
+    siteDescription: "Premium artificial jewellery for modern elegance",
+    contactEmail: "contact@jewellerystore.com",
+    supportEmail: "support@jewellerystore.com",
     phoneNumber: "+1 (555) 123-4567",
     address: "123 Fashion Street, New York, NY 10001",
 
@@ -87,7 +87,7 @@ export default function SettingsPage() {
                 <Globe className="w-5 h-5" />
                 Store Information
               </CardTitle>
-              <CardDescription>Basic information about your jewelry store</CardDescription>
+              <CardDescription>Basic information about your jewellery store</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

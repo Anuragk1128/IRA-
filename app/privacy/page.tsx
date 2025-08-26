@@ -66,7 +66,7 @@ export default function PrivacyPage() {
 
             <h2>Contact Us</h2>
             <p>
-              If you have questions about this Privacy Policy, please contact us at privacy@jewelrystore.com or call +1
+              If you have questions about this Privacy Policy, please contact us at privacy@jewellerystore.com or call +1
               (555) 123-4567.
             </p>
           </CardContent>

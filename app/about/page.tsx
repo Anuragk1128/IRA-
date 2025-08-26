@@ -15,7 +15,7 @@ export default function AboutPage() {
                 <span className="text-rose-600"> Defining Elegance</span>
               </h1>
               <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                For over a decade, we've been creating exquisite artificial jewelry that captures the essence of luxury
+                For over a decade, we've been creating exquisite artificial jewellery that captures the essence of luxury
                 without compromise. Our passion for craftsmanship and attention to detail ensures every piece tells a
                 unique story.
               </p>
@@ -49,7 +49,7 @@ export default function AboutPage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Values</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              We believe in creating jewelry that empowers, inspires, and celebrates the unique beauty of every
+              We believe in creating jewellery that empowers, inspires, and celebrates the unique beauty of every
               individual.
             </p>
           </div>
@@ -111,13 +111,13 @@ export default function AboutPage() {
           <div className="prose prose-lg mx-auto text-gray-600">
             <p className="mb-6">
               Founded in 2024 by Sakshi Vats, our company began as a small studio with a simple
-              mission: to make beautiful, high-quality jewelry accessible to everyone. What started as a passion project
+              mission: to make beautiful, high-quality jewellery accessible to everyone. What started as a passion project
               has grown into a trusted brand serving customers worldwide.
             </p>
             <p className="mb-6">
-              We believe that jewelry should be an expression of personal style, not a luxury reserved for special
+              We believe that jewellery should be an expression of personal style, not a luxury reserved for special
               occasions. That's why we've dedicated ourselves to creating pieces that combine the elegance of fine
-              jewelry with the accessibility of artificial materials.
+              jewellery with the accessibility of artificial materials.
             </p>
             <p>
               Today, our team of skilled artisans continues to push the boundaries of design and craftsmanship, ensuring

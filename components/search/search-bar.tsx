@@ -18,7 +18,7 @@ interface SearchBarProps {
 export function SearchBar({
   initialQuery = "",
   onSearch,
-  placeholder = "Search jewelry...",
+  placeholder = "Search jewellery...",
   showSuggestions = true,
 }: SearchBarProps) {
   const [query, setQuery] = useState(initialQuery)

@@ -9,7 +9,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 const heroImages = [
   {
     src: "iramodel1.JPG",
-    alt: "Elegant layered gold jewelry collection",
+    alt: "Elegant layered gold jewellery collection",
     position: "center 4%",
   },
   {
@@ -24,7 +24,7 @@ const heroImages = [
   },
   {
     src: "iramodel5.jpg",
-    alt: "Jewelry collection showcase",
+    alt: "jewellery collection showcase",
     position: "center center",
   },
 ]

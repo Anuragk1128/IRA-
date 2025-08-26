@@ -40,7 +40,7 @@ export default function ContactPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Get in Touch</h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Have a question about our jewelry or need assistance with your order? We'd love to hear from you.
+            Have a question about our jewellery or need assistance with your order? We'd love to hear from you.
           </p>
         </div>
 
@@ -59,7 +59,7 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold text-gray-900">Address</h3>
                     <p className="text-gray-600 mt-1">
-                      123 Jewelry Lane
+                      123 jewellery Lane
                       <br />
                       Fashion District
                       <br />
@@ -84,7 +84,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Email</h3>
-                    <p className="text-gray-600 mt-1">hello@jewelrystore.com</p>
+                    <p className="text-gray-600 mt-1">hello@jewellerystore.com</p>
                   </div>
                 </div>
 
@@ -210,7 +210,7 @@ export default function ContactPage() {
 
                   <h3 className="font-semibold text-gray-900 mb-2">Are your products hypoallergenic?</h3>
                   <p className="text-gray-600 mb-4">
-                    Most of our jewelry is nickel-free and suitable for sensitive skin. Check product details for
+                    Most of our jewellery is nickel-free and suitable for sensitive skin. Check product details for
                     specifics.
                   </p>
                 </div>

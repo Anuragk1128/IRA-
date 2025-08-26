@@ -173,7 +173,7 @@ export default function ProductPage({ params }: ProductPageProps) {
               <p className="text-muted-foreground leading-relaxed">{product.description}</p>
               <p className="text-muted-foreground leading-relaxed mt-4">
                 This exquisite piece is crafted with attention to detail and quality materials. Perfect for both
-                everyday wear and special occasions, it adds a touch of elegance to any outfit. Our artificial jewelry
+                everyday wear and special occasions, it adds a touch of elegance to any outfit. Our artificial jewellery
                 is designed to provide the luxury look without the premium price.
               </p>
             </div>

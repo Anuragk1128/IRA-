@@ -162,7 +162,7 @@ export default function ShippingPage() {
               <div>
                 <h3 className="font-semibold mb-2">Customer Support</h3>
                 <p className="text-gray-600 text-sm">
-                  Questions about returns or exchanges? Contact our support team at support@jewelrystore.com or call +1
+                  Questions about returns or exchanges? Contact our support team at support@jewellerystore.com or call +1
                   (555) 123-4567.
                 </p>
               </div>

@@ -11,7 +11,7 @@
 }
 
 :root {
-  /* Updated color palette for luxury jewelry brand */
+  /* Updated color palette for luxury jewellery brand */
   --background: oklch(1 0 0); /* Pure white for clean backgrounds */
   --foreground: oklch(0 0 0); /* Solid black for text */
   --card: oklch(0.98 0 0); /* Neutral light gray for product cards */
@@ -120,7 +120,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Added custom font variables for jewelry brand typography */
+  /* Added custom font variables for jewellery brand typography */
   --font-sans: "OPTIBodoni Antiqua", ui-serif, Georgia, serif;
   --font-serif: "OPTIBodoni Antiqua", "Playfair Display", ui-serif, Georgia, serif;
 }
@@ -133,7 +133,7 @@
     @apply bg-background text-foreground font-serif antialiased;
   }
 
-  /* Added elegant typography styles for jewelry brand */
+  /* Added elegant typography styles for jewellery brand */
   .font-elegant {
     font-family: "OPTIBodoni Antiqua", ui-serif, Georgia, serif;
     font-weight: 400;

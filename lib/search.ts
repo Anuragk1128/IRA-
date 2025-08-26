@@ -245,7 +245,7 @@ export function getPopularSearches(): string[] {
     "Diamond Earrings",
     "Pearl Bracelet",
     "Statement Ring",
-    "Gold Jewelry",
+    "Gold jewellery",
     "Crystal Accessories",
     "Vintage Style",
     "Minimalist Design",

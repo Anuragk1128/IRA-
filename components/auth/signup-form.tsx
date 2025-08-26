@@ -123,7 +123,7 @@ export function SignupForm({ redirectToAccount = true, onSwitchToLogin }: Signup
     <div className="space-y-6">
       <div className="text-center">
         <h1 className="text-2xl font-elegant text-foreground">Create Account</h1>
-        <p className="text-muted-foreground mt-2">Join us and discover beautiful jewelry</p>
+        <p className="text-muted-foreground mt-2">Join us and discover beautiful jewellery</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">

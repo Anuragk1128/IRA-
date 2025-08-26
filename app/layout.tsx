@@ -22,9 +22,9 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: "IRA Jewelry - Elegant Artificial Jewelry Collection",
+  title: "IRA jewellery - Elegant Artificial jewellery Collection",
   description:
-    "Discover our exquisite collection of artificial jewelry. Affordable luxury that doesn't compromise on style.",
+    "Discover our exquisite collection of artificial jewellery. Affordable luxury that doesn't compromise on style.",
   generator: "v0.app",
   icons: {
     icon: "/Ira_Logo.svg",
