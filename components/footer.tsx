@@ -24,14 +24,35 @@ export function Footer() {
               designed with love and attention to detail.
             </p>
             <div className="flex space-x-2">
+              <a
+              href="https://www.facebook.com/ira_by_evolve"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook - IRA by Evolve"
+              >
               <Button variant="ghost" size="icon" className="h-8 w-8">
                 <Facebook className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Instagram className="h-4 w-4" />
+              </a>
+              <Button asChild variant="ghost" size="icon" className="h-8 w-8">
+                <a
+                  href="https://www.instagram.com/ira_by_evolve/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram - IRA by Evolve"
+                >
+                  <Instagram className="h-4 w-4" />
+                </a>
               </Button>
               <Button variant="ghost" size="icon" className="h-8 w-8">
+                <a
+                href="https://twitter.com/ira_by_evolve"
+                target="_blank" 
+                rel="noopener noreferrer"
+                aria-label="Twitter - IRA by Evolve"
+                >
                 <Twitter className="h-4 w-4" />
+                </a>
               </Button>
             </div>
           </div>
@@ -60,11 +81,7 @@ export function Footer() {
                   Care Instructions
                 </a>
               </li>
-              <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  Gift Cards
-                </a>
-              </li>
+            
             </ul>
           </div>
 
@@ -92,17 +109,13 @@ export function Footer() {
                   FAQ
                 </a>
               </li>
-              <li>
-                <a href="/account" className="text-muted-foreground hover:text-primary transition-colors">
-                  Track Your Order
-                </a>
-              </li>
+            
             </ul>
           </div>
         </div>
 
         <div className="border-t border-border/50 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground"> 2025 IRA — by house of evolve. All rights reserved.</p>
+          <p className="text-sm text-muted-foreground"> 2025 IRA — By House Of Evolve. All rights reserved.</p>
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <a href="/privacy" className="hover:text-primary transition-colors">
               Privacy Policy

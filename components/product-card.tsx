@@ -11,6 +11,7 @@ import { useWishlist } from "@/contexts/wishlist-context"
 import { useToast } from "@/hooks/use-toast"
 import type { Product } from "@/types/product"
 import { AddToCartButton } from "@/components/product/add-to-cart-button"
+import { formatCurrencyINR } from "@/lib/currency"
 
 interface ProductCardProps {
   product: Product
@@ -80,9 +81,9 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         <div className="flex items-center gap-2 mt-2">
-          <span className="text-base font-semibold text-foreground">₹{product.price}</span>
+          <span className="text-base font-semibold text-foreground">{formatCurrencyINR(product.price)}</span>
           {product.originalPrice && (
-            <span className="text-xs text-muted-foreground line-through">₹{product.originalPrice}</span>
+            <span className="text-xs text-muted-foreground line-through">{formatCurrencyINR(product.originalPrice)}</span>
           )}
         </div>
 

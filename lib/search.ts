@@ -163,18 +163,18 @@ function generateFilterGroups(allProducts: Product[], filteredProducts: Product[
       name: "Price Range",
       type: "range",
       options: [
-        { value: "0-50", label: "Under ₹50", count: filteredProducts.filter((p) => p.price < 50).length },
+        { value: "0-50", label: "Under $50", count: filteredProducts.filter((p) => p.price < 50).length },
         {
           value: "50-100",
-          label: "₹50 - ₹100",
+          label: "$50 - $100",
           count: filteredProducts.filter((p) => p.price >= 50 && p.price < 100).length,
         },
         {
           value: "100-200",
-          label: "₹100 - ₹200",
+          label: "$100 - $200",
           count: filteredProducts.filter((p) => p.price >= 100 && p.price < 200).length,
         },
-        { value: "200+", label: "₹200+", count: filteredProducts.filter((p) => p.price >= 200).length },
+        { value: "200+", label: "$200+", count: filteredProducts.filter((p) => p.price >= 200).length },
       ],
     },
     {
@@ -231,7 +231,7 @@ function generateSearchSuggestions(query: string, allProducts: Product[]): strin
   })
 
   // Common price buckets
-  const priceBuckets = ["Under ₹50", "₹50 - ₹100", "₹100 - ₹200", "₹200+"]
+  const priceBuckets = ["Under $50", "$50 - $100", "$100 - $200", "$200+"]
   priceBuckets.forEach((label) => {
     if (label.toLowerCase().includes(searchTerm)) suggestions.add(label)
   })
@@ -241,14 +241,11 @@ function generateSearchSuggestions(query: string, allProducts: Product[]): strin
 
 export function getPopularSearches(): string[] {
   return [
-    "Rose Gold Necklace",
-    "Diamond Earrings",
-    "Pearl Bracelet",
-    "Statement Ring",
-    "Gold jewellery",
-    "Crystal Accessories",
-    "Vintage Style",
-    "Minimalist Design",
+    "search for everyday elegance...",
+    "search gifts for your dearest...",
+    "search for necklaces...",
+    "Experience elegance of old-school glam..."
+
   ]
 }
 
@@ -288,8 +285,8 @@ function inferFiltersFromQuery(query: string): Pick<ProductFilters, "category" |
     }
   }
 
-  // Price parsing: under/over/between and ranges like 50-100, 50 to 100, ₹, $ supported
-  const normalized = q.replace(/[,₹$]/g, "")
+  // Price parsing: under/over/between and ranges like 50-100, 50 to 100, $, $ supported
+  const normalized = q.replace(/[,$$]/g, "")
   const rangeDash = normalized.match(/(\d+(?:\.\d+)?)\s*[-–—]\s*(\d+(?:\.\d+)?)/)
   const rangeTo = normalized.match(/(\d+(?:\.\d+)?)\s*(?:to|and)\s*(\d+(?:\.\d+)?)/)
   const under = normalized.match(/(?:under|below|less than)\s*(\d+(?:\.\d+)?)/)

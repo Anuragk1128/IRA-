@@ -66,8 +66,8 @@ export default function PrivacyPage() {
 
             <h2>Contact Us</h2>
             <p>
-              If you have questions about this Privacy Policy, please contact us at privacy@jewellerystore.com or call +1
-              (555) 123-4567.
+              If you have questions about this Privacy Policy, please contact us at admin@houseofevolve.in or call +91
+              (934) 133-0223.
             </p>
           </CardContent>
         </Card>

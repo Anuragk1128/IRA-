@@ -60,9 +60,9 @@ export default function TermsPage() {
               call +91 9341330223. Our registered office is located at:
               <br /><br />
               IRA jewellery<br />
-              123 jewellery Street,<br />
-              Mumbai - 400001,<br />
-              Maharashtra, India
+              Noida sec 53,<br />
+              Uttar Pradesh - 201301,<br />
+              India
             </p>
           </CardContent>
         </Card>

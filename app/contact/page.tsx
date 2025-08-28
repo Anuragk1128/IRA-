@@ -59,11 +59,11 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold text-gray-900">Address</h3>
                     <p className="text-gray-600 mt-1">
-                      123 jewellery Lane
+                      Sector 53 , Noida
                       <br />
-                      Fashion District
+                      Uttar Pradesh
                       <br />
-                      New York, NY 10001
+                      India
                     </p>
                   </div>
                 </div>
@@ -74,7 +74,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Phone</h3>
-                    <p className="text-gray-600 mt-1">+1 (555) 123-4567</p>
+                    <p className="text-gray-600 mt-1">+91 (934) 133-0223</p>
                   </div>
                 </div>
 
@@ -84,7 +84,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Email</h3>
-                    <p className="text-gray-600 mt-1">hello@jewellerystore.com</p>
+                    <p className="text-gray-600 mt-1">admin@houseofevolve.in</p>
                   </div>
                 </div>
 

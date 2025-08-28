@@ -10,6 +10,7 @@ import { Footer } from "@/components/footer"
 import { ProductGrid } from "@/components/product-grid"
 import { getProductById, getProductsByCategory } from "@/lib/products"
 import { AddToCartButton } from "@/components/product/add-to-cart-button"
+import { formatCurrencyINR } from "@/lib/currency"
 
 interface ProductPageProps {
   params: {
@@ -95,9 +96,9 @@ export default function ProductPage({ params }: ProductPageProps) {
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="text-3xl font-bold text-foreground">₹{product.price}</span>
+              <span className="text-3xl font-bold text-foreground">{formatCurrencyINR(product.price)}</span>
               {product.originalPrice && (
-                <span className="text-xl text-muted-foreground line-through">₹{product.originalPrice}</span>
+                <span className="text-xl text-muted-foreground line-through">{formatCurrencyINR(product.originalPrice)}</span>
               )}
             </div>
 

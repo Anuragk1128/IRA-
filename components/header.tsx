@@ -125,8 +125,8 @@ export function Header() {
             <span className="sr-only">IRA by House of Evolve</span>
           </Link>
 
-          {/* Desktop Search: dead center via absolute positioning */}
-          <div className="hidden md:flex items-center justify-center md:absolute md:left-1/2 md:-translate-x-1/2 w-full max-w-xl px-4">
+          {/* Desktop Search: centered; constrained width at md/lg, full at xl */}
+          <div className="hidden md:flex items-center justify-center md:absolute md:left-1/2 md:-translate-x-1/2 w-full md:max-w-sm lg:max-w-md xl:max-w-xl md:px-2 lg:px-3 xl:px-4">
             <SearchBar />
           </div>
 
@@ -225,8 +225,8 @@ export function Header() {
 
           {/* Action buttons (right) */}
           <div className="flex items-center space-x-2">
-            {/* Pincode checker - Desktop only, placed with icons */}
-            <div className="hidden md:flex items-center mr-2 text-black">
+            {/* Pincode checker - show on xl+ to avoid overlap on 1024x1366 */}
+            <div className="hidden xl:flex items-center mr-2 text-black">
               <PincodeChecker />
             </div>
             <Button variant="ghost" size="icon" className="relative text-black">

@@ -11,12 +11,12 @@ const faqData = [
       {
         question: "How long does shipping take?",
         answer:
-          "Standard shipping takes 3-5 business days within the US. Express shipping (1-2 days) and international shipping are also available. You'll receive tracking information once your order ships.",
+          "Standard shipping takes 3-5 business days within the India. Express shipping (1-2 days) and international shipping are not available. You'll receive tracking information once your order ships.",
       },
       {
         question: "Do you ship internationally?",
         answer:
-          "Yes! We ship to most countries worldwide. International shipping times vary by location (7-21 business days). Additional customs fees may apply depending on your country's regulations.",
+          "No! We do not ship internationally.",
       },
       {
         question: "Can I change or cancel my order?",
@@ -154,7 +154,7 @@ export default function FAQPage() {
                 Contact Us
               </a>
               <a
-                href="mailto:support@jewellerystore.com"
+                href="mailto:admin@houseofevolve.in"
                 className="inline-flex items-center justify-center px-6 py-3 border border-rose-600 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-colors"
               >
                 Email Support

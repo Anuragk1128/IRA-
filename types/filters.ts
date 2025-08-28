@@ -31,5 +31,5 @@ export interface SearchResult {
   totalCount: number
   filters: FilterGroup[]
   appliedFilters: ProductFilters
-  suggestions?: string[]
+  suggestions: string[]
 }

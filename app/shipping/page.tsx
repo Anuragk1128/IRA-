@@ -23,15 +23,15 @@ export default function ShippingPage() {
               <div className="border-b border-gray-200 pb-4">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-semibold">Standard Shipping</h3>
-                  <span className="text-rose-600 font-medium">FREE on orders $75+</span>
+                  <span className="text-rose-600 font-medium">FREE on orders ₹75+</span>
                 </div>
-                <p className="text-gray-600 text-sm">3-5 business days • $5.99 for orders under $75</p>
+                <p className="text-gray-600 text-sm">3-5 business days • ₹5.99 for orders under ₹75</p>
               </div>
 
               <div className="border-b border-gray-200 pb-4">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-semibold">Express Shipping</h3>
-                  <span className="text-gray-900 font-medium">$12.99</span>
+                  <span className="text-gray-900 font-medium">₹12.99</span>
                 </div>
                 <p className="text-gray-600 text-sm">1-2 business days • Available for most locations</p>
               </div>
@@ -39,7 +39,7 @@ export default function ShippingPage() {
               <div className="border-b border-gray-200 pb-4">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-semibold">Overnight Shipping</h3>
-                  <span className="text-gray-900 font-medium">$24.99</span>
+                  <span className="text-gray-900 font-medium">₹24.99</span>
                 </div>
                 <p className="text-gray-600 text-sm">Next business day • Order by 2 PM EST</p>
               </div>
@@ -47,7 +47,7 @@ export default function ShippingPage() {
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-semibold">International Shipping</h3>
-                  <span className="text-gray-900 font-medium">$15.99+</span>
+                  <span className="text-gray-900 font-medium">₹15.99+</span>
                 </div>
                 <p className="text-gray-600 text-sm">7-21 business days • Customs fees may apply</p>
               </div>
@@ -162,8 +162,8 @@ export default function ShippingPage() {
               <div>
                 <h3 className="font-semibold mb-2">Customer Support</h3>
                 <p className="text-gray-600 text-sm">
-                  Questions about returns or exchanges? Contact our support team at support@jewellerystore.com or call +1
-                  (555) 123-4567.
+                  Questions about returns or exchanges? Contact our support team at support@jewellerystore.com or call +91
+                  (934) 133-0223.
                 </p>
               </div>
             </CardContent>

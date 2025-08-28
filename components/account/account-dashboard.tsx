@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/contexts/auth-context"
 import { ProfileSettings } from "./profile-settings"
-import { AddressBook } from "./address-book"
+// Removed AddressBook as Addresses tab is no longer used
 
 export function AccountDashboard() {
   const { user, signOut } = useAuth()
@@ -35,12 +35,10 @@ export function AccountDashboard() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="orders">Orders</TabsTrigger>
           <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
-          <TabsTrigger value="addresses">Addresses</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -119,7 +117,6 @@ export function AccountDashboard() {
                     <p className="font-medium">No recent orders</p>
                     <p className="text-sm text-muted-foreground">Your recent orders will appear here</p>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => setActiveTab("orders")}>Go to Orders</Button>
                 </div>
               </CardContent>
             </Card>
@@ -128,23 +125,6 @@ export function AccountDashboard() {
 
         <TabsContent value="profile">
           <ProfileSettings />
-        </TabsContent>
-
-        <TabsContent value="orders">
-          <Card>
-            <CardHeader>
-              <CardTitle>Order History</CardTitle>
-              <CardDescription>View and track your orders</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <p className="font-medium">No orders yet</p>
-                  <p className="text-sm text-muted-foreground">Your orders will appear here after purchase</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         <TabsContent value="wishlist">
@@ -162,10 +142,6 @@ export function AccountDashboard() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="addresses">
-          <AddressBook />
         </TabsContent>
       </Tabs>
     </div>
