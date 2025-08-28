@@ -7,7 +7,7 @@ const collections = [
   {
     title: "Everyday Elegance",
     description: "Timeless pieces for daily sophistication",
-    image: "/minimalist-jewellery.png",
+    image: "/necklace.jpg",
     itemCount: "24 pieces",
   },
   {
@@ -19,7 +19,7 @@ const collections = [
   {
     title: "Bridal Collection",
     description: "Perfect for your most precious moments",
-    image: "/pearl-bridal-jewellery.png",
+    image: "/necklace_2.jpg",
     itemCount: "12 pieces",
   },
 ]
