@@ -8,14 +8,14 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 
 const heroImages = [
   {
-    src: "iramodel1.JPG",
+    src: "ira 3x2.jpg",
     alt: "Elegant layered gold jewellery collection",
     position: "center 4%",
   },
   {
-    src: "iramodel2.JPG",
+    src: "ira post.jpg",
     alt: "Statement circular disc necklace",
-    position: "center 8%",
+    position: "center center",
   },
   {
     src: "iramodel3.png",
@@ -27,6 +27,11 @@ const heroImages = [
     alt: "jewellery collection showcase",
     position: "center center",
   },
+  {
+    src: "IRAPOST4.jpg",
+    alt: "jewellery collection showcase",
+    position: "center center",
+  }
 ]
 
 export function HeroSection() {
@@ -81,9 +86,9 @@ export function HeroSection() {
             {heroImages.map((image, index) => {
               const isActive = index === selectedIndex
               return (
-                <div key={index} className="pl-4 shrink-0 basis-[88%] sm:basis-[75%] md:basis-[65%] lg:basis-[58%]">
+                <div key={index} className="pl-1 shrink-0 basis-[88%] sm:basis-[75%] md:basis-[65%] lg:basis-[58%]">
                   <div
-                    className={`relative h-[45vh] sm:h-[50vh] md:h-[60vh] lg:h-[70vh] xl:h-[75vh] 2xl:h-[80vh] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-black/5 transition-all duration-500 ${
+                    className={`relative h-[45vh] sm:h-[50vh] md:h-[60vh] lg:h-[65vh] xl:h-[70vh] 2xl:h-[60vh] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-black/5 transition-all duration-500 ${
                       isActive ? "scale-100 opacity-100" : "scale-[0.95] opacity-80"
                     }`}
                   >
@@ -109,14 +114,14 @@ export function HeroSection() {
           aria-label="Previous slide"
           className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md ring-1 ring-black/10 hover:bg-white"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className="h-4 w-4" />
         </button>
         <button
           onClick={scrollNext}
           aria-label="Next slide"
           className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md ring-1 ring-black/10 hover:bg-white"
         >
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className="h-4 w-4" />
         </button>
 
         {/* Dots */}
