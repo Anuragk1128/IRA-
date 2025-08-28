@@ -38,7 +38,7 @@ export function FeaturedCollections() {
         </div>
 
         {/* Full-width video tile */}
-        <div className="mb-8 sm:mb-10 md:mb-14 bg-black rounded-xl overflow-hidden">
+        <div className="mb-8 sm:mb-10 md:mb-14 bg-zinc-600 rounded-xl overflow-hidden">
           <div className="relative w-full px-0 py-0">
             <div className="relative w-full aspect-video">
               <video
