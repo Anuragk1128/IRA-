@@ -104,7 +104,7 @@ export function Header() {
           <Button 
             variant="ghost" 
             size="icon" 
-            className="md:hidden h-9 w-9"
+            className="md:hidden h-9 w-9 relative z-50"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isMobileMenuOpen}
@@ -310,7 +310,7 @@ export function Header() {
 
         {/* Mobile Menu */}
         <div className={cn(
-          "md:hidden fixed inset-0 bg-white text-black z-50 transition-all duration-300 ease-in-out border-t border-border/40 pt-24",
+          "md:hidden fixed inset-0 bg-white text-black z-40 transition-all duration-300 ease-in-out border-t border-border/40 pt-24",
           isMobileMenuOpen 
             ? "opacity-100 visible pointer-events-auto" 
             : "opacity-0 invisible pointer-events-none"
