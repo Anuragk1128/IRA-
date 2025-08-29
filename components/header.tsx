@@ -97,7 +97,7 @@ export function Header() {
         overHero ? "bg-transparent border-b border-transparent" : "bg-white border-b border-border/40"
       )}
     >
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 py-4">
         {/* Top bar */}
         <div className="flex h-16 items-center justify-between relative">
           {/* Mobile menu button */}

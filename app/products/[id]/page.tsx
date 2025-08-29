@@ -171,12 +171,38 @@ export default function ProductPage({ params }: ProductPageProps) {
           </TabsList>
           <TabsContent value="description" className="mt-6">
             <div className="prose max-w-none">
-              <p className="text-muted-foreground leading-relaxed">{product.description}</p>
-              <p className="text-muted-foreground leading-relaxed mt-4">
-                This exquisite piece is crafted with attention to detail and quality materials. Perfect for both
-                everyday wear and special occasions, it adds a touch of elegance to any outfit. Our artificial jewellery
-                is designed to provide the luxury look without the premium price.
+              <p className="text-muted-foreground leading-relaxed font-bold">{product.description}</p>
+              <p className="text-muted-foreground leading-relaxed font-bold"> Products included :
+              1 pair of earrings</p>
+              <h2 className="text-xl font-bold mt-4">Features</h2>
+              <p className="text-muted-foreground leading-relaxed ">
+              Anti-tarnish</p>
+              <p>Premium materials</p>
+              <p>Superior design</p>
+              
+              <p>
+                Easy Maintenance
               </p>
+              <p>
+                Travel Friendly
+              </p>
+              <h2 className="text-xl font-bold mt-4">Returns</h2>
+              <p>
+              
+              If the product isn't vibing with your expectations, send it back with a smile with our free 7-day return policy. To know more, visit our Return Policy page.
+                
+              </p>
+              <h2 className="text-xl font-bold mt-4">Care Instruction</h2>
+              <p>
+              Remove jewellery before washing hands, swimming, or showering.
+              </p>
+              <p>Due to its delicate nature, avoid wearing it during strenuous activities or while sleeping to reduce the risk of damage.</p>
+              <p>Use a soft, dry microfibre cloth to gently remove dirt, sweat, and oils after each wear.</p>
+              <p>Avoid using abrasive materials, ultrasonic cleaners, alcohol, or strong detergents, which can strip away finishes or discolour stones.</p>
+              <p>Do not soak costume jewellery in water or cleaning solutions, as the glue or coatings may loosen or dissolve.</p>
+              <p>To prevent tangling, scratches, or chipped coatings, store each piece in its own compartment, soft pouch, or a jewellery box with fabric lining.</p>
+              
+              
             </div>
           </TabsContent>
           <TabsContent value="specifications" className="mt-6">

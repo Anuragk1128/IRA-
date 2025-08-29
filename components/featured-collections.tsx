@@ -38,7 +38,7 @@ export function FeaturedCollections() {
         </div>
 
         {/* Full-width video tile */}
-        <div className="mb-8 sm:mb-10 md:mb-14 bg-zinc-600 rounded-xl overflow-hidden">
+        <div className="mb-8 sm:mb-10 md:mb-14 bg-neutral-400 rounded-xl overflow-hidden ">
           <div className="relative w-full px-0 py-0">
             <div className="relative w-full aspect-video">
               <video
@@ -51,8 +51,8 @@ export function FeaturedCollections() {
                 controls={false}
               />
             </div>
-            <h3 className="mt-3 text-center text-white text-lg sm:text-xl md:text-2xl font-semibold">Collections you'll love</h3>
-            <p className="mt-2 text-center text-white text-sm sm:text-base md:text-lg">Let's take a glimpse at our featured collections before diving in!</p>
+            <h3 className="mt-3 text-center text-foreground-muted text-black text-lg sm:text-xl md:text-2xl font-semibold ">Collections you'll love</h3>
+            <p className="mt-2 text-center text-black text-foreground-muted text-sm sm:text-base md:text-lg">Let's take a glimpse at our featured collections before diving in!</p>
           </div>
         </div>
         
