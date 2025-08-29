@@ -104,17 +104,17 @@ export function Header() {
           <Button 
             variant="ghost" 
             size="icon" 
-            className="md:hidden"
+            className="md:hidden h-9 w-9"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isMobileMenuOpen}
           >
-            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {isMobileMenuOpen ? <X className="h-5 w-5 md:h-5 md:w-5" /> : <Menu className="h-4 w-4 md:h-5 md:w-5" />}
           </Button>
 
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="h-12 w-12 rounded-full overflow-hidden ring-1 ring-border bg-muted flex items-center justify-center">
+          <Link href="/" className="flex items-center space-x-2 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:static md:translate-x-0 md:translate-y-0">
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-full overflow-hidden ring-1 ring-border bg-muted flex items-center justify-center -mt-1 md:mt-0">
               <img
                 src="/ira-logo.jpg"
                 alt="IRA by House of Evolve logo"
@@ -224,17 +224,17 @@ export function Header() {
           </div>
 
           {/* Action buttons (right) */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 md:space-x-2">
             {/* Pincode checker - show on xl+ to avoid overlap on 1024x1366 */}
             <div className="hidden xl:flex items-center mr-2 text-black">
               <PincodeChecker />
             </div>
-            <Button variant="ghost" size="icon" className="relative text-black">
+            <Button variant="ghost" size="icon" className="relative text-black h-9 w-9 md:h-10 md:w-10 shrink-0">
               <Link href="/wishlist">
-                <Heart className="h-5 w-5" />
+                <Heart className="h-4 w-4 md:h-5 md:w-5" />
               </Link>
               {wishlist.itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-accent-foreground text-xs flex items-center justify-center">
+                <span className="hidden sm:flex absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-accent-foreground text-[10px] items-center justify-center">
                   {wishlist.itemCount}
                 </span>
               )}
@@ -243,8 +243,8 @@ export function Header() {
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-black">
-                    <User className="h-5 w-5" />
+                  <Button variant="ghost" size="icon" className="text-black h-9 w-9 md:h-10 md:w-10 shrink-0">
+                    <User className="h-4 w-4 md:h-5 md:w-5" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
@@ -272,9 +272,9 @@ export function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button variant="ghost" size="icon" asChild className="text-black">
+              <Button variant="ghost" size="icon" asChild className="text-black h-9 w-9 md:h-10 md:w-10 shrink-0">
                 <Link href="/login">
-                  <User className="h-5 w-5" />
+                  <User className="h-4 w-4 md:h-5 md:w-5" />
                 </Link>
               </Button>
             )}
@@ -310,10 +310,10 @@ export function Header() {
 
         {/* Mobile Menu */}
         <div className={cn(
-          "md:hidden fixed inset-0 bg-white text-black z-50 transition-all duration-300 ease-in-out transform border-t border-border/40",
+          "md:hidden fixed inset-0 bg-white text-black z-50 transition-all duration-300 ease-in-out border-t border-border/40 pt-24",
           isMobileMenuOpen 
-            ? "translate-y-28 opacity-100 visible" 
-            : "-translate-y-full opacity-0 invisible"
+            ? "opacity-100 visible pointer-events-auto" 
+            : "opacity-0 invisible pointer-events-none"
         )}>
           {/* Overlay to prevent interaction with content behind */}
           <div className="absolute inset-0 bg-white -z-10" />
