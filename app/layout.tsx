@@ -1,25 +1,14 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist } from "next/font/google"
-import { Playfair_Display } from "next/font/google"
 import "./globals.css"
 import { AuthProvider } from "@/contexts/auth-context"
 import { CartProvider } from "@/contexts/cart-context"
 import { WishlistProvider } from "@/contexts/wishlist-context"
 import { Toaster } from "@/components/ui/toaster"
 import { SignupPopup } from "@/components/auth/signup-popup"
+import { RouteLoader } from "@/components/route-loader"
 
-const geist = Geist({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-geist",
-})
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-playfair",
-})
+// Removed Google font imports and variables to use system fonts only
 
 export const metadata: Metadata = {
   title: "IRA jewellery - Elegant Artificial jewellery Collection",
@@ -39,8 +28,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${geist.variable} ${playfair.variable} antialiased`}>
+    <html lang="en" className={`antialiased`}>
       <body className="min-h-screen bg-background font-sans pt-14 md:pt-28">
+        <RouteLoader />
         <AuthProvider>
           <CartProvider>
             <WishlistProvider>
