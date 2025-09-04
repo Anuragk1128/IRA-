@@ -196,7 +196,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <h2 className="text-xl font-bold mt-4">Returns</h2>
               <p>
               
-              If the product isn't vibing with your expectations, send it back with a smile with our free 7-day return policy. To know more, visit our Return Policy page.
+              We provide a reliable 7-day replacement policy that ensures a smooth and worry-free shopping experience.
                 
               </p>
               <h2 className="text-xl font-bold mt-4">Care Instruction</h2>
