@@ -1,6 +1,6 @@
 import type { Product } from "@/types/product"
 import type { ProductFilters, FilterGroup, SearchResult } from "@/types/filters"
-import { products, categories } from "@/lib/products"
+import { products } from "@/lib/products"
 
 export function searchProducts(query = "", filters: ProductFilters = {}): SearchResult {
   // Build inferred filters from the free-text query (category, subcategory, price range)
@@ -19,17 +19,12 @@ export function searchProducts(query = "", filters: ProductFilters = {}): Search
   if (query.trim()) {
     const searchTerm = query.toLowerCase()
     filteredProducts = filteredProducts.filter((product) => {
-      const cat = categories.find((c) => c.slug === product.category)
-      const sub = cat?.subcategories?.find((s) => s.slug === product.subcategory)
       return (
         product.name.toLowerCase().includes(searchTerm) ||
         product.description.toLowerCase().includes(searchTerm) ||
         product.tags.some((tag) => tag.toLowerCase().includes(searchTerm)) ||
         product.material.toLowerCase().includes(searchTerm) ||
-        product.color.toLowerCase().includes(searchTerm) ||
-        // category/subcategory label matches
-        (!!cat && (cat.slug.includes(searchTerm) || cat.name.toLowerCase().includes(searchTerm))) ||
-        (!!sub && (sub.slug.includes(searchTerm) || sub.name.toLowerCase().includes(searchTerm)))
+        product.color.toLowerCase().includes(searchTerm)
       )
     })
   }
@@ -218,17 +213,7 @@ function generateSearchSuggestions(query: string, allProducts: Product[]): strin
     })
   })
 
-  // Add categories and subcategories
-  categories.forEach((cat) => {
-    if (cat.name.toLowerCase().startsWith(searchTerm) || cat.slug.startsWith(searchTerm)) {
-      suggestions.add(cat.name)
-    }
-    cat.subcategories?.forEach((sub) => {
-      if (sub.name.toLowerCase().startsWith(searchTerm) || sub.slug.startsWith(searchTerm)) {
-        suggestions.add(sub.name)
-      }
-    })
-  })
+  // Category-based suggestions removed (now backend-driven elsewhere)
 
   // Common price buckets
   const priceBuckets = ["Under $50", "$50 - $100", "$100 - $200", "$200+"]
@@ -254,36 +239,7 @@ function inferFiltersFromQuery(query: string): Pick<ProductFilters, "category" |
   const q = query.toLowerCase()
   const result: Pick<ProductFilters, "category" | "subcategory" | "priceRange"> = {}
 
-  // Categories
-  for (const cat of categories) {
-    if (q.includes(cat.slug) || q.includes(cat.name.toLowerCase())) {
-      result.category = cat.slug
-      break
-    }
-  }
-
-  // Subcategories
-  if (result.category) {
-    const cat = categories.find((c) => c.slug === result.category)
-    for (const sub of cat?.subcategories || []) {
-      if (q.includes(sub.slug) || q.includes(sub.name.toLowerCase())) {
-        result.subcategory = sub.slug
-        break
-      }
-    }
-  } else {
-    // If category wasn't matched, still try to match any subcategory to set both
-    for (const cat of categories) {
-      for (const sub of cat.subcategories || []) {
-        if (q.includes(sub.slug) || q.includes(sub.name.toLowerCase())) {
-          result.category = cat.slug
-          result.subcategory = sub.slug
-          break
-        }
-      }
-      if (result.subcategory) break
-    }
-  }
+  // Category/subcategory inference removed (now backend IDs are used via URL params)
 
   // Price parsing: under/over/between and ranges like 50-100, 50 to 100, $, $ supported
   const normalized = q.replace(/[,$$]/g, "")

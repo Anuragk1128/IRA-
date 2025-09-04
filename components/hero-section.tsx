@@ -2,9 +2,11 @@
 
 import type React from "react"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 import useEmblaCarousel from "embla-carousel-react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 const heroImages = [
   {
@@ -37,6 +39,8 @@ const heroImages = [
 export function HeroSection() {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [paused, setPaused] = useState(false)
+  const rootRef = useRef<HTMLDivElement | null>(null)
+  const slideRefs = useRef<HTMLDivElement[]>([])
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: "center",
@@ -71,9 +75,47 @@ export function HeroSection() {
     return () => window.clearInterval(id)
   }, [emblaApi, paused])
 
+  // GSAP animations: scoped and SSR-safe
+  useLayoutEffect(() => {
+    gsap.registerPlugin(ScrollTrigger)
+
+    if (!rootRef.current) return
+
+    const ctx = gsap.context(() => {
+      // Prepare
+      gsap.set(slideRefs.current, { opacity: 0, y: 20, willChange: "transform, opacity" })
+
+      // Slide-in on scroll for each card
+      slideRefs.current.forEach((el) => {
+        if (!el) return
+        gsap.to(el, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 80%",
+            toggleActions: "play none none reverse",
+          },
+        })
+      })
+
+      // Subtle entrance for arrows and dots
+      const controls = gsap.utils.toArray<HTMLElement>([".hero-arrow-left", ".hero-arrow-right", ".hero-dots"])
+      gsap.fromTo(
+        controls,
+        { autoAlpha: 0, y: -6 },
+        { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out", stagger: 0.06 }
+      )
+    }, rootRef)
+
+    return () => ctx.revert()
+  }, [])
+
   return (
     <section className="relative w-full pt-2 lg:pt-2 md:pt-2 pb-6 lg:pb-6 md:pb-10">
-      <div className="mx-auto max-w-[1570px] px-2">
+      <div className="mx-auto max-w-[1570px] px-2" ref={rootRef}>
         {/* Viewport */}
         <div
           className="relative overflow-hidden"
@@ -91,6 +133,9 @@ export function HeroSection() {
                     className={`relative h-[45vh] sm:h-[50vh] md:h-[60vh] lg:h-[65vh] xl:h-[70vh] 2xl:h-[60vh] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-black/5 transition-all duration-500 ${
                       isActive ? "scale-100 opacity-100" : "scale-[0.95] opacity-80"
                     }`}
+                    ref={(el) => {
+                      if (el) slideRefs.current[index] = el
+                    }}
                   >
                     <img
                       src={image.src || "/placeholder.svg"}
@@ -112,20 +157,20 @@ export function HeroSection() {
         <button
           onClick={scrollPrev}
           aria-label="Previous slide"
-          className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md ring-1 ring-black/10 hover:bg-white"
+          className="hero-arrow-left absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md ring-1 ring-black/10 hover:bg-white"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
         <button
           onClick={scrollNext}
           aria-label="Next slide"
-          className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md ring-1 ring-black/10 hover:bg-white"
+          className="hero-arrow-right absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md ring-1 ring-black/10 hover:bg-white"
         >
           <ChevronRight className="h-4 w-4" />
         </button>
 
         {/* Dots */}
-        <div className="mt-6 flex items-center justify-center gap-2">
+        <div className="hero-dots mt-6 flex items-center justify-center gap-2">
           {heroImages.map((_, i) => (
             <button
               key={i}

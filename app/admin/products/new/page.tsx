@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, FormEvent, useEffect, useMemo } from "react"
+import { useState, FormEvent, useEffect, useMemo, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -44,6 +44,10 @@ export default function NewProductPage() {
 
   const [imagesInput, setImagesInput] = useState("")
   const [tagsInput, setTagsInput] = useState("")
+  const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const [cloudName, setCloudName] = useState<string | null>(null)
+  const [uploadPreset, setUploadPreset] = useState<string | null>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -58,7 +62,57 @@ export default function NewProductPage() {
       }
     }
     load()
+    // Initialize Cloudinary config from env (compiled) or localStorage as fallback
+    const envCloud = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || ""
+    const envPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || ""
+    const lsCloud = typeof window !== "undefined" ? localStorage.getItem("cloudinary_cloud_name") || "" : ""
+    const lsPreset = typeof window !== "undefined" ? localStorage.getItem("cloudinary_upload_preset") || "" : ""
+    setCloudName(envCloud || lsCloud || null)
+    setUploadPreset(envPreset || lsPreset || null)
   }, [toast])
+
+  // Upload a single file to Cloudinary (unsigned) and append URL to imagesInput
+  const handleImageUpload = async (file: File) => {
+    if (!cloudName || !uploadPreset) {
+      toast({
+        title: "Missing Cloudinary config",
+        description: "Provide Cloudinary Cloud Name and Unsigned Upload Preset below or set NEXT_PUBLIC_* envs and restart.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("upload_preset", uploadPreset)
+
+    setIsUploading(true)
+    try {
+      const res = await fetch(url, { method: "POST", body: formData })
+      if (!res.ok) {
+        let message = `Upload failed (${res.status})`
+        try {
+          const err = await res.json()
+          message = err?.error?.message || JSON.stringify(err) || message
+        } catch {}
+        throw new Error(message)
+      }
+      const data = await res.json()
+      const secureUrl: string | undefined = data?.secure_url
+      if (!secureUrl) throw new Error("No secure_url in Cloudinary response")
+      setImagesInput((prev) => (prev ? `${prev}\n${secureUrl}` : secureUrl))
+      toast({ title: "Image uploaded", description: "Added to Images list" })
+    } catch (err) {
+      toast({
+        title: "Upload error",
+        description: err instanceof Error ? err.message : "",
+        variant: "destructive",
+      })
+    } finally {
+      setIsUploading(false)
+    }
+  }
 
   const subcategories: ProductSubcategory[] = useMemo(() => {
     const cat = categories.find((c) => c.id === categoryId)
@@ -219,6 +273,105 @@ export default function NewProductPage() {
                 onChange={(e) => setImagesInput(e.target.value)}
                 required
               />
+              {/* Cloudinary config helper - shown if not configured via env or localStorage */}
+              {(!cloudName || !uploadPreset) && (
+                <div className="p-3 border rounded-md bg-amber-50 text-amber-900 space-y-2">
+                  <p className="text-sm font-medium">Cloudinary configuration required</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label htmlFor="cloudName">Cloud Name</Label>
+                      <Input
+                        id="cloudName"
+                        placeholder="your_cloud_name"
+                        value={cloudName ?? ""}
+                        onChange={(e) => setCloudName(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="uploadPreset">Unsigned Upload Preset</Label>
+                      <Input
+                        id="uploadPreset"
+                        placeholder="your_unsigned_preset"
+                        value={uploadPreset ?? ""}
+                        onChange={(e) => setUploadPreset(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => {
+                        if (typeof window !== "undefined") {
+                          if (cloudName) localStorage.setItem("cloudinary_cloud_name", cloudName)
+                          if (uploadPreset) localStorage.setItem("cloudinary_upload_preset", uploadPreset)
+                        }
+                        toast({ title: "Cloudinary config saved" })
+                      }}
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        if (typeof window !== "undefined") {
+                          localStorage.removeItem("cloudinary_cloud_name")
+                          localStorage.removeItem("cloudinary_upload_preset")
+                        }
+                        setCloudName(process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || null)
+                        setUploadPreset(process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || null)
+                        toast({ title: "Cleared local Cloudinary config" })
+                      }}
+                    >
+                      Reset
+                    </Button>
+                  </div>
+                  <p className="text-xs text-amber-700">Tip: add NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET to .env.local and restart dev server for a permanent setup.</p>
+                </div>
+              )}
+              <div className="flex items-center gap-3">
+                {/* Hidden native file input to ensure proper file picker behavior */}
+                <input
+                  ref={fileInputRef}
+                  id="image-file"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={async () => {
+                    const files = Array.from(fileInputRef.current?.files || [])
+                    for (const f of files) {
+                      await handleImageUpload(f)
+                    }
+                    // Reset the input so same file(s) can be selected again if needed
+                    if (fileInputRef.current) fileInputRef.current.value = ""
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading || !cloudName || !uploadPreset}
+                >
+                  {isUploading ? "Uploading..." : "Upload from device"}
+                </Button>
+              </div>
+              {imagesInput && (
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-2 pt-2">
+                  {imagesInput
+                    .split(/\n|,/)
+                    .map((s) => s.trim())
+                    .filter(Boolean)
+                    .map((src, idx) => (
+                      <div key={idx} className="relative w-full aspect-square overflow-hidden rounded border">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={src} alt={`img-${idx}`} className="h-full w-full object-cover" />
+                      </div>
+                    ))}
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">

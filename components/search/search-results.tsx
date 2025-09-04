@@ -15,9 +15,10 @@ interface SearchResultsProps {
   totalCount: number
   appliedFilters: ProductFilters
   onSortChange: (sortBy: ProductFilters["sortBy"]) => void
+  categoryName?: string
 }
 
-export function SearchResults({ products, totalCount, appliedFilters, onSortChange }: SearchResultsProps) {
+export function SearchResults({ products, totalCount, appliedFilters, onSortChange, categoryName }: SearchResultsProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
   const handleSortChange = (value: string) => {
@@ -32,8 +33,10 @@ export function SearchResults({ products, totalCount, appliedFilters, onSortChan
           <h2 className="text-base md:text-lg font-medium">
             {totalCount} {totalCount === 1 ? "Product" : "Products"} Found
           </h2>
-          {appliedFilters.category && (
-            <p className="text-xs md:text-sm text-muted-foreground capitalize">in {appliedFilters.category.replace("-", " ")}</p>
+          {categoryName && (
+            <p className="text-xs md:text-sm text-muted-foreground capitalize">
+              in {categoryName}
+            </p>
           )}
         </div>
 

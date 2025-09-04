@@ -17,7 +17,7 @@ import {
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { PincodeChecker } from "@/components/pincode-checker"
-import { categories as allCategories } from "@/lib/products"
+import { fetchCategoriesFromApi, type BackendCategory } from "@/lib/catalog"
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -26,6 +26,7 @@ export function Header() {
   const [openMegaFor, setOpenMegaFor] = useState<string | null>(null)
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false)
   const [overHero, setOverHero] = useState(false)
+  const [categories, setCategories] = useState<BackendCategory[]>([])
 
   // Close mobile menu when route changes (fallback, may not trigger in App Router)
   useEffect(() => {
@@ -56,13 +57,27 @@ export function Header() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Fetch categories from backend
+  useEffect(() => {
+    let mounted = true
+    fetchCategoriesFromApi()
+      .then((cats) => {
+        if (mounted) setCategories(cats)
+      })
+      .catch(() => {
+        if (mounted) setCategories([])
+      })
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  const toSlug = (s?: string) =>
+    (s || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+
   // Navigation links data
   const navLinks = [
     { href: "/categories", label: "Collections" },
-    { href: "/categories/rings", label: "Rings" },
-    { href: "/categories/necklaces", label: "Necklaces" },
-    { href: "/categories/earrings", label: "Earrings" },
-    { href: "/categories/bracelets", label: "Bracelets" },
   ]
 
   // Facets for mega menu
@@ -142,7 +157,7 @@ export function Header() {
               aria-label="Category mega menu"
             >
               {(() => {
-                const cat = allCategories.find((c) => c.slug === openMegaFor)
+                const cat = categories.find((c) => (c.slug || toSlug(c.name)) === openMegaFor)
                 if (!cat) return null
                 return (
                   <div className="w-full px-4 md:px-6">
@@ -151,7 +166,7 @@ export function Header() {
                         <div className="text-xs uppercase tracking-wide text-muted-foreground mb-3">Shop by Style</div>
                         <div className="space-y-1">
                           {cat.subcategories?.map((sub) => (
-                            <Link key={sub.id} href={`/categories/${cat.slug}?sub=${sub.slug}`} className="block px-2 py-1.5 text-sm rounded hover:bg-black/5">
+                            <Link key={sub.id} href={`/categories/${cat.slug ?? toSlug(cat.name)}?catId=${cat.id}&subId=${sub.id}`} className="block px-2 py-1.5 text-sm rounded hover:bg-black/5">
                               {sub.name}
                             </Link>
                           ))}
@@ -197,7 +212,7 @@ export function Header() {
                       </div>
                     </div>
                     <div className="border-top border-border/40 px-6 py-3 flex items-center justify-between">
-                      <Link href={`/categories/${cat.slug}`} className="text-sm font-medium hover:text-black/80">
+                      <Link href={`/categories/${cat.slug ?? toSlug(cat.name)}?catId=${cat.id}`} className="text-sm font-medium hover:text-black/80">
                         View all {cat.name}
                       </Link>
                       <div className="hidden md:flex items-center gap-3">
@@ -294,13 +309,13 @@ export function Header() {
             >
               Collections
             </Link>
-            {/* Dynamic categories */}
-            {allCategories.map((cat) => (
+            {/* Dynamic categories from backend */}
+            {categories.map((cat) => (
               <Link
-                key={cat.slug}
-                href={`/categories/${cat.slug}`}
+                key={cat.id}
+                href={`/categories/${cat.slug ?? toSlug(cat.name)}?catId=${cat.id}`}
                 className="text-sm font-medium hover:text-black/80 transition-colors"
-                onMouseEnter={() => setOpenMegaFor(cat.slug)}
+                onMouseEnter={() => setOpenMegaFor(cat.slug ?? toSlug(cat.name))}
               >
                 {cat.name}
               </Link>
@@ -349,10 +364,10 @@ export function Header() {
                   isMobileCategoriesOpen ? "block" : "hidden"
                 )}
               >
-                {allCategories.map((cat) => (
-                  <div key={cat.slug} className="px-2 py-2">
+                {categories.map((cat) => (
+                  <div key={cat.id} className="px-2 py-2">
                     <Link
-                      href={`/categories/${cat.slug}`}
+                      href={`/categories/${cat.slug ?? toSlug(cat.name)}?catId=${cat.id}`}
                       className="block px-2 py-2 rounded text-base hover:bg-black/5"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
@@ -363,7 +378,7 @@ export function Header() {
                         {cat.subcategories.map((sub) => (
                           <Link
                             key={sub.id}
-                            href={`/categories/${cat.slug}?sub=${sub.slug}`}
+                            href={`/categories/${cat.slug ?? toSlug(cat.name)}?catId=${cat.id}&subId=${sub.id}`}
                             className="block px-2 py-1.5 text-sm text-black/90 rounded hover:bg-black/5"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >

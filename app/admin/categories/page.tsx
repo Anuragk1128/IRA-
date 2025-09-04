@@ -9,13 +9,16 @@ import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Plus, FolderTree, FolderPlus, ImageIcon } from "lucide-react"
+import { Plus, FolderTree, FolderPlus, ImageIcon, Pencil } from "lucide-react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import type { ProductCategory, ProductSubcategory } from "@/types/product"
 import { useToast } from "@/hooks/use-toast"
 import { fetchAdminCategories, createAdminCategory, createAdminSubcategory } from "@/lib/admin-categories"
 
 export default function AdminCategoriesPage() {
   const { toast } = useToast()
+  const router = useRouter()
   // Loaded from backend
   const [categories, setCategories] = useState<ProductCategory[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -168,7 +171,21 @@ export default function AdminCategoriesPage() {
                           <div className="font-medium text-gray-900">{cat.name}</div>
                           <div className="text-xs text-gray-600">/{cat.slug}</div>
                         </div>
-                        <Badge variant="secondary">{cat.subcategories?.length || 0}</Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary">{cat.subcategories?.length || 0}</Badge>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              router.push(`/admin/categories/edit/${cat.id}`)
+                            }}
+                          >
+                            <Pencil className="h-4 w-4" />
+                            <span className="sr-only">Edit</span>
+                          </Button>
+                        </div>
                       </button>
                     ))
                   )}

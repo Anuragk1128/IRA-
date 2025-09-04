@@ -2,9 +2,14 @@ import Image from "next/image"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { categories } from "@/lib/products"
+import { fetchCategoriesFromApi } from "@/lib/catalog"
 
-export default function CategoriesPage() {
+function toSlug(s?: string) {
+  return (s || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+}
+
+export default async function CategoriesPage() {
+  const categories = await fetchCategoriesFromApi()
   return (
     <div className="min-h-screen">
       <Header />
@@ -16,10 +21,10 @@ export default function CategoriesPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {categories.map((category) => (
-            <Link key={category.id} href={`/categories/${category.slug}`} className="group block">
+            <Link key={category.id} href={`/categories/${category.slug ?? toSlug(category.name)}?catId=${category.id}`} className="group block">
               <div className="relative aspect-[4/3] overflow-hidden rounded-lg mb-4">
                 <Image
-                  src={category.image || "/placeholder.svg"}
+                  src={(category as any).image || "/placeholder.svg"}
                   alt={category.name}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -29,7 +34,9 @@ export default function CategoriesPage() {
                   <h3 className="text-white text-xl font-elegant text-center">{category.name}</h3>
                 </div>
               </div>
-              <p className="text-muted-foreground text-sm text-center">{category.description}</p>
+              {category.description && (
+                <p className="text-muted-foreground text-sm text-center">{category.description}</p>
+              )}
             </Link>
           ))}
         </div>
@@ -38,3 +45,4 @@ export default function CategoriesPage() {
     </div>
   )
 }
+

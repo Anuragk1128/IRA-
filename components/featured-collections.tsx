@@ -3,28 +3,17 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 
-const collections = [
-  {
-    title: "Everyday Elegance",
-    description: "Timeless pieces for daily sophistication",
-    image: "/necklace.jpg",
-    itemCount: "24 pieces",
-  },
-  {
-    title: "Evening Glamour",
-    description: "Statement pieces for special occasions",
-    image: "/elegant-gold-earrings.png",
-    itemCount: "18 pieces",
-  },
-  {
-    title: "Bridal Collection",
-    description: "Perfect for your most precious moments",
-    image: "/necklace_2.jpg",
-    itemCount: "12 pieces",
-  },
-]
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "https://ira-be.onrender.com/api"
 
-export function FeaturedCollections() {
+type Category = {
+  id: string
+  name: string
+  slug: string
+  description?: string
+  image?: string
+}
+
+export async function FeaturedCollections() {
   return (
     <section className="py-8 sm:py-10 md:py-16 bg-muted/30">
       <div className="container mx-auto px-3 sm:px-4">
@@ -56,43 +45,53 @@ export function FeaturedCollections() {
           </div>
         </div>
         
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-2 sm:gap-3 md:gap-4 justify-items-center items-stretch max-w-5xl mx-auto">
-          {collections.map((collection, index) => {
-            const routeMap: Record<string, string> = {
-              "Everyday Elegance": "/categories/necklaces",
-              "Evening Glamour": "/categories/earrings",
-              "Bridal Collection": "/categories/rings",
-            }
-            const href = routeMap[collection.title] || "/categories"
-            return (
-              <Link key={index} href={href} className="w-full max-w-[12rem] sm:max-w-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl">
-                <Card className="group h-full w-full overflow-hidden rounded-xl border border-border/50 hover:border-primary/30 shadow-sm hover:shadow-md transition-all duration-300 bg-card/60 backdrop-blur">
-                  <CardContent className="p-0 h-full flex flex-col">
-                    <div className="aspect-[3/4] overflow-hidden">
-                      <img
-                        src={collection.image || "/placeholder.svg"}
-                        alt={collection.title}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-                      />
-                    </div>
-                    <div className="p-2.5 sm:p-3 space-y-2 flex-1 flex flex-col">
-                      <div>
-                        <h3 className="text-sm md:text-base font-elegant font-semibold mb-1">{collection.title}</h3>
-                        <p className="text-muted-foreground text-xs sm:text-[13px] md:text-sm mb-1.5">{collection.description}</p>
-                        <p className="text-[10px] md:text-xs text-accent font-medium">{collection.itemCount}</p>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2 sm:gap-3 md:gap-4 justify-items-center items-stretch max-w-5xl mx-auto">
+          {await (async () => {
+            try {
+              const res = await fetch(`${BASE_URL}/categories`, { cache: 'no-store', headers: { accept: 'application/json' } })
+              if (!res.ok) throw new Error(`Failed to fetch categories: ${res.status}`)
+              const data = await res.json()
+              const list: Category[] = (data?.categories || data || []).slice(0, 3).map((c: any) => ({
+                id: String(c.id || c._id || c.slug || c.name),
+                name: String(c.name || c.title || ''),
+                slug: String(c.slug || ''),
+                description: String(c.description || ''),
+                image: typeof c.image === 'string' ? c.image : (Array.isArray(c.images) ? c.images[0] : undefined),
+              }))
+
+              return list.map((cat) => (
+                <Link key={cat.id} href={`/categories/${cat.slug || ''}`} className="w-full max-w-[14rem] sm:max-w-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl">
+                  <Card className="group h-full w-full overflow-hidden rounded-xl border border-border/50 hover:border-primary/30 shadow-sm hover:shadow-md transition-all duration-300 bg-card/60 backdrop-blur">
+                    <CardContent className="p-0 h-full flex flex-col">
+                      <div className="aspect-[3/4] overflow-hidden">
+                        <img
+                          src={cat.image || "/placeholder.svg"}
+                          alt={cat.name}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                        />
                       </div>
-                      <Button asChild variant="ghost" size="sm" className="w-full h-8 group/btn justify-between mt-auto">
-                        <span>
-                          Explore Collection
-                          <ArrowRight className="ml-2 inline-block align-middle h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
-                        </span>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            )
-          })}
+                      <div className="p-2.5 sm:p-3 space-y-2 flex-1 flex flex-col">
+                        <div>
+                          <h3 className="text-sm md:text-base font-elegant font-semibold mb-1">{cat.name}</h3>
+                          {cat.description && (
+                            <p className="text-muted-foreground text-xs sm:text-[13px] md:text-sm mb-1.5">{cat.description}</p>
+                          )}
+                        </div>
+                        <Button asChild variant="ghost" size="sm" className="w-full h-8 group/btn justify-between mt-auto px-2">
+                          <span className="w-full flex items-center justify-between">
+                            <span className="truncate">Explore Collection</span>
+                            <ArrowRight className="ml-2 inline-block align-middle h-4 w-4 shrink-0 transition-transform group-hover/btn:translate-x-1 sm:group-hover/btn:translate-x-1 group-hover/btn:translate-x-0.5" />
+                          </span>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))
+            } catch (e) {
+              return null
+            }
+          })()}
         </div>
       </div>
     </section>

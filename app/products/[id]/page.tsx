@@ -8,9 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ProductGrid } from "@/components/product-grid"
-import { getProductById, getProductsByCategory } from "@/lib/products"
 import { AddToCartButton } from "@/components/product/add-to-cart-button"
 import { formatCurrencyINR } from "@/lib/currency"
+import { fetchProductById, fetchProductsByCategory } from "@/lib/api"
+import { fetchCategoriesFromApi } from "@/lib/catalog"
 
 interface ProductPageProps {
   params: {
@@ -18,16 +19,22 @@ interface ProductPageProps {
   }
 }
 
-export default function ProductPage({ params }: ProductPageProps) {
-  const product = getProductById(params.id)
+export default async function ProductPage({ params }: ProductPageProps) {
+  const [product, categories] = await Promise.all([
+    fetchProductById(params.id),
+    fetchCategoriesFromApi()
+  ])
 
   if (!product) {
     notFound()
   }
 
-  const relatedProducts = getProductsByCategory(product.category)
-    .filter((p) => p.id !== product.id)
-    .slice(0, 4)
+  // Find the category name
+  const categoryName = categories.find(cat => cat.id === product.category)?.name || product.category
+  
+  const relatedProducts = product.category
+    ? (await fetchProductsByCategory({ categoryId: product.category })).filter((p) => p.id !== product.id).slice(0, 4)
+    : []
 
   const discountPercentage = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -224,7 +231,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                 )}
                 <div className="flex justify-between">
                   <span className="font-medium">Category:</span>
-                  <span className="text-muted-foreground capitalize">{product.category}</span>
+                  <span className="text-muted-foreground capitalize">{categoryName}</span>
                 </div>
               </div>
             </div>

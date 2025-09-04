@@ -112,6 +112,43 @@ function cryptoRandomId(): string {
   return Math.random().toString(36).slice(2)
 }
 
+export interface UpdateCategoryInput {
+  name: string
+  slug: string
+  description?: string
+  image?: string
+}
+
+export async function updateAdminCategory(
+  categoryId: string,
+  input: UpdateCategoryInput
+): Promise<ProductCategory> {
+  const token = getAdminAuthToken()
+  if (!token) throw new Error("Not authenticated. Please login as admin.")
+
+  const res = await fetch(`${API_BASE}/admin/categories/${encodeURIComponent(categoryId)}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(input),
+  })
+
+  if (!res.ok) {
+    let message = `Failed to update category (${res.status})`
+    try {
+      const err = await res.json()
+      message = err?.message || err?.error || JSON.stringify(err) || message
+    } catch {}
+    throw new Error(message)
+  }
+
+  const data = await res.json()
+  return normalizeCategory(data)
+}
+
 export async function fetchAdminCategories(): Promise<ProductCategory[]> {
   const token = getAdminAuthToken()
   if (!token) throw new Error("Not authenticated. Please login as admin.")

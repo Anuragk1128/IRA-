@@ -5,9 +5,13 @@ import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import { SearchFilters } from "@/components/search/search-filters"
 import { SearchResults } from "@/components/search/search-results"
-import { searchProducts } from "@/lib/search"
 import type { ProductCategory } from "@/types/product"
 import type { ProductFilters } from "@/types/filters"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetClose } from "@/components/ui/sheet"
+import { SlidersHorizontal } from "lucide-react"
+import { fetchProductsFromApi, fetchProductsByCategory, applyClientFiltersAndSort, generateFilterGroupsFor, isBackendId } from "@/lib/api"
 
 interface CategoryContentProps {
   category: ProductCategory
@@ -15,40 +19,89 @@ interface CategoryContentProps {
 
 export function CategoryContent({ category }: CategoryContentProps) {
   const searchParams = useSearchParams()
-  const [filters, setFilters] = useState<ProductFilters>({
-    category: category.slug,
+  const [filters, setFilters] = useState<ProductFilters>(() => ({
+    // default to local category id; can be overridden by URL-provided backend id
+    category: category.id,
     sortBy: "name",
+  }))
+  const [searchResult, setSearchResult] = useState({
+    products: [] as ReturnType<typeof applyClientFiltersAndSort>,
+    totalCount: 0,
+    filters: [] as ReturnType<typeof generateFilterGroupsFor>,
+    appliedFilters: { category: category.id, sortBy: "name" } as ProductFilters,
+    suggestions: [] as string[],
   })
-  const [searchResult, setSearchResult] = useState(() =>
-    searchProducts("", { category: category.slug, sortBy: "name" }),
-  )
 
   useEffect(() => {
-    const result = searchProducts("", filters)
-    setSearchResult(result)
+    let mounted = true
+    ;(async () => {
+      try {
+        const catId = isBackendId(filters.category) ? (filters.category as string) : undefined
+        const subId = isBackendId(filters.subcategory) ? (filters.subcategory as string) : undefined
+
+        const apiProducts = catId
+          ? await fetchProductsByCategory({ categoryId: catId, subcategoryId: subId })
+          : await fetchProductsFromApi({})
+
+        const filtered = applyClientFiltersAndSort(apiProducts, filters)
+        const filterGroups = generateFilterGroupsFor(apiProducts, filtered)
+        if (!mounted) return
+        setSearchResult({
+          products: filtered,
+          totalCount: filtered.length,
+          filters: filterGroups,
+          appliedFilters: filters,
+          suggestions: [],
+        })
+      } catch (e) {
+        if (!mounted) return
+        setSearchResult({ products: [], totalCount: 0, filters: [], appliedFilters: filters, suggestions: [] })
+      }
+    })()
+    return () => {
+      mounted = false
+    }
   }, [filters])
 
-  // Initialize subcategory from URL (?sub=slug)
+  // Initialize category/subcategory from URL when backend IDs are provided
   useEffect(() => {
-    const sub = searchParams.get("sub") || undefined
-    setFilters((prev) => ({ ...prev, subcategory: sub }))
+    const catIdParam = searchParams.get("catId") || undefined
+    const subIdParam = searchParams.get("subId") || searchParams.get("sub") || undefined
+    setFilters((prev) => ({
+      ...prev,
+      category: catIdParam && isBackendId(catIdParam) ? catIdParam : prev.category,
+      subcategory: subIdParam && isBackendId(subIdParam) ? subIdParam : prev.subcategory,
+    }))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])
 
   const handleFiltersChange = (newFilters: ProductFilters) => {
-    setFilters({ ...newFilters, category: category.slug })
+    // Always enforce current category id
+    setFilters({ ...newFilters, category: category.id })
   }
 
   const handleClearFilters = () => {
-    setFilters({ category: category.slug, sortBy: "name" })
+    setFilters({ category: category.id, sortBy: "name" })
   }
 
   const handleSortChange = (sortBy: ProductFilters["sortBy"]) => {
     setFilters((prev) => ({ ...prev, sortBy }))
   }
 
-  const handleSubcategoryClick = (subcategorySlug: string) => {
-    setFilters((prev) => ({ ...prev, subcategory: subcategorySlug }))
+  const handleSubcategoryClick = (subcategoryId: string) => {
+    setFilters((prev) => ({ ...prev, subcategory: subcategoryId }))
+  }
+
+  const getActiveFilterCount = () => {
+    let count = 0
+    if (filters.materials?.length) count += filters.materials.length
+    if (filters.colors?.length) count += filters.colors.length
+    if (filters.sizes?.length) count += filters.sizes.length
+    if (filters.rating) count += 1
+    if (filters.priceRange) count += 1
+    if (filters.inStock) count += 1
+    if (filters.subcategory) count += 1
+    return count
   }
 
   return (
@@ -80,9 +133,9 @@ export function CategoryContent({ category }: CategoryContentProps) {
             {category.subcategories.map((subcategory) => (
               <button
                 key={subcategory.id}
-                onClick={() => handleSubcategoryClick(subcategory.slug)}
+                onClick={() => handleSubcategoryClick(subcategory.id)}
                 className={`px-3 py-1.5 rounded-full text-xs md:text-sm transition-colors ${
-                  filters.subcategory === subcategory.slug
+                  filters.subcategory === subcategory.id
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary hover:bg-secondary/80"
                 }`}
@@ -94,9 +147,40 @@ export function CategoryContent({ category }: CategoryContentProps) {
         </div>
       )}
 
+      {/* Mobile filters trigger */}
+      <div className="lg:hidden">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="sm" className="inline-flex items-center gap-2">
+              <SlidersHorizontal className="h-4 w-4" />
+              Filters
+              {getActiveFilterCount() > 0 && <Badge variant="secondary">{getActiveFilterCount()}</Badge>}
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left">
+            <SheetHeader>
+              <SheetTitle>Filters</SheetTitle>
+            </SheetHeader>
+            <div className="p-4 overflow-y-auto">
+              <SearchFilters
+                filterGroups={searchResult.filters}
+                appliedFilters={searchResult.appliedFilters}
+                onFiltersChange={handleFiltersChange}
+                onClearFilters={handleClearFilters}
+              />
+            </div>
+            <SheetFooter>
+              <SheetClose asChild>
+                <Button className="w-full">Done</Button>
+              </SheetClose>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Filters Sidebar */}
-        <div className="lg:col-span-1">
+        <div className="hidden lg:block lg:col-span-1">
           <SearchFilters
             filterGroups={searchResult.filters}
             appliedFilters={searchResult.appliedFilters}
@@ -112,6 +196,7 @@ export function CategoryContent({ category }: CategoryContentProps) {
             totalCount={searchResult.totalCount}
             appliedFilters={searchResult.appliedFilters}
             onSortChange={handleSortChange}
+            categoryName={category.name}
           />
         </div>
       </div>

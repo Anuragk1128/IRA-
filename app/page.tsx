@@ -1,7 +1,7 @@
 import { Header } from "@/components/header"
 import { HeroSection } from "@/components/hero-section"
 import { FeaturedCollections } from "@/components/featured-collections"
-import { ProductShowcase } from "@/components/product-showcase"
+import { ProductShowcase } from "@/components/product-showcase-clean"
 import { Footer } from "@/components/footer"
 import { Reels } from "@/components/reels"
 import { Newsletter } from "@/components/newsletter"
@@ -23,7 +23,7 @@ export default function HomePage() {
         <FeaturedCollections />
         
         <Reels />
-        <ProductShowcase />
+        <ProductShowcase/>
         <BrandStory />
         <Newsletter/>
         <SocialProof />
