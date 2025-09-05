@@ -20,14 +20,16 @@ export function AddToCartButton({
   className,
   size = "default",
 }: AddToCartButtonProps) {
-  // Open external shop in a new tab without rendering an <a> to avoid nested anchors
+  // Render an anchor inside Button to ensure correct URL and allow middle-click/open in new tab
   return (
-    <Button
-      className={className}
-      size={size}
-      onClick={() => window.open("https://v0-hoe.vercel.app", "_blank", "noopener,noreferrer")}
-    > 
-      Shop Now
+    <Button className={className} size={size} asChild>
+      <a
+        href={`https://hoe-fe.vercel.app/products/${productId}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Shop Now
+      </a>
     </Button>
   )
 }

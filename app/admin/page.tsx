@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, Package } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { getAdminAuthToken } from "@/lib/admin-auth"
+import { mockProducts, mockUsers } from "@/lib/mockData"
 
 export default function AdminDashboard() {
   const { toast } = useToast()
@@ -13,84 +13,19 @@ export default function AdminDashboard() {
   const [totalProducts, setTotalProducts] = useState<number>(0)
   const [loadingProducts, setLoadingProducts] = useState<boolean>(true)
 
-  const API_BASE = useMemo(() => {
-    return (process.env.NEXT_PUBLIC_API_BASE_URL || "https://ira-be.onrender.com/api").replace(/\/$/, "")
-  }, [])
-
   useEffect(() => {
-    const fetchUsersCount = async () => {
-      try {
-        const token = getAdminAuthToken()
-        if (!token) throw new Error("Not authenticated. Please login as admin.")
-        const res = await fetch(`${API_BASE}/admin/users`, {
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          cache: "no-store",
-        })
-        if (!res.ok) {
-          let msg = `Failed to fetch users (${res.status})`
-          try {
-            const data = await res.json()
-            msg = data?.message || data?.error || msg
-          } catch {}
-          throw new Error(msg)
-        }
-        const data = await res.json()
-        const list = Array.isArray(data) ? data : data?.users || []
-        setTotalUsers(list.length || 0)
-      } catch (err) {
-        toast({
-          title: "Could not load users count",
-          description: err instanceof Error ? err.message : "",
-          variant: "destructive",
-        })
-      } finally {
-        setLoadingUsers(false)
-      }
-    }
-    fetchUsersCount()
-    const fetchProductsCount = async () => {
-      try {
-        const token = getAdminAuthToken()
-        if (!token) throw new Error("Not authenticated. Please login as admin.")
-        const res = await fetch(`${API_BASE}/admin/products`, {
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          cache: "no-store",
-        })
-        if (!res.ok) {
-          let msg = `Failed to fetch products (${res.status})`
-          try {
-            const data = await res.json()
-            msg = data?.message || data?.error || msg
-          } catch {}
-          throw new Error(msg)
-        }
-        const data = await res.json()
-        const list = Array.isArray(data) ? data : data?.products || []
-        setTotalProducts(list.length || 0)
-      } catch (err) {
-        toast({
-          title: "Could not load products count",
-          description: err instanceof Error ? err.message : "",
-          variant: "destructive",
-        })
-      } finally {
-        setLoadingProducts(false)
-      }
-    }
-    fetchProductsCount()
-  }, [API_BASE, toast])
+    // Local counts from mocks
+    setTotalUsers(mockUsers.length)
+    setLoadingUsers(false)
+    setTotalProducts(mockProducts.length)
+    setLoadingProducts(false)
+  }, [toast])
 
   return (
     <div className="p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">Overview from live backend data</p>
+        <p className="text-gray-600 mt-2">Overview from local demo data</p>
       </div>
 
       {/* Live Stats */}

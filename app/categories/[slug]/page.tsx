@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { CategoryContent } from "@/components/category/category-content"
-import { fetchCategoriesFromApi } from "@/lib/catalog"
+import { fetchCategoriesFromApi, fetchBrandSubcategories } from "@/lib/catalog"
 import type { ProductCategory } from "@/types/product"
 
 interface CategoryPageProps {
@@ -23,13 +23,17 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound()
   }
 
+  // Fetch subcategories for this category from backend
+  const brand = process.env.NEXT_PUBLIC_BRAND_SLUG || "ira"
+  const subs = await fetchBrandSubcategories(brand, params.slug)
+
   const category: ProductCategory = {
     id: match!.id,
     name: match!.name,
     slug: match!.slug ?? toSlug(match!.name),
     description: match!.description || "",
     image: (match as any).image || "/placeholder.svg",
-    subcategories: (match!.subcategories || []).map((s) => ({
+    subcategories: subs.map((s) => ({
       id: s.id,
       name: s.name,
       slug: s.slug ?? toSlug(s.name),

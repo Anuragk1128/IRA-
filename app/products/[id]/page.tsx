@@ -32,6 +32,23 @@ export default async function ProductPage({ params }: ProductPageProps) {
   // Find the category name
   const categoryName = categories.find(cat => cat.id === product.category)?.name || product.category
   
+  // Find the subcategory name if it exists
+  let subcategoryName = product.subcategory
+  if (product.subcategory && categoryName !== product.category) {
+    try {
+      const brand = process.env.NEXT_PUBLIC_BRAND_SLUG || "ira"
+      const categorySlug = categories.find(cat => cat.id === product.category)?.slug || categories.find(cat => cat.id === product.category)?.name
+      if (categorySlug) {
+        const { fetchBrandSubcategories } = await import("@/lib/catalog")
+        const subcategories = await fetchBrandSubcategories(brand, categorySlug)
+        subcategoryName = subcategories.find(sub => sub.id === product.subcategory)?.name || product.subcategory
+      }
+    } catch (error) {
+      // If subcategory fetch fails, keep the original subcategory value
+      console.warn('Failed to fetch subcategory:', error)
+    }
+  }
+  
   const relatedProducts = product.category
     ? (await fetchProductsByCategory({ categoryId: product.category })).filter((p) => p.id !== product.id).slice(0, 4)
     : []
@@ -111,26 +128,41 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
             <p className="text-muted-foreground leading-relaxed">{product.description}</p>
 
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="font-medium">Material:</span>
-                <span className="ml-2 text-muted-foreground">{product.material}</span>
-              </div>
-              <div>
-                <span className="font-medium">Color:</span>
-                <span className="ml-2 text-muted-foreground">{product.color}</span>
-              </div>
-              {product.size && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                 <div>
-                  <span className="font-medium">Size:</span>
-                  <span className="ml-2 text-muted-foreground">{product.size}</span>
+                  <span className="font-medium">Category:</span>
+                  <span className="ml-2 text-muted-foreground capitalize">
+                    {categoryName}
+                    {subcategoryName ? ` > ${subcategoryName}` : ''}
+                  </span>
                 </div>
-              )}
-              <div>
-                <span className="font-medium">Stock:</span>
-                <span className={`ml-2 ${product.inStock ? "text-green-600" : "text-red-600"}`}>
-                  {product.inStock ? "In Stock" : "Out of Stock"}
-                </span>
+                <div>
+                  <span className="font-medium">Material:</span>
+                  <span className="ml-2 text-muted-foreground">{product.material || 'N/A'}</span>
+                </div>
+                <div>
+                  <span className="font-medium">Color:</span>
+                  <span className="ml-2 text-muted-foreground">{product.color || 'N/A'}</span>
+                </div>
+                {product.size && (
+                  <div>
+                    <span className="font-medium">Size:</span>
+                    <span className="ml-2 text-muted-foreground">{product.size}</span>
+                  </div>
+                )}
+              </div>
+              <div className="pt-2 border-t">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">Stock Status:</span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    product.inStock 
+                      ? "bg-green-100 text-green-800" 
+                      : "bg-red-100 text-red-800"
+                  }`}>
+                    {product.inStock ? "In Stock" : "Out of Stock"}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -180,7 +212,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <div className="prose max-w-none">
               <p className="text-muted-foreground leading-relaxed font-bold">{product.description}</p>
               <p className="text-muted-foreground leading-relaxed font-bold"> Products included :
-              1 pair of earrings</p>
+              {product.tags?.join(', ') || 'N/A'}</p>
               <h2 className="text-xl font-bold mt-4">Features</h2>
               <p className="text-muted-foreground leading-relaxed ">
               Anti-tarnish</p>
@@ -213,26 +245,42 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
           </TabsContent>
           <TabsContent value="specifications" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="font-medium">Material:</span>
-                  <span className="text-muted-foreground">{product.material}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Color:</span>
-                  <span className="text-muted-foreground">{product.color}</span>
-                </div>
-                {product.size && (
-                  <div className="flex justify-between">
-                    <span className="font-medium">Size:</span>
-                    <span className="text-muted-foreground">{product.size}</span>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="font-medium">Material:</span>
+                    <span className="text-muted-foreground">{product.material || 'N/A'}</span>
                   </div>
-                )}
-                <div className="flex justify-between">
-                  <span className="font-medium">Category:</span>
-                  <span className="text-muted-foreground capitalize">{categoryName}</span>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="font-medium">Color:</span>
+                    <span className="text-muted-foreground">{product.color || 'N/A'}</span>
+                  </div>
+                  {product.size && (
+                    <div className="flex justify-between py-2 border-b">
+                      <span className="font-medium">Size:</span>
+                      <span className="text-muted-foreground">{product.size}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="font-medium">Category:</span>
+                    <span className="text-muted-foreground capitalize">
+                      {categoryName}
+                      {subcategoryName ? ` > ${subcategoryName}` : ''}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="font-medium">Stock Status:</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      product.inStock 
+                        ? "bg-green-100 text-green-800" 
+                        : "bg-red-100 text-red-800"
+                    }`}>
+                      {product.inStock ? "In Stock" : "Out of Stock"}
+                    </span>
+                  </div>
                 </div>
+                
               </div>
             </div>
           </TabsContent>

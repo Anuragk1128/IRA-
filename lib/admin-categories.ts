@@ -1,11 +1,5 @@
-import { getAdminAuthToken } from "@/lib/admin-auth"
 import type { ProductCategory, ProductSubcategory } from "@/types/product"
-
-// Ensure API base comes from env and ends without trailing slash.
-// Expect env to include /api (e.g., https://ira-be.onrender.com/api)
-const API_BASE = (
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "https://ira-be.onrender.com/api"
-).replace(/\/$/, "")
+import { mockCategories } from "@/lib/mockData"
 
 function normalizeSubcategory(raw: any): ProductSubcategory {
   return {
@@ -26,31 +20,17 @@ export async function createAdminSubcategory(
   categoryId: string,
   input: CreateSubcategoryInput
 ): Promise<ProductSubcategory> {
-  const token = getAdminAuthToken()
-  if (!token) throw new Error("Not authenticated. Please login as admin.")
-
-  const res = await fetch(`${API_BASE}/admin/categories/${encodeURIComponent(categoryId)}/subcategories`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(input),
-  })
-
-  if (!res.ok) {
-    let message = `Failed to create subcategory (${res.status})`
-    try {
-      const err = await res.json()
-      message = err?.message || err?.error || JSON.stringify(err) || message
-    } catch {}
-    throw new Error(message)
+  const cat = mockCategories.find(c => c.id === categoryId)
+  if (!cat) throw new Error("Category not found")
+  const sub: ProductSubcategory = {
+    id: cryptoRandomId(),
+    name: input.name,
+    slug: input.slug,
+    description: input.description ?? "",
   }
-
-  const data = await res.json()
-  const raw = data?.subcategory ?? data?.data?.subcategory ?? data?.data ?? data
-  return normalizeSubcategory(raw)
+  cat.subcategories = cat.subcategories || []
+  cat.subcategories.push({ id: sub.id, name: sub.name, slug: sub.slug, description: sub.description })
+  return sub
 }
 
 export interface CreateCategoryInput {
@@ -61,31 +41,16 @@ export interface CreateCategoryInput {
 }
 
 export async function createAdminCategory(input: CreateCategoryInput): Promise<ProductCategory> {
-  const token = getAdminAuthToken()
-  if (!token) throw new Error("Not authenticated. Please login as admin.")
-
-  const res = await fetch(`${API_BASE}/admin/categories`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(input),
-  })
-
-  if (!res.ok) {
-    let message = `Failed to create category (${res.status})`
-    try {
-      const err = await res.json()
-      message = err?.message || err?.error || JSON.stringify(err) || message
-    } catch {}
-    throw new Error(message)
+  const cat: ProductCategory = {
+    id: cryptoRandomId(),
+    name: input.name,
+    slug: input.slug,
+    description: input.description ?? "",
+    image: input.image ?? "/placeholder.svg",
+    subcategories: [],
   }
-
-  const data = await res.json()
-  const raw = data?.category ?? data?.data?.category ?? data?.data ?? data
-  return normalizeCategory(raw)
+  mockCategories.push({ id: cat.id, name: cat.name, slug: cat.slug, description: cat.description, image: cat.image, subcategories: [] })
+  return cat
 }
 
 function normalizeCategory(raw: any): ProductCategory {
@@ -123,59 +88,25 @@ export async function updateAdminCategory(
   categoryId: string,
   input: UpdateCategoryInput
 ): Promise<ProductCategory> {
-  const token = getAdminAuthToken()
-  if (!token) throw new Error("Not authenticated. Please login as admin.")
-
-  const res = await fetch(`${API_BASE}/admin/categories/${encodeURIComponent(categoryId)}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(input),
-  })
-
-  if (!res.ok) {
-    let message = `Failed to update category (${res.status})`
-    try {
-      const err = await res.json()
-      message = err?.message || err?.error || JSON.stringify(err) || message
-    } catch {}
-    throw new Error(message)
+  const idx = mockCategories.findIndex(c => c.id === categoryId)
+  if (idx === -1) throw new Error("Category not found")
+  const current = mockCategories[idx]
+  const updated = {
+    ...current,
+    name: input.name,
+    slug: input.slug,
+    description: input.description ?? current.description,
+    image: input.image ?? current.image,
   }
-
-  const data = await res.json()
-  return normalizeCategory(data)
+  mockCategories[idx] = updated
+  return normalizeCategory(updated)
 }
 
 export async function fetchAdminCategories(): Promise<ProductCategory[]> {
-  const token = getAdminAuthToken()
-  if (!token) throw new Error("Not authenticated. Please login as admin.")
+  return mockCategories.map(normalizeCategory)
+}
 
-  const res = await fetch(`${API_BASE}/admin/categories`, {
-    method: "GET",
-    headers: {
-      accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    // Next.js fetch cache hint, treat as always fresh in admin
-    cache: "no-store",
-  })
-
-  if (!res.ok) {
-    let message = `Failed to fetch categories (${res.status})`
-    try {
-      const err = await res.json()
-      message = err?.message || err?.error || JSON.stringify(err) || message
-    } catch {}
-    throw new Error(message)
-  }
-
-  const data = await res.json()
-  const list = (data?.categories ?? data?.data?.categories ?? data?.data ?? data) as any
-  if (!Array.isArray(list)) {
-    throw new Error("Invalid categories response format")
-  }
-  return list.map(normalizeCategory)
+export function getCategoryById(id: string): ProductCategory | null {
+  const found = mockCategories.find(c => c.id === id)
+  return found ? normalizeCategory(found) : null
 }

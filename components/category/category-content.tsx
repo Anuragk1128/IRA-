@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetClose } from "@/components/ui/sheet"
 import { SlidersHorizontal } from "lucide-react"
-import { fetchProductsFromApi, fetchProductsByCategory, applyClientFiltersAndSort, generateFilterGroupsFor, isBackendId } from "@/lib/api"
+import { fetchBrandCategoryProducts, fetchProductsFromApi, fetchProductsByCategory, applyClientFiltersAndSort, generateFilterGroupsFor, isBackendId } from "@/lib/api"
 
 interface CategoryContentProps {
   category: ProductCategory
@@ -36,12 +36,12 @@ export function CategoryContent({ category }: CategoryContentProps) {
     let mounted = true
     ;(async () => {
       try {
-        const catId = isBackendId(filters.category) ? (filters.category as string) : undefined
-        const subId = isBackendId(filters.subcategory) ? (filters.subcategory as string) : undefined
-
-        const apiProducts = catId
-          ? await fetchProductsByCategory({ categoryId: catId, subcategoryId: subId })
-          : await fetchProductsFromApi({})
+        // Determine selected subcategory slug from the provided category model
+        const selectedSubSlug = filters.subcategory
+          ? category.subcategories?.find((s) => s.id === filters.subcategory)?.slug
+          : undefined
+        // Always use new backend by category slug; if no subcategory selected, it aggregates all subs
+        const apiProducts = await fetchBrandCategoryProducts(category.slug, selectedSubSlug)
 
         const filtered = applyClientFiltersAndSort(apiProducts, filters)
         const filterGroups = generateFilterGroupsFor(apiProducts, filtered)

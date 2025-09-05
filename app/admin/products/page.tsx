@@ -11,8 +11,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
-import { getAdminAuthToken } from "@/lib/admin-auth"
-import { deleteProduct } from "@/lib/admin-products"
+import { deleteProduct, listAdminProducts } from "@/lib/admin-products"
 
 export default function AdminProducts() {
   const { toast } = useToast()
@@ -29,37 +28,12 @@ export default function AdminProducts() {
       product.category.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
-  const API_BASE = useMemo(() => {
-    const base = (process.env.NEXT_PUBLIC_API_BASE_URL || "https://ira-be.onrender.com/api").replace(/\/$/, "")
-    return base
-  }, [])
+  // Demo mode: no backend. Data sourced locally.
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const token = getAdminAuthToken()
-        if (!token) {
-          throw new Error("Not authenticated. Please login as admin.")
-        }
-        const res = await fetch(`${API_BASE}/admin/products`, {
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          cache: "no-store",
-        })
-        if (!res.ok) {
-          let msg = `Failed to fetch products (${res.status})`
-          try {
-            const data = await res.json()
-            msg = data?.message || data?.error || msg
-          } catch {}
-          throw new Error(msg)
-        }
-        const data = await res.json()
-        const list: Product[] = Array.isArray(data)
-          ? (data as Product[])
-          : (data?.products as Product[]) || []
+        const list = await listAdminProducts()
         setProducts(list)
       } catch (err) {
         toast({
@@ -72,7 +46,7 @@ export default function AdminProducts() {
       }
     }
     fetchProducts()
-  }, [API_BASE, toast])
+  }, [toast])
 
   const onDelete = async (id: string) => {
     const ok = typeof window !== "undefined" ? window.confirm("Delete this product? This action cannot be undone.") : true

@@ -116,6 +116,36 @@ function generateFilterGroups(allProducts: Product[], filteredProducts: Product[
     }
   })
 
+  // Generate dynamic price ranges based on actual product prices
+  const prices = filteredProducts.map(p => p.price).sort((a, b) => a - b)
+  const minPrice = Math.floor(prices[0] / 500) * 500 // Round down to nearest 500
+  const maxPrice = Math.ceil(prices[prices.length - 1] / 500) * 500 // Round up to nearest 500
+  
+  const priceRanges = []
+  for (let i = minPrice; i < maxPrice; i += 500) {
+    const rangeStart = i
+    const rangeEnd = i + 500
+    const count = filteredProducts.filter(p => p.price >= rangeStart && p.price < rangeEnd).length
+    if (count > 0) {
+      priceRanges.push({
+        value: `${rangeStart}-${rangeEnd}`,
+        label: `₹${rangeStart.toLocaleString()} - ₹${rangeEnd.toLocaleString()}`,
+        count
+      })
+    }
+  }
+  
+  // Add the final range for the highest prices
+  const finalRangeStart = maxPrice
+  const finalCount = filteredProducts.filter(p => p.price >= finalRangeStart).length
+  if (finalCount > 0) {
+    priceRanges.push({
+      value: `${finalRangeStart}+`,
+      label: `₹${finalRangeStart.toLocaleString()}+`,
+      count: finalCount
+    })
+  }
+
   return [
     {
       id: "materials",
@@ -157,20 +187,7 @@ function generateFilterGroups(allProducts: Product[], filteredProducts: Product[
       id: "price",
       name: "Price Range",
       type: "range",
-      options: [
-        { value: "0-50", label: "Under $50", count: filteredProducts.filter((p) => p.price < 50).length },
-        {
-          value: "50-100",
-          label: "$50 - $100",
-          count: filteredProducts.filter((p) => p.price >= 50 && p.price < 100).length,
-        },
-        {
-          value: "100-200",
-          label: "$100 - $200",
-          count: filteredProducts.filter((p) => p.price >= 100 && p.price < 200).length,
-        },
-        { value: "200+", label: "$200+", count: filteredProducts.filter((p) => p.price >= 200).length },
-      ],
+      options: priceRanges,
     },
     {
       id: "rating",

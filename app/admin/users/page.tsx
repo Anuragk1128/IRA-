@@ -10,10 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import type { User } from "@/types/user"
 import { useToast } from "@/hooks/use-toast"
-import { getAdminAuthToken } from "@/lib/admin-auth"
-
-// API base resolves from env or defaults to backend
-const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL || "https://ira-be.onrender.com/api").replace(/\/$/, "")
+import { mockUsers } from "@/lib/mockData"
 
 export default function UsersPage() {
   const { toast } = useToast()
@@ -45,28 +42,9 @@ export default function UsersPage() {
   )
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const loadUsers = async () => {
       try {
-        const token = getAdminAuthToken()
-        if (!token) throw new Error("Not authenticated. Please login as admin.")
-        const res = await fetch(`${API_BASE}/admin/users`, {
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          cache: "no-store",
-        })
-        if (!res.ok) {
-          let msg = `Failed to fetch users (${res.status})`
-          try {
-            const data = await res.json()
-            msg = data?.message || data?.error || msg
-          } catch {}
-          throw new Error(msg)
-        }
-        const data = await res.json()
-        const list: User[] = Array.isArray(data) ? (data as User[]) : (data?.users as User[]) || []
-        setUsers(list)
+        setUsers(mockUsers)
       } catch (err) {
         toast({
           title: "Could not load users",
@@ -77,7 +55,7 @@ export default function UsersPage() {
         setLoading(false)
       }
     }
-    fetchUsers()
+    loadUsers()
   }, [toast])
 
   const getStatusColor = (status: string) => {

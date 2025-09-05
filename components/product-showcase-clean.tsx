@@ -8,21 +8,11 @@ import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 import { AddToCartButton } from "@/components/product/add-to-cart-button"
 import { Product } from "@/types/product"
+import { mockProducts } from "@/lib/mockData"
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://ira-be.onrender.com"
-
-async function fetchFeaturedProducts(): Promise<Product[]> {
-  try {
-    const response = await fetch(`${BASE_URL}/api/products?featured=true`)
-    if (!response.ok) {
-      throw new Error('Failed to fetch featured products')
-    }
-    const data = await response.json()
-    return data.products || []
-  } catch (error) {
-    console.error('Error fetching featured products:', error)
-    return []
-  }
+// Use local mock data instead of backend
+function getFeaturedProducts(): Product[] {
+  return mockProducts.filter(p => p.featured)
 }
 
 export function ProductShowcase() {
@@ -34,7 +24,8 @@ export function ProductShowcase() {
     const loadProducts = async () => {
       try {
         setLoading(true)
-        const featuredProducts = await fetchFeaturedProducts()
+        // Load from mock data
+        const featuredProducts = getFeaturedProducts()
         setProducts(featuredProducts)
       } catch (error) {
         console.error('Error loading products:', error)

@@ -17,7 +17,7 @@ import {
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { PincodeChecker } from "@/components/pincode-checker"
-import { fetchCategoriesFromApi, type BackendCategory } from "@/lib/catalog"
+import { fetchCategoriesFromApi, fetchBrandSubcategories, fetchAllProductsForAttributes, type BackendCategory } from "@/lib/catalog"
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -27,6 +27,12 @@ export function Header() {
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false)
   const [overHero, setOverHero] = useState(false)
   const [categories, setCategories] = useState<BackendCategory[]>([])
+  const [backendAttributes, setBackendAttributes] = useState<{
+    materials: string[]
+    priceRanges: { label: string; min: number; max: number | undefined }[]
+    occasions: string[]
+  } | null>(null)
+  const brandSlug = process.env.NEXT_PUBLIC_BRAND_SLUG || "ira"
 
   // Close mobile menu when route changes (fallback, may not trigger in App Router)
   useEffect(() => {
@@ -38,6 +44,23 @@ export function Header() {
       window.removeEventListener('routeChangeComplete', handleRouteChange)
     }
   }, [])
+
+  // Helper to lazy-load subcategories for a category when needed (on hover)
+  const ensureSubcategories = async (categorySlug: string) => {
+    const slug = categorySlug
+    const existing = categories.find(c => (c.slug || toSlug(c.name)) === slug)
+    if (!existing) return
+    // If already loaded (non-empty array), skip
+    if (Array.isArray(existing.subcategories) && existing.subcategories.length > 0) return
+    try {
+      const subs = await fetchBrandSubcategories(brandSlug, slug)
+      setCategories(prev => prev.map(c => (
+        (c.slug || toSlug(c.name)) === slug ? { ...c, subcategories: subs } : c
+      )))
+    } catch (e) {
+      // swallow errors; UI will just show no subs
+    }
+  }
 
   // Header is always visible now; removed scroll-based show/hide logic
   // Toggle header theme based on scroll position if hero sentinel exists (homepage only)
@@ -72,6 +95,21 @@ export function Header() {
     }
   }, [])
 
+  // Fetch backend attributes for dropdowns
+  useEffect(() => {
+    let mounted = true
+    fetchAllProductsForAttributes()
+      .then((attrs) => {
+        if (mounted) setBackendAttributes(attrs)
+      })
+      .catch(() => {
+        if (mounted) setBackendAttributes(null)
+      })
+    return () => {
+      mounted = false
+    }
+  }, [])
+
   const toSlug = (s?: string) =>
     (s || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
 
@@ -80,30 +118,35 @@ export function Header() {
     { href: "/categories", label: "Collections" },
   ]
 
-  // Facets for mega menu
-  const materials = [
-    { label: "Silver coated", slug: "diamond" },
-    { label: "Gold coated", slug: "platinum" },
-    { label: "Stainless Steel", slug: "gemstone" },
-    { label: "Copper", slug: "gold" },
-  ] as const
+  // Use backend attributes or fallback to hardcoded values
+  const materials = backendAttributes?.materials.map(material => ({
+    label: material,
+    slug: material.toLowerCase().replace(/\s+/g, '-')
+  })) || [
+    { label: "Silver coated", slug: "silver-coated" },
+    { label: "Gold coated", slug: "gold-coated" },
+    { label: "Stainless Steel", slug: "stainless-steel" },
+    { label: "Copper", slug: "copper" },
+  ]
 
-  const priceRanges = [
-    { label: "Under ₹10K", min: 0, max: 10000 },
-    { label: "₹10K - ₹20K", min: 10000, max: 20000 },
-    { label: "₹20K - ₹30K", min: 20000, max: 30000 },
-    { label: "₹30K - ₹50K", min: 30000, max: 50000 },
-    { label: "₹50K - ₹75K", min: 50000, max: 75000 },
-    { label: "Over ₹75K", min: 75000, max: undefined as number | undefined },
-  ] as const
+  const priceRanges = backendAttributes?.priceRanges || [
+    { label: "₹1,000 - ₹1,500", min: 1000, max: 1500 },
+    { label: "₹1,500 - ₹2,000", min: 1500, max: 2000 },
+    { label: "₹2,000 - ₹2,500", min: 2000, max: 2500 },
+    { label: "₹2,500 - ₹3,000", min: 2500, max: 3000 },
+    { label: "₹3,000+", min: 3000, max: undefined },
+  ]
 
-  const occasions = [
-    { label: "Daily Wear", slug: "daily" },
-    { label: "Casual Outings", slug: "casual" },
+  const occasions = backendAttributes?.occasions.map(occasion => ({
+    label: occasion,
+    slug: occasion.toLowerCase().replace(/\s+/g, '-')
+  })) || [
+    { label: "Daily Wear", slug: "daily-wear" },
+    { label: "Casual Outings", slug: "casual-outings" },
     { label: "Festive", slug: "festive" },
     { label: "Anniversary", slug: "anniversary" },
     { label: "Wedding", slug: "wedding" },
-  ] as const
+  ]
 
   return (
     <header
@@ -310,16 +353,22 @@ export function Header() {
               Collections
             </Link>
             {/* Dynamic categories from backend */}
-            {categories.map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/categories/${cat.slug ?? toSlug(cat.name)}?catId=${cat.id}`}
-                className="text-sm font-medium hover:text-black/80 transition-colors"
-                onMouseEnter={() => setOpenMegaFor(cat.slug ?? toSlug(cat.name))}
-              >
-                {cat.name}
-              </Link>
-            ))}
+            {categories.map((cat) => {
+              const slug = cat.slug ?? toSlug(cat.name)
+              return (
+                <Link
+                  key={cat.id}
+                  href={`/categories/${slug}?catId=${cat.id}`}
+                  className="text-sm font-medium hover:text-black/80 transition-colors"
+                  onMouseEnter={async () => {
+                    setOpenMegaFor(slug)
+                    await ensureSubcategories(slug)
+                  }}
+                >
+                  {cat.name}
+                </Link>
+              )
+            })}
           </nav>
         </div>
 

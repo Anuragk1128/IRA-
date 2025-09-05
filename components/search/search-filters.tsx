@@ -20,7 +20,7 @@ interface SearchFiltersProps {
 }
 
 export function SearchFilters({ filterGroups, appliedFilters, onFiltersChange, onClearFilters }: SearchFiltersProps) {
-  const [priceRange, setPriceRange] = useState<[number, number]>(appliedFilters.priceRange || [0, 500])
+  const [priceRange, setPriceRange] = useState<[number, number]>(appliedFilters.priceRange || [1000, 3000])
 
   const handleMaterialChange = (material: string, checked: boolean) => {
     const currentMaterials = appliedFilters.materials || []
@@ -74,6 +74,28 @@ export function SearchFilters({ filterGroups, appliedFilters, onFiltersChange, o
     })
   }
 
+  const handlePriceRangeOptionChange = (optionValue: string) => {
+    let newPriceRange: [number, number] | undefined
+
+    if (optionValue.includes("-")) {
+      // Handle range like "1000-1500"
+      const [min, max] = optionValue.split("-").map(Number)
+      newPriceRange = [min, max]
+    } else if (optionValue.endsWith("+")) {
+      // Handle range like "3000+"
+      const min = parseInt(optionValue.replace("+", ""))
+      newPriceRange = [min, 10000] // Use a high number for "+" ranges
+    }
+
+    if (newPriceRange) {
+      setPriceRange(newPriceRange)
+      onFiltersChange({
+        ...appliedFilters,
+        priceRange: newPriceRange,
+      })
+    }
+  }
+
   const getActiveFilterCount = () => {
     let count = 0
     if (appliedFilters.materials?.length) count += appliedFilters.materials.length
@@ -110,9 +132,9 @@ export function SearchFilters({ filterGroups, appliedFilters, onFiltersChange, o
             <Slider
               value={priceRange}
               onValueChange={handlePriceRangeChange}
-              max={500}
-              min={0}
-              step={10}
+              max={3000}
+              min={1000}
+              step={50}
               className="w-full"
             />
             <div className="flex justify-between text-sm text-muted-foreground mt-2">
@@ -181,6 +203,37 @@ export function SearchFilters({ filterGroups, appliedFilters, onFiltersChange, o
                       </Label>
                     </div>
                   ))}
+                </RadioGroup>
+              )}
+
+              {group.type === "range" && group.id === "price" && (
+                <RadioGroup 
+                  value={
+                    appliedFilters.priceRange ? 
+                      group.options.find(option => {
+                        if (option.value.includes("-")) {
+                          const [min, max] = option.value.split("-").map(Number)
+                          return appliedFilters.priceRange![0] === min && appliedFilters.priceRange![1] === max
+                        } else if (option.value.endsWith("+")) {
+                          const min = parseInt(option.value.replace("+", ""))
+                          return appliedFilters.priceRange![0] === min
+                        }
+                        return false
+                      })?.value || ""
+                      : ""
+                  }
+                  onValueChange={handlePriceRangeOptionChange}
+                >
+                  <div className="space-y-2">
+                    {group.options.map((option) => (
+                      <div key={option.value} className="flex items-center space-x-2">
+                        <RadioGroupItem value={option.value} id={`price-${option.value}`} />
+                        <Label htmlFor={`price-${option.value}`} className="text-sm">
+                          {option.label} ({option.count})
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
                 </RadioGroup>
               )}
             </CollapsibleContent>

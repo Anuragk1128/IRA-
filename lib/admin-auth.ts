@@ -2,52 +2,24 @@ import type { AdminUser } from "@/types/admin"
 
 const ADMIN_TOKEN_KEY = "admin-auth-token"
 const ADMIN_USER_KEY = "admin-user"
-// Ensure API base comes from env and ends without trailing slash.
-// Expect env to include /api (e.g., https://ira-be.onrender.com/api)
-const API_BASE = (
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "https://ira-be.onrender.com/api"
-).replace(/\/$/, "")
 
 export async function adminSignIn(
   email: string,
   password: string
 ): Promise<{ adminUser: AdminUser; token: string }> {
-  const res = await fetch(`${API_BASE}/admin/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      accept: "application/json",
-    },
-    body: JSON.stringify({ email, password }),
-  })
-
-  if (!res.ok) {
-    let message = "Login failed"
-    try {
-      const err = await res.json()
-      message = err?.message || err?.error || message
-    } catch {}
-    throw new Error(message)
-  }
-
-  const data = await res.json()
-  const token: string = data?.token || data?.accessToken || data?.data?.token
-  if (!token) throw new Error("No token returned from server")
-
-  // Build AdminUser from API response if available; otherwise minimal fallback
-  const userFromApi = data?.user || data?.data?.user || {}
+  // Local stub: accept any credentials and create a fake token
+  const token = `local-${Math.random().toString(36).slice(2)}`
   const adminUser: AdminUser = {
-    id: String(userFromApi.id || userFromApi._id || "admin"),
-    email: String(userFromApi.email || email),
-    firstName: String(userFromApi.firstName || userFromApi.firstname || userFromApi.name || "Admin"),
-    lastName: String(userFromApi.lastName || userFromApi.lastname || "User"),
-    role: (userFromApi.role as AdminUser["role"]) || "admin",
-    permissions: Array.isArray(userFromApi.permissions) ? userFromApi.permissions : ["products", "orders", "users", "analytics", "settings"],
-    avatar: userFromApi.avatar || userFromApi.image || undefined,
-    createdAt: String(userFromApi.createdAt || new Date().toISOString()),
+    id: "admin",
+    email,
+    firstName: "Admin",
+    lastName: "User",
+    role: "admin",
+    permissions: ["products", "orders", "users", "analytics", "settings"],
+    avatar: undefined,
+    createdAt: new Date().toISOString(),
     lastLogin: new Date().toISOString(),
   }
-
   setAdminAuthToken(token)
   setAdminUser(adminUser)
   return { adminUser, token }

@@ -1,9 +1,5 @@
 import type { User, Address, UserPreferences } from "@/types/user"
 
-// Public API base URL (include trailing /api if your env provides it)
-const API_BASE =
-  (process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "https://ira-be.onrender.com/api").replace(/\/$/, "")
-
 // Helper to map API user to our User type safely
 function mapApiUserToUser(apiUser: any): User {
   const addresses: Address[] = Array.isArray(apiUser?.addresses)
@@ -46,36 +42,26 @@ function mapApiUserToUser(apiUser: any): User {
   }
 }
 
-export async function signIn(email: string, password: string): Promise<{ user: User; token: string }> {
-  try {
-    console.log('Sending login request with:', { email });
-    const response = await fetch(`${API_BASE}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'accept': 'application/json'
-      },
-      body: JSON.stringify({ email, password })
-    });
-
-    const data = await response.json();
-    console.log('API Response:', JSON.stringify(data, null, 2));
-
-    if (!response.ok) {
-      throw new Error(data.message || data.error || 'Failed to sign in');
-    }
-
-    if (!data.token) {
-      throw new Error('No token received in the response');
-    }
-
-    const user: User = mapApiUserToUser(data.user ?? {});
-
-    return { user, token: data.token };
-  } catch (error) {
-    console.error('Sign in error:', error);
-    throw new Error(error instanceof Error ? error.message : 'Failed to sign in');
+export async function signIn(email: string, _password: string): Promise<{ user: User; token: string }> {
+  // Local stub: accept any credentials and return a local user
+  const user: User = {
+    id: "user-local",
+    email,
+    firstName: "Jane",
+    lastName: "Doe",
+    addresses: [],
+    preferences: {
+      emailNotifications: true,
+      smsNotifications: false,
+      marketingEmails: true,
+      currency: "INR",
+      language: "en",
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   }
+  const token = `local-${Math.random().toString(36).slice(2)}`
+  return { user, token }
 }
 
 export async function signUp(data: {
@@ -89,55 +75,28 @@ export async function signUp(data: {
   addresses?: Address[]
   preferences?: Partial<UserPreferences>
 }): Promise<{ user: User; token: string }> {
-  try {
-    console.log('Sending registration request with:', { email: data.email });
-    const response = await fetch(`${API_BASE}/auth/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'accept': 'application/json'
-
-      },
-      body: JSON.stringify({
-        email: data.email,
-        password: data.password,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phone: data.phone ?? "",
-        dateOfBirth: data.dateOfBirth ?? "",
-        avatar: data.avatar ?? "",
-        addresses: Array.isArray(data.addresses) ? data.addresses : [],
-        preferences: {
-          emailNotifications: data.preferences?.emailNotifications ?? true,
-          smsNotifications: data.preferences?.smsNotifications ?? true,
-          marketingEmails: data.preferences?.marketingEmails ?? true,
-          currency: data.preferences?.currency ?? 'USD',
-          language: data.preferences?.language ?? 'en',
-        },
-      })
-    });
-
-    const responseData = await response.json();
-    console.log('Registration API Response:', JSON.stringify(responseData, null, 2));
-
-    if (!response.ok) {
-      if (response.status === 400 && responseData.error?.includes('Duplicate')) {
-        throw new Error('This email is already registered. Please use a different email or sign in.');
-      }
-      throw new Error(responseData.message || responseData.error || 'Failed to register');
-    }
-
-    if (!responseData.token) {
-      throw new Error('No token received in the response');
-    }
-
-    const user: User = mapApiUserToUser(responseData.user ?? {});
-
-    return { user, token: responseData.token };
-  } catch (error) {
-    console.error('Registration error:', error);
-    throw new Error(error instanceof Error ? error.message : 'Failed to register');
+  // Local stub: create a user object without any network calls
+  const user: User = {
+    id: "user-local",
+    email: data.email,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    phone: data.phone,
+    dateOfBirth: data.dateOfBirth,
+    avatar: data.avatar,
+    addresses: Array.isArray(data.addresses) ? data.addresses : [],
+    preferences: {
+      emailNotifications: data.preferences?.emailNotifications ?? true,
+      smsNotifications: data.preferences?.smsNotifications ?? false,
+      marketingEmails: data.preferences?.marketingEmails ?? true,
+      currency: data.preferences?.currency ?? 'INR',
+      language: data.preferences?.language ?? 'en',
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   }
+  const token = `local-${Math.random().toString(36).slice(2)}`
+  return { user, token }
 }
 
 export async function signOut(): Promise<void> {

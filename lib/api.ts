@@ -1,232 +1,130 @@
 import type { Product } from "@/types/product"
 import type { ProductFilters, FilterGroup } from "@/types/filters"
+import { findProductsByCategory } from "./mockData"
 
-const BASE_URL = "https://ira-be.onrender.com"
-
-// Raw API response shape
-interface ApiProductsResponse {
-  products: Array<{
-    id: string
-    name: string
-    description: string
-    price: number
-    originalPrice?: number
-    images: string[]
-    categoryId: string
-    subcategoryId?: string
-    material: string
-    color: string
-    size?: string
-    inStock: boolean
-    rating: number
-    reviewCount: number
-    tags: string[]
-    featured?: boolean
-    bestseller?: boolean
-    newArrival?: boolean
-    createdAt?: string
-    updatedAt?: string
-  }>
+// Check if a value is a backend ID (kept for compatibility)
+export function isBackendId(value?: string): boolean {
+  return true; // Always return true since we're using mock data
 }
 
-interface ApiProductResponse {
-  product: {
-    id: string
-    name: string
-    description: string
-    price: number
-    originalPrice?: number
-    images: string[]
-    categoryId: string
-    subcategoryId?: string
-    material: string
-    color: string
-    size?: string
-    inStock: boolean
-    rating: number
-    reviewCount: number
-    tags: string[]
-    featured?: boolean
-    bestseller?: boolean
-    newArrival?: boolean
-    createdAt?: string
-    updatedAt?: string
+// New backend integration: fetch products by brand/category/subcategory slugs
+export async function fetchBrandProductsByCategorySubcategory(
+  brandSlug: string,
+  categorySlug: string,
+  subcategorySlug: string
+): Promise<Product[]> {
+  const base = "https://hoe-be.onrender.com"
+  const url = `${base}/api/brands/${encodeURIComponent(brandSlug)}/categories/${encodeURIComponent(categorySlug)}/subcategories/${encodeURIComponent(subcategorySlug)}/products`
+  const res = await fetch(url, { headers: { accept: "*/*" }, cache: "no-store" })
+  if (!res.ok) throw new Error(`Failed to fetch products: ${res.status}`)
+  const json = await res.json() as { data?: any[] } | any[]
+  const list = Array.isArray(json) ? json : (json?.data ?? [])
+  return list.map((it: any): Product => {
+    const attrs = it.attributes || {}
+    const sizes: string[] = Array.isArray(attrs.size) ? attrs.size : []
+    const colors: string[] = Array.isArray(attrs.color) ? attrs.color : []
+    return {
+      id: String(it._id ?? it.id ?? it.slug ?? it.title),
+      name: String(it.title ?? ""),
+      description: String(it.description ?? ""),
+      price: typeof it.price === 'number' ? it.price : Number(it.price ?? 0),
+      originalPrice: typeof it.compareAtPrice === 'number' ? it.compareAtPrice : (it.compareAtPrice ? Number(it.compareAtPrice) : undefined),
+      images: Array.isArray(it.images) ? it.images.map((u: any) => String(u)) : [],
+      category: String(it.categoryId ?? ""),
+      subcategory: String(it.subcategoryId ?? ""),
+      material: String(attrs.material ?? ""),
+      color: colors[0] ? String(colors[0]) : "",
+      size: sizes[0] ? String(sizes[0]) : undefined,
+      inStock: typeof it.stock === 'number' ? it.stock > 0 : true,
+      rating: 0,
+      reviewCount: 0,
+      tags: Array.isArray(it.tags) ? it.tags.map((t: any) => String(t)) : [],
+      createdAt: it.createdAt ? String(it.createdAt) : undefined,
+      updatedAt: it.updatedAt ? String(it.updatedAt) : undefined,
+    }
+  })
+}
+
+// Helper for category view: if subcategory slug provided, fetch that; else fetch all subs and combine
+export async function fetchBrandCategoryProducts(
+  categorySlug: string,
+  subcategorySlug?: string
+): Promise<Product[]> {
+  const brand = process.env.NEXT_PUBLIC_BRAND_SLUG || "ira"
+  if (subcategorySlug) {
+    return fetchBrandProductsByCategorySubcategory(brand, categorySlug, subcategorySlug)
   }
+  // No sub slug: fetch all subcategories for the category, then aggregate
+  const { fetchBrandSubcategories } = await import("./catalog")
+  const subs = await fetchBrandSubcategories(brand, categorySlug)
+  const chunks = await Promise.all(
+    subs.map((s) => fetchBrandProductsByCategorySubcategory(brand, categorySlug, s.slug || s.name))
+  )
+  return chunks.flat()
 }
 
 export async function fetchProductsByCategory(params: {
   categoryId: string
   subcategoryId?: string
 }): Promise<Product[]> {
-  const url = new URL("/api/products/by-category", BASE_URL)
-  url.searchParams.set("categoryId", params.categoryId)
-  if (params.subcategoryId) url.searchParams.set("subcategoryId", params.subcategoryId)
-
-  const res = await fetch(url.toString(), {
-    method: "GET",
-    headers: { accept: "application/json" },
-    cache: "no-store",
-  })
-  if (!res.ok) {
-    throw new Error(`Failed to fetch products by category: ${res.status} ${res.statusText}`)
+  // Get all products for the category
+  let products = findProductsByCategory(params.categoryId)
+  
+  // Filter by subcategory if provided
+  if (params.subcategoryId) {
+    products = products.filter(p => p.subcategory === params.subcategoryId)
   }
-  const data = (await res.json()) as ApiProductsResponse
-  const mapped: Product[] = (data.products || []).map((p) => ({
-    id: p.id,
-    name: p.name,
-    description: p.description,
-    price: p.price,
-    originalPrice: p.originalPrice,
-    images: Array.isArray(p.images) 
-      ? p.images
-          .filter(img => img && typeof img === 'string') // Filter out invalid image entries
-          .map(img => {
-            // Remove any surrounding quotes or whitespace
-            const cleanImg = img.trim().replace(/^['"]|['"]$/g, '');
-            // Handle different URL formats
-            if (cleanImg.startsWith('http')) return cleanImg;
-            if (cleanImg.startsWith('//')) return `https:${cleanImg}`;
-            if (cleanImg.startsWith('/')) return `${BASE_URL}${cleanImg}`;
-            return `${BASE_URL}/${cleanImg}`;
-          })
-          .filter(Boolean) // Remove any empty strings
-      : [],
-    category: p.categoryId,
-    subcategory: p.subcategoryId,
-    material: p.material,
-    color: p.color,
-    size: p.size,
-    inStock: p.inStock,
-    rating: p.rating,
-    reviewCount: p.reviewCount,
-    tags: p.tags || [],
-    featured: p.featured,
-    bestseller: p.bestseller,
-    newArrival: p.newArrival,
-    createdAt: p.createdAt,
-    updatedAt: p.updatedAt,
-  }))
-  return mapped
-}
-
-export function isBackendId(value?: string): boolean {
-  // crude check for 24-hex string Mongo-style id
-  return !!value && /^[0-9a-fA-F]{24}$/.test(value)
+  
+  return products
 }
 
 export async function fetchProductsFromApi(params?: {
   categoryId?: string
   subcategoryId?: string
 }): Promise<Product[]> {
-  const url = new URL("/api/products", BASE_URL)
-  // If the API supports filtering via query params, append them.
-  if (params?.categoryId) url.searchParams.set("categoryId", params.categoryId)
-  if (params?.subcategoryId) url.searchParams.set("subcategoryId", params.subcategoryId)
-
-  const res = await fetch(url.toString(), {
-    method: "GET",
-    headers: { accept: "application/json" },
-    // Avoid Next.js caching if used server-side accidentally
-    cache: "no-store",
-  })
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch products: ${res.status} ${res.statusText}`)
+  const { findProductsByCategory, mockProducts } = await import('./mockData')
+  
+  if (params?.categoryId) {
+    let products = findProductsByCategory(params.categoryId)
+    if (params.subcategoryId) {
+      products = products.filter(p => p.subcategory === params.subcategoryId)
+    }
+    return products
   }
-
-  const data = (await res.json()) as ApiProductsResponse
-
-  // Map API product to local Product type
-  const mapped: Product[] = (data.products || []).map((p) => ({
-    id: p.id,
-    name: p.name,
-    description: p.description,
-    price: p.price,
-    originalPrice: p.originalPrice,
-    images: Array.isArray(p.images) 
-      ? p.images
-          .filter(img => img && typeof img === 'string') // Filter out invalid image entries
-          .map(img => {
-            // Remove any surrounding quotes or whitespace
-            const cleanImg = img.trim().replace(/^['"]|['"]$/g, '');
-            // Handle different URL formats
-            if (cleanImg.startsWith('http')) return cleanImg;
-            if (cleanImg.startsWith('//')) return `https:${cleanImg}`;
-            if (cleanImg.startsWith('/')) return `${BASE_URL}${cleanImg}`;
-            return `${BASE_URL}/${cleanImg}`;
-          })
-          .filter(Boolean) // Remove any empty strings
-      : [],
-    // Map ids into our Product fields. We will treat these as ids in the app logic.
-    category: p.categoryId,
-    subcategory: p.subcategoryId,
-    material: p.material,
-    color: p.color,
-    size: p.size,
-    inStock: p.inStock,
-    rating: p.rating,
-    reviewCount: p.reviewCount,
-    tags: p.tags || [],
-    featured: p.featured,
-    bestseller: p.bestseller,
-    newArrival: p.newArrival,
-    createdAt: p.createdAt,
-    updatedAt: p.updatedAt,
-  }))
-
-  return mapped
+  
+  // Return all products if no filters
+  return mockProducts
 }
 
 export async function fetchProductById(id: string): Promise<Product | null> {
-  const url = new URL(`/api/products/${id}`, BASE_URL)
-  const res = await fetch(url.toString(), {
-    method: "GET",
-    headers: { accept: "application/json" },
-    cache: "no-store",
-  })
-  if (!res.ok) {
-    // 404 => return null to let caller notFound()
-    if (res.status === 404) return null
-    throw new Error(`Failed to fetch product ${id}: ${res.status} ${res.statusText}`)
-  }
-  const data = (await res.json()) as ApiProductResponse
-  const p = data.product
-  if (!p) return null
-  console.log('Raw single product data from API:', p.images);
+  const base = "https://hoe-be.onrender.com"
+  const url = `${base}/api/products/${encodeURIComponent(id)}`
+  const res = await fetch(url, { headers: { accept: "application/json" }, cache: "no-store" })
+  if (!res.ok) return null
+  const json = await res.json() as { data?: any }
+  const it = json?.data
+  if (!it) return null
+  const attrs = it.attributes || {}
+  const sizes: string[] = Array.isArray(attrs.size) ? attrs.size : []
+  const colors: string[] = Array.isArray(attrs.color) ? attrs.color : []
   const mapped: Product = {
-    id: p.id,
-    name: p.name,
-    description: p.description,
-    price: p.price,
-    originalPrice: p.originalPrice,
-    images: Array.isArray(p.images) 
-      ? p.images
-          .filter(img => img && typeof img === 'string') // Filter out invalid image entries
-          .map(img => {
-            // Remove any surrounding quotes or whitespace
-            const cleanImg = img.trim().replace(/^['"]|['"]$/g, '');
-            // Handle different URL formats
-            if (cleanImg.startsWith('http')) return cleanImg;
-            if (cleanImg.startsWith('//')) return `https:${cleanImg}`;
-            if (cleanImg.startsWith('/')) return `${BASE_URL}${cleanImg}`;
-            return `${BASE_URL}/${cleanImg}`;
-          })
-          .filter(Boolean) // Remove any empty strings
-      : [],
-    category: p.categoryId,
-    subcategory: p.subcategoryId,
-    material: p.material,
-    color: p.color,
-    size: p.size,
-    inStock: p.inStock,
-    rating: p.rating,
-    reviewCount: p.reviewCount,
-    tags: p.tags || [],
-    featured: p.featured,
-    bestseller: p.bestseller,
-    newArrival: p.newArrival,
-    createdAt: p.createdAt,
-    updatedAt: p.updatedAt,
+    id: String(it._id ?? it.id ?? it.slug ?? it.title),
+    name: String(it.title ?? ""),
+    description: String(it.description ?? ""),
+    price: typeof it.price === 'number' ? it.price : Number(it.price ?? 0),
+    originalPrice: typeof it.compareAtPrice === 'number' ? it.compareAtPrice : (it.compareAtPrice ? Number(it.compareAtPrice) : undefined),
+    images: Array.isArray(it.images) ? it.images.map((u: any) => String(u)) : [],
+    category: String(it.categoryId ?? ""),
+    subcategory: String(it.subcategoryId ?? ""),
+    material: String(attrs.material ?? ""),
+    color: colors[0] ? String(colors[0]) : "",
+    size: sizes[0] ? String(sizes[0]) : undefined,
+    inStock: typeof it.stock === 'number' ? it.stock > 0 : true,
+    rating: 0,
+    reviewCount: 0,
+    tags: Array.isArray(it.tags) ? it.tags.map((t: any) => String(t)) : [],
+    createdAt: it.createdAt ? String(it.createdAt) : undefined,
+    updatedAt: it.updatedAt ? String(it.updatedAt) : undefined,
   }
   return mapped
 }
@@ -306,6 +204,36 @@ export function generateFilterGroupsFor(
     if (p.size) sizeCounts.set(p.size, (sizeCounts.get(p.size) || 0) + 1)
   })
 
+  // Generate dynamic price ranges based on actual product prices
+  const prices = filteredProducts.map(p => p.price).sort((a, b) => a - b)
+  const minPrice = Math.floor(prices[0] / 500) * 500 // Round down to nearest 500
+  const maxPrice = Math.ceil(prices[prices.length - 1] / 500) * 500 // Round up to nearest 500
+  
+  const priceRanges = []
+  for (let i = minPrice; i < maxPrice; i += 500) {
+    const rangeStart = i
+    const rangeEnd = i + 500
+    const count = filteredProducts.filter(p => p.price >= rangeStart && p.price < rangeEnd).length
+    if (count > 0) {
+      priceRanges.push({
+        value: `${rangeStart}-${rangeEnd}`,
+        label: `₹${rangeStart.toLocaleString()} - ₹${rangeEnd.toLocaleString()}`,
+        count
+      })
+    }
+  }
+  
+  // Add the final range for the highest prices
+  const finalRangeStart = maxPrice
+  const finalCount = filteredProducts.filter(p => p.price >= finalRangeStart).length
+  if (finalCount > 0) {
+    priceRanges.push({
+      value: `${finalRangeStart}+`,
+      label: `₹${finalRangeStart.toLocaleString()}+`,
+      count: finalCount
+    })
+  }
+
   return [
     {
       id: "materials",
@@ -335,12 +263,7 @@ export function generateFilterGroupsFor(
       id: "price",
       name: "Price Range",
       type: "range",
-      options: [
-        { value: "0-50", label: "Under $50", count: filteredProducts.filter((p) => p.price < 50).length },
-        { value: "50-100", label: "$50 - $100", count: filteredProducts.filter((p) => p.price >= 50 && p.price < 100).length },
-        { value: "100-200", label: "$100 - $200", count: filteredProducts.filter((p) => p.price >= 100 && p.price < 200).length },
-        { value: "200+", label: "$200+", count: filteredProducts.filter((p) => p.price >= 200).length },
-      ],
+      options: priceRanges,
     },
     {
       id: "rating",
