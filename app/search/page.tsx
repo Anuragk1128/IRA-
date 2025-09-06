@@ -8,7 +8,7 @@ import { SearchBar } from "@/components/search/search-bar"
 import { SearchFilters } from "@/components/search/search-filters"
 import { SearchResults } from "@/components/search/search-results"
 import { searchProducts } from "@/lib/search"
-import type { ProductFilters } from "@/types/filters"
+import type { ProductFilters, SearchResult } from "@/types/filters"
 
 export default function SearchPage() {
   const searchParams = useSearchParams()
@@ -20,13 +20,32 @@ export default function SearchPage() {
     category: initialCategory,
     sortBy: "name",
   })
-  const [searchResult, setSearchResult] = useState(() =>
-    searchProducts(initialQuery, { ...filters, category: initialCategory }),
-  )
+  const [searchResult, setSearchResult] = useState<SearchResult>({
+    products: [],
+    totalCount: 0,
+    filters: [],
+    appliedFilters: { category: initialCategory, sortBy: "name" },
+    suggestions: [],
+  })
 
   useEffect(() => {
-    const result = searchProducts(query, filters)
-    setSearchResult(result)
+    const performSearch = async () => {
+      try {
+        const result = await searchProducts(query, filters)
+        setSearchResult(result)
+      } catch (error) {
+        console.error('Search error:', error)
+        setSearchResult({
+          products: [],
+          totalCount: 0,
+          filters: [],
+          appliedFilters: filters,
+          suggestions: [],
+        })
+      }
+    }
+    
+    performSearch()
   }, [query, filters])
 
   // Keep local state in sync with URL search params when they change (e.g., new search from Header)

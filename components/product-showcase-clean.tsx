@@ -8,11 +8,42 @@ import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 import { AddToCartButton } from "@/components/product/add-to-cart-button"
 import { Product } from "@/types/product"
-import { mockProducts } from "@/lib/mockData"
+import { fetchCategoriesFromApi, fetchBrandSubcategories } from "@/lib/catalog"
+import { fetchBrandProductsByCategorySubcategory } from "@/lib/api"
 
-// Use local mock data instead of backend
-function getFeaturedProducts(): Product[] {
-  return mockProducts.filter(p => p.featured)
+// Fetch first product from each category
+async function getFirstProductFromEachCategory(): Promise<Product[]> {
+  try {
+    const brand = process.env.NEXT_PUBLIC_BRAND_SLUG || "ira"
+    const categories = await fetchCategoriesFromApi()
+    const products: Product[] = []
+    
+    for (const category of categories) {
+      try {
+        const categorySlug = category.slug || category.name.toLowerCase().replace(/\s+/g, '-')
+        const subcategories = await fetchBrandSubcategories(brand, categorySlug)
+        
+        // Get first subcategory or use category directly
+        if (subcategories.length > 0) {
+          const firstSubcategory = subcategories[0]
+          const subcategorySlug = firstSubcategory.slug || firstSubcategory.name.toLowerCase().replace(/\s+/g, '-')
+          const categoryProducts = await fetchBrandProductsByCategorySubcategory(brand, categorySlug, subcategorySlug)
+          
+          if (categoryProducts.length > 0) {
+            products.push(categoryProducts[0]) // Take first product
+          }
+        }
+      } catch (error) {
+        console.warn(`Failed to fetch products for category ${category.name}:`, error)
+        // Continue with other categories
+      }
+    }
+    
+    return products
+  } catch (error) {
+    console.error('Failed to fetch category products:', error)
+    return []
+  }
 }
 
 export function ProductShowcase() {
@@ -24,9 +55,9 @@ export function ProductShowcase() {
     const loadProducts = async () => {
       try {
         setLoading(true)
-        // Load from mock data
-        const featuredProducts = getFeaturedProducts()
-        setProducts(featuredProducts)
+        // Load first product from each category
+        const categoryProducts = await getFirstProductFromEachCategory()
+        setProducts(categoryProducts)
       } catch (error) {
         console.error('Error loading products:', error)
         toast({
@@ -72,10 +103,10 @@ export function ProductShowcase() {
       <div className="container mx-auto px-3 sm:px-4">
         <div className="text-center space-y-2.5 sm:space-y-3 mb-8 sm:mb-10 md:mb-14">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-            Featured <span className="text-primary">Products</span>
+            Featured <span className="text-primary">Collections</span>
           </h2>
           <p className="text-sm sm:text-[15px] md:text-base text-muted-foreground max-w-2xl mx-auto">
-            Discover our handpicked selection of premium jewelry
+            Discover our handpicked selection from each category
           </p>
         </div>
 

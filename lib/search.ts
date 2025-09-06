@@ -1,8 +1,8 @@
 import type { Product } from "@/types/product"
 import type { ProductFilters, FilterGroup, SearchResult } from "@/types/filters"
-import { products } from "@/lib/products"
+import { fetchAllProductsFromBackend } from "@/lib/api"
 
-export function searchProducts(query = "", filters: ProductFilters = {}): SearchResult {
+export async function searchProducts(query = "", filters: ProductFilters = {}): Promise<SearchResult> {
   // Build inferred filters from the free-text query (category, subcategory, price range)
   const inferred = inferFiltersFromQuery(query)
   // Do not override explicit filters passed in
@@ -13,6 +13,8 @@ export function searchProducts(query = "", filters: ProductFilters = {}): Search
     priceRange: filters.priceRange ?? inferred.priceRange,
   }
 
+  // Fetch products from backend
+  const products = await fetchAllProductsFromBackend()
   let filteredProducts = [...products]
 
   // Text search (also includes category and subcategory label matches)
@@ -92,7 +94,7 @@ export function searchProducts(query = "", filters: ProductFilters = {}): Search
   }
 
   // Generate filter groups based on current results
-  const filterGroups = generateFilterGroups(products, filteredProducts)
+  const filterGroups = await generateFilterGroups(products, filteredProducts)
 
   return {
     products: filteredProducts,
@@ -103,7 +105,7 @@ export function searchProducts(query = "", filters: ProductFilters = {}): Search
   }
 }
 
-function generateFilterGroups(allProducts: Product[], filteredProducts: Product[]): FilterGroup[] {
+async function generateFilterGroups(allProducts: Product[], filteredProducts: Product[]): Promise<FilterGroup[]> {
   const materialCounts = new Map<string, number>()
   const colorCounts = new Map<string, number>()
   const sizeCounts = new Map<string, number>()

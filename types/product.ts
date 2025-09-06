@@ -4,19 +4,26 @@ export interface Product {
   description: string
   price: number
   originalPrice?: number
+  compareAtPrice?: number
   images: string[]
   category: string
+  categoryId?: string
   subcategory?: string
+  subcategoryId?: string
   material: string
   color: string
   size?: string
   inStock: boolean
+  stock?: number
   rating: number
   reviewCount: number
   tags: string[]
   featured?: boolean
   bestseller?: boolean
   newArrival?: boolean
+  status?: string
+  vendorId?: string
+  slug?: string
   createdAt?: string
   updatedAt?: string
 }

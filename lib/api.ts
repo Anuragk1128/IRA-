@@ -1,10 +1,9 @@
 import type { Product } from "@/types/product"
 import type { ProductFilters, FilterGroup } from "@/types/filters"
-import { findProductsByCategory } from "./mockData"
 
 // Check if a value is a backend ID (kept for compatibility)
 export function isBackendId(value?: string): boolean {
-  return true; // Always return true since we're using mock data
+  return true; // Always return true since we're using backend data
 }
 
 // New backend integration: fetch products by brand/category/subcategory slugs
@@ -67,8 +66,11 @@ export async function fetchProductsByCategory(params: {
   categoryId: string
   subcategoryId?: string
 }): Promise<Product[]> {
-  // Get all products for the category
-  let products = findProductsByCategory(params.categoryId)
+  // Get all products from backend
+  const allProducts = await fetchAllProductsFromBackend()
+  
+  // Filter by category
+  let products = allProducts.filter(p => p.category === params.categoryId)
   
   // Filter by subcategory if provided
   if (params.subcategoryId) {
@@ -82,10 +84,11 @@ export async function fetchProductsFromApi(params?: {
   categoryId?: string
   subcategoryId?: string
 }): Promise<Product[]> {
-  const { findProductsByCategory, mockProducts } = await import('./mockData')
+  // Fetch all products from backend
+  const allProducts = await fetchAllProductsFromBackend()
   
   if (params?.categoryId) {
-    let products = findProductsByCategory(params.categoryId)
+    let products = allProducts.filter(p => p.category === params.categoryId)
     if (params.subcategoryId) {
       products = products.filter(p => p.subcategory === params.subcategoryId)
     }
@@ -93,7 +96,7 @@ export async function fetchProductsFromApi(params?: {
   }
   
   // Return all products if no filters
-  return mockProducts
+  return allProducts
 }
 
 export async function fetchProductById(id: string): Promise<Product | null> {
@@ -188,6 +191,88 @@ export function applyClientFiltersAndSort(
   }
 
   return result
+}
+
+// Cache for products to avoid refetching
+let productsCache: Product[] | null = null
+
+// Function to clear the cache (useful for development)
+export function clearProductsCache() {
+  productsCache = null
+}
+
+// Fetch all products from the backend
+export async function fetchAllProductsFromBackend(): Promise<Product[]> {
+  // Return cached products if available
+  if (productsCache) {
+    return productsCache
+  }
+
+  const base = "https://hoe-be.onrender.com"
+  const brand = "ira" // Use ira as specified in the curl request
+  const url = `${base}/api/brands/${brand}/products/all`
+  
+  try {
+    const res = await fetch(url, { 
+      headers: { accept: "application/json" }, 
+      cache: "no-store" 
+    })
+    
+    if (!res.ok) {
+      throw new Error(`Failed to fetch products: ${res.status}`)
+    }
+    
+    const json = await res.json() as { data?: any[] }
+    const backendProducts = Array.isArray(json.data) ? json.data : []
+    
+    // Map backend response to Product objects
+    const products: Product[] = backendProducts.map((item) => ({
+      id: item._id,
+      name: item.title,
+      description: item.description || '',
+      price: item.price || 0,
+      compareAtPrice: item.compareAtPrice,
+      images: item.images || ["/placeholder.svg"],
+      category: item.categoryId?.name || 'jewelry',
+      categoryId: item.categoryId?._id,
+      subcategory: item.subcategoryId?.name || '',
+      subcategoryId: item.subcategoryId?._id,
+      material: item.attributes?.material || 'Metal',
+      color: item.attributes?.color?.[0] || 'Gold', // Use first color if available
+      size: item.attributes?.size?.[0] || '', // Use first size if available
+      inStock: item.stock > 0,
+      stock: item.stock || 0,
+      rating: 4.0 + Math.random() * 1.0, // Random rating between 4.0-5.0
+      reviewCount: Math.floor(Math.random() * 100),
+      tags: item.tags || [],
+      featured: item.featured || false,
+      bestseller: item.bestseller || false,
+      newArrival: item.newArrival || false,
+      status: item.status || 'active',
+      vendorId: item.vendorId,
+      slug: item.slug || item.title.toLowerCase().replace(/\s+/g, '-'),
+      createdAt: item.createdAt || new Date().toISOString(),
+      updatedAt: item.updatedAt || new Date().toISOString(),
+    }))
+    
+    // Cache the products
+    productsCache = products
+    return products
+  } catch (error) {
+    console.error('Failed to fetch products from backend:', error)
+    return []
+  }
+}
+
+// Fetch a specific product by ID from the cached products
+export async function fetchProductByIdFromBackend(id: string): Promise<Product | null> {
+  try {
+    const products = await fetchAllProductsFromBackend()
+    return products.find(p => p.id === id || p.slug === id) || null
+  } catch (error) {
+    console.error('Failed to fetch product by ID:', error)
+    return null
+  }
 }
 
 export function generateFilterGroupsFor(

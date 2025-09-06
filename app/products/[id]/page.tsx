@@ -10,7 +10,7 @@ import { Footer } from "@/components/footer"
 import { ProductGrid } from "@/components/product-grid"
 import { AddToCartButton } from "@/components/product/add-to-cart-button"
 import { formatCurrencyINR } from "@/lib/currency"
-import { fetchProductById, fetchProductsByCategory } from "@/lib/api"
+import { fetchProductByIdFromBackend, fetchProductsByCategory } from "@/lib/api"
 import { fetchCategoriesFromApi } from "@/lib/catalog"
 
 interface ProductPageProps {
@@ -21,7 +21,7 @@ interface ProductPageProps {
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const [product, categories] = await Promise.all([
-    fetchProductById(params.id),
+    fetchProductByIdFromBackend(params.id),
     fetchCategoriesFromApi()
   ])
 
@@ -29,32 +29,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound()
   }
 
-  // Find the category name
-  const categoryName = categories.find(cat => cat.id === product.category)?.name || product.category
+  // Use the category and subcategory names directly from the backend data
+  const categoryName = product.category
+  const subcategoryName = product.subcategory || ''
   
-  // Find the subcategory name if it exists
-  let subcategoryName = product.subcategory
-  if (product.subcategory && categoryName !== product.category) {
-    try {
-      const brand = process.env.NEXT_PUBLIC_BRAND_SLUG || "ira"
-      const categorySlug = categories.find(cat => cat.id === product.category)?.slug || categories.find(cat => cat.id === product.category)?.name
-      if (categorySlug) {
-        const { fetchBrandSubcategories } = await import("@/lib/catalog")
-        const subcategories = await fetchBrandSubcategories(brand, categorySlug)
-        subcategoryName = subcategories.find(sub => sub.id === product.subcategory)?.name || product.subcategory
-      }
-    } catch (error) {
-      // If subcategory fetch fails, keep the original subcategory value
-      console.warn('Failed to fetch subcategory:', error)
-    }
-  }
-  
-  const relatedProducts = product.category
-    ? (await fetchProductsByCategory({ categoryId: product.category })).filter((p) => p.id !== product.id).slice(0, 4)
+  const relatedProducts = product.categoryId
+    ? (await fetchProductsByCategory({ categoryId: product.categoryId })).filter((p) => p.id !== product.id).slice(0, 4)
     : []
 
-  const discountPercentage = product.originalPrice
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+  const discountPercentage = product.compareAtPrice
+    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0
 
   return (
@@ -121,8 +105,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
             <div className="flex items-center gap-3">
               <span className="text-3xl font-bold text-foreground">{formatCurrencyINR(product.price)}</span>
-              {product.originalPrice && (
-                <span className="text-xl text-muted-foreground line-through">{formatCurrencyINR(product.originalPrice)}</span>
+              {product.compareAtPrice && (
+                <span className="text-xl text-muted-foreground line-through">{formatCurrencyINR(product.compareAtPrice)}</span>
               )}
             </div>
 
