@@ -3,7 +3,9 @@ import type { ProductFilters, FilterGroup } from "@/types/filters"
 
 // Check if a value is a backend ID (kept for compatibility)
 export function isBackendId(value?: string): boolean {
-  return true; // Always return true since we're using backend data
+  if (!value) return false
+  // Treat MongoDB ObjectId-like strings (24 hex chars) as backend IDs
+  return /^[a-f0-9]{24}$/i.test(value)
 }
 
 // New backend integration: fetch products by brand/category/subcategory slugs
@@ -29,8 +31,9 @@ export async function fetchBrandProductsByCategorySubcategory(
       price: typeof it.price === 'number' ? it.price : Number(it.price ?? 0),
       originalPrice: typeof it.compareAtPrice === 'number' ? it.compareAtPrice : (it.compareAtPrice ? Number(it.compareAtPrice) : undefined),
       images: Array.isArray(it.images) ? it.images.map((u: any) => String(u)) : [],
-      category: String(it.categoryId ?? ""),
-      subcategory: String(it.subcategoryId ?? ""),
+      // Use backend IDs for category/subcategory so client-side filters match correctly
+      category: String(it.categoryId?._id ?? it.categoryId ?? ""),
+      subcategory: String(it.subcategoryId?._id ?? it.subcategoryId ?? ""),
       material: String(attrs.material ?? ""),
       color: colors[0] ? String(colors[0]) : "",
       size: sizes[0] ? String(sizes[0]) : undefined,
