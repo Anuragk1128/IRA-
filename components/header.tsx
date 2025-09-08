@@ -22,7 +22,7 @@ import { fetchCategoriesFromApi, fetchBrandSubcategories, fetchAllProductsForAtt
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { user, isAuthenticated, signOut } = useAuth()
-  const { wishlist } = useWishlist()
+  const { wishlistItems } = useWishlist()
   const [openMegaFor, setOpenMegaFor] = useState<string | null>(null)
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false)
   const [overHero, setOverHero] = useState(false)
@@ -291,9 +291,9 @@ export function Header() {
               <Link href="/wishlist">
                 <Heart className="h-4 w-4 md:h-5 md:w-5" />
               </Link>
-              {wishlist.itemCount > 0 && (
+              {wishlistItems.length > 0 && (
                 <span className="hidden sm:flex absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-accent-foreground text-[10px] items-center justify-center">
-                  {wishlist.itemCount}
+                  {wishlistItems.length}
                 </span>
               )}
             </Button>

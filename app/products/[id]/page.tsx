@@ -13,6 +13,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { formatCurrencyINR } from "@/lib/currency"
 import { fetchProductByIdFromBackend, fetchProductsByCategory } from "@/lib/api"
 import { fetchCategoriesFromApi } from "@/lib/catalog"
+import { ReviewsPanel } from "@/components/product/reviews-panel"
 
 interface ProductPageProps {
   params: {
@@ -95,9 +96,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       />
                     ))}
                   </div>
-                  <span className="text-sm text-muted-foreground">
-                    {product.rating} ({product.reviewCount} reviews)
-                  </span>
+                  
                 </div>
                 {product.bestseller && <Badge variant="secondary">Bestseller</Badge>}
                 {product.newArrival && <Badge className="bg-primary text-primary-foreground">New Arrival</Badge>}
@@ -198,6 +197,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       We provide a reliable 7-day replacement policy that ensures a smooth and worry-free shopping experience.
                     </p>
                   </div>
+                  <div>
+                    <h2 className="text-xl font-bold mb-3 mt-2">Styling Tip:</h2>
+                    <p className="text-muted-foreground">
+                      This product is anti-tarnish with premium allows used , Check the Product box to know more about Styling.
+      
+                    </p>
+                  </div>
                   
                   <div className="mt-6">
                     <h2 className="text-xl font-bold mb-3">Care Instructions</h2>
@@ -273,14 +279,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
                           />
                         ))}
                       </div>
-                      <span className="text-lg font-medium">{product.rating}</span>
                     </div>
-                    <span className="text-muted-foreground">Based on {product.reviewCount} reviews</span>
                   </div>
                   <p className="text-muted-foreground">
                     Customer reviews will be displayed here. This section would typically include individual review cards
                     with ratings, comments, and reviewer information.
                   </p>
+
+                  {/* User-submitted reviews (local only) */}
+                  <ReviewsPanel productId={product.id} />
                 </div>
               </AccordionContent>
             </AccordionItem>

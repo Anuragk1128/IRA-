@@ -6,6 +6,7 @@ export interface User {
   phone?: string
   dateOfBirth?: string
   avatar?: string
+  token?: string
   addresses: Address[]
   preferences: UserPreferences
   createdAt: string

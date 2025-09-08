@@ -1,38 +1,56 @@
 "use client"
 
+import { useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Heart, Trash2, ArrowLeft } from "lucide-react"
+import { Heart, Trash2, ArrowLeft, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { useWishlist } from "@/contexts/wishlist-context"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { AddToCartButton } from "@/components/product/add-to-cart-button"
+import { formatCurrencyINR } from "@/lib/currency"
 
 export function WishlistContent() {
-  const { wishlist, removeFromWishlist, clearWishlist } = useWishlist()
+  const { 
+    wishlistItems, 
+    removeFromWishlist, 
+    fetchWishlist, 
+    isLoading 
+  } = useWishlist()
+  
   const { toast } = useToast()
 
-  const handleRemoveFromWishlist = (productId: string, productName: string) => {
-    removeFromWishlist(productId)
-    toast({
-      title: "Removed from wishlist",
-      description: `${productName} has been removed from your wishlist.`,
-    })
+  useEffect(() => {
+    fetchWishlist()
+  }, [fetchWishlist])
+
+  const handleRemoveFromWishlist = async (wishlistItemId: string, productName: string) => {
+    try {
+      await removeFromWishlist(wishlistItemId)
+      toast({
+        title: "Removed from wishlist",
+        description: `${productName} has been removed from your wishlist.`,
+      })
+    } catch (error) {
+      console.error('Failed to remove from wishlist:', error)
+      toast({
+        title: "Error",
+        description: "Failed to remove item from wishlist. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
-  // Add to cart handled by AddToCartButton component
-
-  const handleClearWishlist = () => {
-    clearWishlist()
-    toast({
-      title: "Wishlist cleared",
-      description: "All items have been removed from your wishlist.",
-    })
+  if (isLoading && wishlistItems.length === 0) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    )
   }
 
-  if (wishlist.items.length === 0) {
+  if (wishlistItems.length === 0) {
     return (
       <div className="max-w-2xl mx-auto text-center py-12">
         <Heart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
@@ -49,85 +67,73 @@ export function WishlistContent() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-elegant text-foreground">My Wishlist</h1>
-          <p className="text-muted-foreground">{wishlist.itemCount} items saved</p>
-        </div>
-        <Button variant="outline" onClick={handleClearWishlist}>
-          Clear Wishlist
-        </Button>
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-elegant text-foreground">Your Wishlist</h1>
+        <p className="text-muted-foreground">{wishlistItems.length} {wishlistItems.length === 1 ? 'item' : 'items'}</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {wishlist.items.map((item) => {
-          const discountPercentage = item.originalPrice
-            ? Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)
-            : 0
-
-          return (
-            <Card key={item.id} className="group overflow-hidden">
-              <div className="relative aspect-square overflow-hidden">
-                <Link href={`/products/${item.productId}`}>
-                  <Image
-                    src={item.image || "/placeholder.svg"}
-                    alt={item.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </Link>
-                {discountPercentage > 0 && (
-                  <Badge className="absolute top-2 left-2 bg-accent text-accent-foreground">
-                    -{discountPercentage}%
-                  </Badge>
-                )}
-                {!item.inStock && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                    <Badge variant="destructive">Out of Stock</Badge>
-                  </div>
-                )}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {wishlistItems.map((item) => (
+          <Card key={item._id} className="overflow-hidden group">
+            <div className="relative aspect-square">
+              <Image
+                src={item.product.images?.[0] || '/placeholder.svg'}
+                alt={item.product.name}
+                fill
+                className="object-cover group-hover:opacity-90 transition-opacity"
+              />
+              <div className="absolute top-2 right-2">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute top-2 right-2 bg-background/80 hover:bg-background text-red-500"
-                  onClick={() => handleRemoveFromWishlist(item.productId, item.name)}
+                  className="rounded-full bg-white/90 hover:bg-white"
+                  onClick={() => handleRemoveFromWishlist(item._id, item.product.name)}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4 text-red-500" />
                 </Button>
               </div>
-
-              <CardContent className="p-4">
-                <Link href={`/products/${item.productId}`}>
-                  <h3 className="font-medium text-foreground hover:text-primary transition-colors line-clamp-2 mb-2">
-                    {item.name}
-                  </h3>
-                </Link>
-
-                <div className="text-sm text-muted-foreground space-y-1 mb-3">
-                  <p>Material: {item.material}</p>
-                  <p>Color: {item.color}</p>
-                  {item.size && <p>Size: {item.size}</p>}
+            </div>
+            <CardContent className="p-4">
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="font-medium text-foreground line-clamp-2">
+                  {item.product.name}
+                </h3>
+                <div className="font-medium text-foreground ml-2 whitespace-nowrap">
+                  {formatCurrencyINR(item.product.price)}
                 </div>
-
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-lg font-semibold text-foreground">${item.price}</span>
-                  {item.originalPrice && (
-                    <span className="text-sm text-muted-foreground line-through">${item.originalPrice}</span>
-                  )}
-                </div>
-
+              </div>
+              <div className="flex justify-between items-center mt-4">
                 <AddToCartButton
-                  className="w-full"
+                  productId={item.product._id}
+                  productName={item.product.name}
+                  inStock={item.product.inStock}
                   size="sm"
-                  productId={item.productId}
-                  productName={item.name}
-                  inStock={item.inStock}
+                  className="flex-1 mr-2"
                 />
-              </CardContent>
-            </Card>
-          )
-        })}
+                <Button variant="outline" size="icon" asChild>
+                  <Link href={`/products/${item.product._id}`}>
+                    <span className="sr-only">View details</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="11" cy="11" r="8" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   )
