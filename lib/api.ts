@@ -72,12 +72,16 @@ export async function fetchProductsByCategory(params: {
   // Get all products from backend
   const allProducts = await fetchAllProductsFromBackend()
   
-  // Filter by category
-  let products = allProducts.filter(p => p.category === params.categoryId)
+  // Filter by category (support both backend id and name for compatibility)
+  let products = allProducts.filter((p: any) => 
+    p.categoryId === params.categoryId || p.category === params.categoryId
+  )
   
   // Filter by subcategory if provided
   if (params.subcategoryId) {
-    products = products.filter(p => p.subcategory === params.subcategoryId)
+    products = products.filter((p: any) => 
+      p.subcategoryId === params.subcategoryId || p.subcategory === params.subcategoryId
+    )
   }
   
   return products

@@ -9,6 +9,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ProductGrid } from "@/components/product-grid"
 import { AddToCartButton } from "@/components/product/add-to-cart-button"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { formatCurrencyINR } from "@/lib/currency"
 import { fetchProductByIdFromBackend, fetchProductsByCategory } from "@/lib/api"
 import { fetchCategoriesFromApi } from "@/lib/catalog"
@@ -110,45 +111,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
               )}
             </div>
 
-            <p className="text-muted-foreground leading-relaxed">{product.description}</p>
+           
 
-            <div className="space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                <div>
-                  <span className="font-medium">Category:</span>
-                  <span className="ml-2 text-muted-foreground capitalize">
-                    {categoryName}
-                    {subcategoryName ? ` > ${subcategoryName}` : ''}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-medium">Material:</span>
-                  <span className="ml-2 text-muted-foreground">{product.material || 'N/A'}</span>
-                </div>
-                <div>
-                  <span className="font-medium">Color:</span>
-                  <span className="ml-2 text-muted-foreground">{product.color || 'N/A'}</span>
-                </div>
-                {product.size && (
-                  <div>
-                    <span className="font-medium">Size:</span>
-                    <span className="ml-2 text-muted-foreground">{product.size}</span>
-                  </div>
-                )}
-              </div>
-              <div className="pt-2 border-t">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">Stock Status:</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    product.inStock 
-                      ? "bg-green-100 text-green-800" 
-                      : "bg-red-100 text-red-800"
-                  }`}>
-                    {product.inStock ? "In Stock" : "Out of Stock"}
-                  </span>
-                </div>
-              </div>
-            </div>
+            
 
             <div className="flex gap-3">
               <AddToCartButton
@@ -173,131 +138,214 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Shield className="h-4 w-4 text-primary" />
-                <span>2 Year Warranty</span>
+                <span>6 Months Warranty</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <RotateCcw className="h-4 w-4 text-primary" />
-                <span>Easy Returns</span>
+                <span>Easy Replacements</span>
               </div>
             </div>
+            <div className="mb-12">
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="description">
+              <AccordionTrigger className="text-lg font-bold">Description</AccordionTrigger>
+              <AccordionContent>
+                <div className="prose max-w-none">
+                  {product.description && (
+                    <>
+                      <p className="text-muted-foreground leading-relaxed">{product.description}</p>
+                      <div className="h-px bg-gray-200 my-4"></div>
+                    </>
+                  )}
+                  
+                  {/* Display product attributes if they exist */}
+                  {Object.entries(product).some(([key, value]) => 
+                    ['material', 'color', 'size', 'weight', 'dimensions', 'Styling', 'occasion'].includes(key) && 
+                    value && 
+                    typeof value === 'string' && 
+                    value.trim() !== ''
+                  ) && (
+                    <div className="mb-6">
+                      <h2 className="text-xl font-bold mb-3">Product Details</h2>
+                      <div className="grid gap-2">
+                        {Object.entries(product).map(([key, value]) => {
+                          // Skip if value is empty, not a string, or not in our list of attributes to display
+                          if (!value || typeof value !== 'string' || value.trim() === '' || 
+                              !['material', 'color', 'size', 'weight', 'dimensions', 'style', 'occasion'].includes(key)) {
+                            return null;
+                          }
+                          
+                          // Format the key for display (capitalize first letter and add space before capital letters)
+                          const displayKey = key
+                            .replace(/([A-Z])/g, ' $1')
+                            .replace(/^./, str => str.toUpperCase())
+                            .trim();
+                            
+                          return (
+                            <div key={key} className="flex justify-between py-2 border-b border-gray-100">
+                              <span className="font-medium text-gray-700">{displayKey}:</span>
+                              <span className="text-gray-600">{value}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="mt-6">
+                    <h2 className="text-xl font-bold mb-3">Replacements</h2>
+                    <p className="text-muted-foreground">
+                      We provide a reliable 7-day replacement policy that ensures a smooth and worry-free shopping experience.
+                    </p>
+                  </div>
+                  
+                  <div className="mt-6">
+                    <h2 className="text-xl font-bold mb-3">Care Instructions</h2>
+                    <ul className="space-y-2 text-muted-foreground list-disc pl-5">
+                      <li>Remove jewellery before washing hands, swimming, or showering.</li>
+                      <li>Due to its delicate nature, avoid wearing it during strenuous activities or while sleeping.</li>
+                      <li>Use a soft, dry microfibre cloth to gently remove dirt, sweat, and oils after each wear.</li>
+                      <li>Avoid using abrasive materials, ultrasonic cleaners, alcohol, or strong detergents.</li>
+                      <li>Do not soak jewellery in water or cleaning solutions.</li>
+                      <li>Store each piece separately to prevent tangling and scratches.</li>
+                    </ul>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="specifications">
+              <AccordionTrigger className="text-lg font-bold">Specifications</AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium">Material:</span>
+                        <span className="text-muted-foreground">{product.material || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium">Color:</span>
+                        <span className="text-muted-foreground">{product.color || 'N/A'}</span>
+                      </div>
+                      {product.size && (
+                        <div className="flex justify-between py-2 border-b">
+                          <span className="font-medium">Size:</span>
+                          <span className="text-muted-foreground">{product.size}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium">Category:</span>
+                        <span className="text-muted-foreground capitalize">
+                          {categoryName}
+                          {subcategoryName ? ` > ${subcategoryName}` : ''}
+                        </span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium">Stock Status:</span>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          product.inStock 
+                            ? "bg-green-100 text-green-800" 
+                            : "bg-red-100 text-red-800"
+                        }`}>
+                          {product.inStock ? "In Stock" : "Out of Stock"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="reviews">
+              <AccordionTrigger className="text-lg font-bold">Reviews</AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1">
+                      <div className="flex">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-5 w-5 ${
+                              i < Math.floor(product.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-lg font-medium">{product.rating}</span>
+                    </div>
+                    <span className="text-muted-foreground">Based on {product.reviewCount} reviews</span>
+                  </div>
+                  <p className="text-muted-foreground">
+                    Customer reviews will be displayed here. This section would typically include individual review cards
+                    with ratings, comments, and reviewer information.
+                  </p>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
           </div>
         </div>
 
-        <Separator className="my-12" />
+    
 
-        {/* Product Details Tabs */}
-        <Tabs defaultValue="description" className="mb-12">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="description">Description</TabsTrigger>
-            <TabsTrigger value="specifications">Specifications</TabsTrigger>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
-          </TabsList>
-          <TabsContent value="description" className="mt-6">
-            <div className="prose max-w-none">
-              <p className="text-muted-foreground leading-relaxed font-bold">{product.description}</p>
-              <p className="text-muted-foreground leading-relaxed font-bold"> Products included :
-              {product.tags?.join(', ') || 'N/A'}</p>
-              <h2 className="text-xl font-bold mt-4">Features</h2>
-              <p className="text-muted-foreground leading-relaxed ">
-              Anti-tarnish</p>
-              <p>Premium materials</p>
-              <p>Superior design</p>
-              
-              <p>
-                Easy Maintenance
-              </p>
-              <p>
-                Travel Friendly
-              </p>
-              <h2 className="text-xl font-bold mt-4">Returns</h2>
-              <p>
-              
-              We provide a reliable 7-day replacement policy that ensures a smooth and worry-free shopping experience.
-                
-              </p>
-              <h2 className="text-xl font-bold mt-4">Care Instruction</h2>
-              <p>
-              Remove jewellery before washing hands, swimming, or showering.
-              </p>
-              <p>Due to its delicate nature, avoid wearing it during strenuous activities or while sleeping to reduce the risk of damage.</p>
-              <p>Use a soft, dry microfibre cloth to gently remove dirt, sweat, and oils after each wear.</p>
-              <p>Avoid using abrasive materials, ultrasonic cleaners, alcohol, or strong detergents, which can strip away finishes or discolour stones.</p>
-              <p>Do not soak costume jewellery in water or cleaning solutions, as the glue or coatings may loosen or dissolve.</p>
-              <p>To prevent tangling, scratches, or chipped coatings, store each piece in its own compartment, soft pouch, or a jewellery box with fabric lining.</p>
-              
-              
-            </div>
-          </TabsContent>
-          <TabsContent value="specifications" className="mt-6">
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-3">
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="font-medium">Material:</span>
-                    <span className="text-muted-foreground">{product.material || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="font-medium">Color:</span>
-                    <span className="text-muted-foreground">{product.color || 'N/A'}</span>
-                  </div>
-                  {product.size && (
-                    <div className="flex justify-between py-2 border-b">
-                      <span className="font-medium">Size:</span>
-                      <span className="text-muted-foreground">{product.size}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="font-medium">Category:</span>
-                    <span className="text-muted-foreground capitalize">
-                      {categoryName}
-                      {subcategoryName ? ` > ${subcategoryName}` : ''}
-                    </span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="font-medium">Stock Status:</span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      product.inStock 
-                        ? "bg-green-100 text-green-800" 
-                        : "bg-red-100 text-red-800"
-                    }`}>
-                      {product.inStock ? "In Stock" : "Out of Stock"}
-                    </span>
-                  </div>
-                </div>
-                
-              </div>
-            </div>
-          </TabsContent>
-          <TabsContent value="reviews" className="mt-6">
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1">
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-5 w-5 ${
-                          i < Math.floor(product.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-lg font-medium">{product.rating}</span>
-                </div>
-                <span className="text-muted-foreground">Based on {product.reviewCount} reviews</span>
-              </div>
-              <p className="text-muted-foreground">
-                Customer reviews will be displayed here. This section would typically include individual review cards
-                with ratings, comments, and reviewer information.
-              </p>
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        {/* Related Products */}
+       
         {relatedProducts.length > 0 && (
-          <div>
-            <ProductGrid products={relatedProducts} title="Related Products" />
+          <div className="mt-12">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">You May Also Like</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {relatedProducts.slice(0, 3).map((relatedProduct) => (
+                <div key={relatedProduct.id} className="group relative bg-white rounded-lg overflow-hidden border border-gray-100 hover:shadow-md transition-shadow">
+                  <a href={`/products/${relatedProduct.id}`} className="block">
+                    <div className="aspect-square relative bg-gray-50">
+                      <Image
+                        src={relatedProduct.images[0] || '/placeholder.svg'}
+                        alt={relatedProduct.name}
+                        fill
+                        className="object-cover group-hover:opacity-90 transition-opacity"
+                      />
+                      {relatedProduct.compareAtPrice && relatedProduct.compareAtPrice > relatedProduct.price && (
+                        <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full">
+                          -{Math.round(((relatedProduct.compareAtPrice - relatedProduct.price) / relatedProduct.compareAtPrice) * 100)}%
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-medium text-gray-900 mb-1 line-clamp-1">{relatedProduct.name}</h3>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="flex">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className={`h-3.5 w-3.5 ${
+                                star <= Math.floor(relatedProduct.rating) 
+                                  ? 'text-yellow-400 fill-yellow-400' 
+                                  : 'text-gray-200'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs text-gray-500">({relatedProduct.reviewCount})</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-gray-900">
+                          {formatCurrencyINR(relatedProduct.price)}
+                        </span>
+                        {relatedProduct.compareAtPrice && relatedProduct.compareAtPrice > relatedProduct.price && (
+                          <span className="text-sm text-gray-500 line-through">
+                            {formatCurrencyINR(relatedProduct.compareAtPrice)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </main>
