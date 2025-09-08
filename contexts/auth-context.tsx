@@ -42,6 +42,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signIn = (user: User, token: string) => {
+    if (!token || typeof token !== 'string' || token.trim() === '') {
+      // Do not authenticate without a valid token
+      throw new Error("Invalid authentication token")
+    }
     // Persist token for API usage (e.g., cart endpoints)
     try {
       setAuthToken(token)

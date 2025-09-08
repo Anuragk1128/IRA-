@@ -1,8 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import { useAuth } from "@/contexts/auth-context"
 
 interface Review {
   id: string
@@ -15,6 +17,7 @@ interface ReviewsPanelProps {
 }
 
 export function ReviewsPanel({ productId }: ReviewsPanelProps) {
+  const { isAuthenticated } = useAuth()
   const storageKey = `reviews:${productId}`
   const [reviews, setReviews] = useState<Review[]>([])
   const [text, setText] = useState("")
@@ -43,6 +46,7 @@ export function ReviewsPanel({ productId }: ReviewsPanelProps) {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!isAuthenticated) return
     if (!text.trim()) return
     setSubmitting(true)
     try {
@@ -60,19 +64,27 @@ export function ReviewsPanel({ productId }: ReviewsPanelProps) {
 
   return (
     <div className="mt-6">
-      <form onSubmit={onSubmit} className="space-y-3">
-        <Textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Write your review..."
-          className="min-h-[100px]"
-        />
-        <div className="flex justify-end">
-          <Button type="submit" disabled={!text.trim() || submitting}>
-            {submitting ? "Submitting..." : "Submit Review"}
-          </Button>
+      {isAuthenticated ? (
+        <form onSubmit={onSubmit} className="space-y-3">
+          <Textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Write your review..."
+            className="min-h-[100px]"
+          />
+          <div className="flex justify-end">
+            <Button type="submit" disabled={!text.trim() || submitting}>
+              {submitting ? "Submitting..." : "Submit Review"}
+            </Button>
+          </div>
+        </form>
+      ) : (
+        <div className="rounded-md border p-4 bg-white/50">
+          <p className="text-sm text-muted-foreground">
+            Please <Link href="/login" className="text-primary underline">log in</Link> to post a review.
+          </p>
         </div>
-      </form>
+      )}
 
       {reviews.length > 0 && (
         <div className="mt-6 space-y-4">

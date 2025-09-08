@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/contexts/auth-context"
-import { signIn, setAuthToken } from "@/lib/auth"
+import { signIn } from "@/lib/auth"
 import { useToast } from "@/hooks/use-toast"
 
 type LoginFormProps = {
@@ -34,7 +34,6 @@ export function LoginForm({ redirectToAccount = true, onSwitchToSignup }: LoginF
 
     try {
       const { user, token } = await signIn(email, password)
-      setAuthToken(token)
       authSignIn(user, token)
       toast({
         title: "Welcome back!",

@@ -6,14 +6,6 @@ import { Button } from "@/components/ui/button"
 import { SearchBar } from "@/components/search/search-bar"
 import { useAuth } from "@/contexts/auth-context"
 import { useWishlist } from "@/contexts/wishlist-context"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { PincodeChecker } from "@/components/pincode-checker"
@@ -299,36 +291,11 @@ export function Header() {
             </Button>
 
             {isAuthenticated ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-black h-9 w-9 md:h-10 md:w-10 shrink-0">
-                    <User className="h-4 w-4 md:h-5 md:w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>
-                    {user?.firstName} {user?.lastName}
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/account">My Account</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/account?tab=orders">My Orders</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/wishlist">Wishlist</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/account?tab=addresses">Addresses</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => signOut()}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Button variant="ghost" size="icon" asChild className="text-black h-9 w-9 md:h-10 md:w-10 shrink-0">
+                <Link href="/account" aria-label="Account">
+                  <User className="h-4 w-4 md:h-5 md:w-5" />
+                </Link>
+              </Button>
             ) : (
               <Button variant="ghost" size="icon" asChild className="text-black h-9 w-9 md:h-10 md:w-10 shrink-0">
                 <Link href="/login">

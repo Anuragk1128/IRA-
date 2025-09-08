@@ -42,26 +42,62 @@ function mapApiUserToUser(apiUser: any): User {
   }
 }
 
-export async function signIn(email: string, _password: string): Promise<{ user: User; token: string }> {
-  // Local stub: accept any credentials and return a local user
+export async function signIn(email: string, password: string): Promise<{ user: User; token: string }> {
+  // Real backend login integration
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://hoe-be.onrender.com/api'
+  const res = await fetch(`${API_URL}/auth/login`, {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  })
+
+  if (!res.ok) {
+    let message = 'Failed to sign in'
+    try {
+      const err = await res.json()
+      message = err?.message || message
+    } catch {}
+    throw new Error(message)
+  }
+
+  const data = await res.json() as {
+    token: string
+    user: { id: string; name?: string; email: string; role?: string }
+  }
+
+  const fullName = String(data.user?.name ?? '')
+  const [firstName, ...rest] = fullName.split(' ').filter(Boolean)
+  const lastName = rest.join(' ')
+
+  // Strict validation: require token and user id
+  if (!data?.token || !data?.user?.id) {
+    throw new Error('Invalid login response')
+  }
+
   const user: User = {
-    id: "user-local",
-    email,
-    firstName: "Jane",
-    lastName: "Doe",
+    id: String(data.user?.id ?? ''),
+    email: String(data.user?.email ?? email),
+    firstName: firstName || '',
+    lastName: lastName || '',
+    // Do NOT expose role on the frontend; ignore it per requirements
     addresses: [],
     preferences: {
       emailNotifications: true,
       smsNotifications: false,
       marketingEmails: true,
-      currency: "INR",
-      language: "en",
+      currency: 'INR',
+      language: 'en',
     },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    // Attach token so contexts relying on user.token (e.g., wishlist) can access it easily
+    token: String(data.token),
   }
-  const token = `local-${Math.random().toString(36).slice(2)}`
-  return { user, token }
+
+  return { user, token: data.token }
 }
 
 export async function signUp(data: {
@@ -69,34 +105,61 @@ export async function signUp(data: {
   password: string
   firstName: string
   lastName: string
-  phone?: string
-  dateOfBirth?: string
-  avatar?: string
-  addresses?: Address[]
-  preferences?: Partial<UserPreferences>
 }): Promise<{ user: User; token: string }> {
-  // Local stub: create a user object without any network calls
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://hoe-be.onrender.com/api'
+
+  const name = `${data.firstName} ${data.lastName}`.trim()
+  const res = await fetch(`${API_URL}/auth/register`, {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ name, email: data.email, password: data.password }),
+  })
+
+  if (!res.ok) {
+    let message = 'Failed to register'
+    try {
+      const err = await res.json()
+      message = err?.message || message
+    } catch {}
+    throw new Error(message)
+  }
+
+  const payload = await res.json() as {
+    token: string
+    user: { id: string; name: string; email: string; role?: string }
+  }
+
+  if (!payload?.token || !payload?.user?.id) {
+    throw new Error('Invalid registration response')
+  }
+
+  // Split name into first/last
+  const fullName = String(payload.user.name ?? '')
+  const [firstName, ...rest] = fullName.split(' ').filter(Boolean)
+  const lastName = rest.join(' ')
+
   const user: User = {
-    id: "user-local",
-    email: data.email,
-    firstName: data.firstName,
-    lastName: data.lastName,
-    phone: data.phone,
-    dateOfBirth: data.dateOfBirth,
-    avatar: data.avatar,
-    addresses: Array.isArray(data.addresses) ? data.addresses : [],
+    id: String(payload.user.id),
+    email: String(payload.user.email),
+    firstName: firstName || '',
+    lastName: lastName || '',
+    addresses: [],
     preferences: {
-      emailNotifications: data.preferences?.emailNotifications ?? true,
-      smsNotifications: data.preferences?.smsNotifications ?? false,
-      marketingEmails: data.preferences?.marketingEmails ?? true,
-      currency: data.preferences?.currency ?? 'INR',
-      language: data.preferences?.language ?? 'en',
+      emailNotifications: true,
+      smsNotifications: false,
+      marketingEmails: true,
+      currency: 'INR',
+      language: 'en',
     },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    token: String(payload.token),
   }
-  const token = `local-${Math.random().toString(36).slice(2)}`
-  return { user, token }
+
+  return { user, token: payload.token }
 }
 
 export async function signOut(): Promise<void> {
