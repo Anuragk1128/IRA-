@@ -243,7 +243,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                         </div>
                       )}
                       <div className="flex justify-between py-2 border-b">
-                        <span className="font-medium">Category :
+                        <span className="font-medium">Category:
                           {product.subcategory}
                         </span>
                         
