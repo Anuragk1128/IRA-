@@ -235,10 +235,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                         <span className="font-medium">Color:</span>
                         <span className="text-muted-foreground">{product.color || 'N/A'}</span>
                       </div>
-                      <div className="flex justify-between py-2 border-b">
-                        <span className="font-medium">Styling Tip:</span>
-                        <span className="text-muted-foreground">{product.styling || 'N/A'}</span>
-                      </div>
+                     
                       {product.size && (
                         <div className="flex justify-between py-2 border-b">
                           <span className="font-medium">Size:</span>
@@ -246,11 +243,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
                         </div>
                       )}
                       <div className="flex justify-between py-2 border-b">
-                        <span className="font-medium">Category:</span>
-                        <span className="text-muted-foreground capitalize">
-                          {categoryName}
-                          {subcategoryName ? ` > ${subcategoryName}` : ''}
+                        <span className="font-medium">Category :
+                          {product.subcategory}
                         </span>
+                        
                       </div>
                       <div className="flex justify-between py-2 border-b">
                         <span className="font-medium">Stock Status:</span>
