@@ -34,6 +34,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
   // Prefer display labels when available
   const categoryName = product.categoryLabel || product.category
   const subcategoryName = product.subcategoryLabel || product.subcategory || ''
+  const materialDisplay = (() => {
+    const primary = typeof product.material === 'string' ? product.material : ''
+    const fallback = typeof product.attributes?.material === 'string' ? product.attributes.material : ''
+    const pick = primary && primary.toLowerCase() !== 'string' ? primary : fallback
+    return pick && pick.toLowerCase() !== 'string' ? pick : 'N/A'
+  })()
   
   const relatedProducts = product.categoryId
     ? (await fetchProductsByCategory({ categoryId: product.categoryId })).filter((p) => p.id !== product.id).slice(0, 4)
@@ -225,25 +231,36 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <AccordionTrigger className="text-lg font-bold">Specifications</AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                      <div className="flex justify-between py-2 border-b">
+                  <div className="flex justify-center">
+                    <div className="w-full max-w-md space-y-4">
+                      <div className="flex items-center justify-between gap-6 py-2 border-b">
                         <span className="font-medium">Material:</span>
-                        <span className="text-muted-foreground">{product.material || 'N/A'}</span>
+                        <span className="text-muted-foreground"> {product.material}</span>
                       </div>
-                      <div className="flex justify-between py-2 border-b">
+                      <div className="flex items-center justify-between gap-6 py-2 border-b">
                         <span className="font-medium">Color:</span>
                         <span className="text-muted-foreground">{product.color || 'N/A'}</span>
                       </div>
                      
                       {product.size && (
-                        <div className="flex justify-between py-2 border-b">
+                        <div className="flex items-center justify-between gap-6 py-2 border-b">
                           <span className="font-medium">Size:</span>
                           <span className="text-muted-foreground">{product.size}</span>
                         </div>
                       )}
-                     
-                      <div className="flex justify-between py-2 border-b">
+                      <div className="flex items-start justify-between gap-6 py-2 border-b">
+                        <span className="font-medium"> Features: </span>
+                        <span className="text-muted-foreground">
+                          Water-proof <br/>
+                          Premium Material <br/>
+                          Superior Design <br/>
+                          Easy Maintenance <br/>
+                          Travel Friendly
+
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center justify-between gap-6 py-2 border-b">
                         <span className="font-medium">Stock Status:</span>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                           product.inStock 

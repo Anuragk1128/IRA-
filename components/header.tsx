@@ -110,16 +110,28 @@ export function Header() {
     { href: "/categories", label: "Collections" },
   ]
 
-  // Use backend attributes or fallback to hardcoded values
-  const materials = backendAttributes?.materials.map(material => ({
-    label: material,
-    slug: material.toLowerCase().replace(/\s+/g, '-')
-  })) || [
-    { label: "Silver coated", slug: "silver-coated" },
-    { label: "Gold coated", slug: "gold-coated" },
-    { label: "Stainless Steel", slug: "stainless-steel" },
-    { label: "Copper", slug: "copper" },
-  ]
+  // Materials: prefer backend when available (deduped, case-insensitive), otherwise fallback list
+  const backendMaterials = (backendAttributes?.materials ?? [])
+    .map((mat) => {
+      const label = String(mat || "").trim()
+      const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+      return { label, slug }
+    })
+    .filter((m) => m.label && m.slug && m.slug !== "string")
+    .reduce<{ label: string; slug: string }[]>((acc, cur) => {
+      const exists = acc.some((x) => x.slug === cur.slug)
+      if (!exists) acc.push(cur)
+      return acc
+    }, [])
+
+  const materials = backendMaterials.length > 0
+    ? backendMaterials
+    : [
+      { label: "Silver coated", slug: "silver-coated" },
+      { label: "Gold coated", slug: "gold-coated" },
+      { label: "Stainless Steel", slug: "stainless-steel" },
+      { label: "Copper", slug: "copper" },
+    ]
 
   const priceRanges = backendAttributes?.priceRanges || [
     { label: "₹1,000 - ₹1,500", min: 1000, max: 1500 },
@@ -129,16 +141,28 @@ export function Header() {
     { label: "₹3,000+", min: 3000, max: undefined },
   ]
 
-  const occasions = backendAttributes?.occasions.map(occasion => ({
-    label: occasion,
-    slug: occasion.toLowerCase().replace(/\s+/g, '-')
-  })) || [
-    { label: "Daily Wear", slug: "daily-wear" },
-    { label: "Casual Outings", slug: "casual-outings" },
-    { label: "Festive", slug: "festive" },
-    { label: "Anniversary", slug: "anniversary" },
-    { label: "Wedding", slug: "wedding" },
-  ]
+  const occasionsBackend = (backendAttributes?.occasions ?? [])
+    .map((occ) => {
+      const label = String(occ || "").trim()
+      const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+      return { label, slug }
+    })
+    .filter((o) => o.label && o.slug && o.slug !== "string")
+    .reduce<{ label: string; slug: string }[]>((acc, cur) => {
+      const exists = acc.some((x) => x.slug === cur.slug)
+      if (!exists) acc.push(cur)
+      return acc
+    }, [])
+
+  const occasions = occasionsBackend.length > 0
+    ? occasionsBackend
+    : [
+      { label: "Daily Wear", slug: "daily-wear" },
+      { label: "Casual Outings", slug: "casual-outings" },
+      { label: "Festive", slug: "festive" },
+      { label: "Anniversary", slug: "anniversary" },
+      { label: "Wedding", slug: "wedding" },
+    ]
 
   return (
     <header
