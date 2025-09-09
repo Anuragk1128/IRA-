@@ -24,6 +24,7 @@ export async function fetchBrandProductsByCategorySubcategory(
     const attrs = it.attributes || {}
     const sizes: string[] = Array.isArray(attrs.size) ? attrs.size : []
     const colors: string[] = Array.isArray(attrs.color) ? attrs.color : []
+    const materialRaw = typeof attrs.material === 'string' ? attrs.material : (Array.isArray(attrs.material) ? String(attrs.material[0]) : (it.material || ''))
     return {
       id: String(it._id ?? it.id ?? it.slug ?? it.title),
       name: String(it.title ?? ""),
@@ -32,9 +33,9 @@ export async function fetchBrandProductsByCategorySubcategory(
       originalPrice: typeof it.compareAtPrice === 'number' ? it.compareAtPrice : (it.compareAtPrice ? Number(it.compareAtPrice) : undefined),
       images: Array.isArray(it.images) ? it.images.map((u: any) => String(u)) : [],
       // Use backend IDs for category/subcategory so client-side filters match correctly
-      category: String(it.categoryId?._id ?? it.categoryId ?? ""),
-      subcategory: String(it.subcategoryId?._id ?? it.subcategoryId ?? ""),
-      material: String(attrs.material ?? ""),
+      category: String(it.categoryId?.name ?? it.categoryId?._id ?? it.categoryId ?? ''),
+      subcategory: String(it.subcategoryId?.name ?? it.subcategoryId?._id ?? it.subcategoryId ?? ''),
+      material: String(materialRaw || ''),
       color: colors[0] ? String(colors[0]) : "",
       size: sizes[0] ? String(sizes[0]) : undefined,
       inStock: typeof it.stock === 'number' ? it.stock > 0 : true,
@@ -124,9 +125,9 @@ export async function fetchProductById(id: string): Promise<Product | null> {
     price: typeof it.price === 'number' ? it.price : Number(it.price ?? 0),
     originalPrice: typeof it.compareAtPrice === 'number' ? it.compareAtPrice : (it.compareAtPrice ? Number(it.compareAtPrice) : undefined),
     images: Array.isArray(it.images) ? it.images.map((u: any) => String(u)) : [],
-    category: String(it.categoryId ?? ""),
-    subcategory: String(it.subcategoryId ?? ""),
-    material: String(attrs.material ?? ""),
+    category: String(it.categoryId?.name ?? it.categoryId?._id ?? it.categoryId ?? ''),
+    subcategory: String(it.subcategoryId?.name ?? it.subcategoryId?._id ?? it.subcategoryId ?? ''),
+    material: String((typeof attrs.material === 'string' ? attrs.material : (Array.isArray(attrs.material) ? String(attrs.material[0]) : (it.material || '')))),
     color: colors[0] ? String(colors[0]) : "",
     size: sizes[0] ? String(sizes[0]) : undefined,
     styling: typeof attrs.styling === 'string' ? attrs.styling : undefined,
