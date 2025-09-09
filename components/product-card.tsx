@@ -31,7 +31,7 @@ export function ProductCard({ product }: ProductCardProps) {
     e.preventDefault()
     e.stopPropagation()
 
-    toggleWishlist(product)
+    toggleWishlist(product.id)
     toast({
       title: isInWishlist(product.id) ? "Removed from wishlist" : "Added to wishlist",
       description: isInWishlist(product.id)
@@ -44,12 +44,34 @@ export function ProductCard({ product }: ProductCardProps) {
     <div className="group relative bg-card rounded-xl overflow-hidden border border-border/50 hover:border-primary/30 shadow-sm hover:shadow-md transition-all duration-300">
       <Link href={`/products/${product.id}`}>
         <div className="relative aspect-square overflow-hidden">
-          <Image
-            src={product.images[0] || "/placeholder.svg"}
-            alt={product.name}
-            fill
-            className="object-cover group-hover:scale-[1.04] transition-transform duration-300"
-          />
+          {(() => {
+            // Check if the image URL is valid
+            const isValidUrl = (url: string | undefined): boolean => {
+              if (!url) return false;
+              try {
+                new URL(url);
+                return true;
+              } catch {
+                return false;
+              }
+            };
+            
+            const imageUrl = isValidUrl(product.images?.[0]) ? product.images?.[0] : "/placeholder.svg";
+            
+            return (
+              <Image
+                src={imageUrl}
+                alt={product.name}
+                fill
+                className="object-cover group-hover:scale-[1.04] transition-transform duration-300"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.onerror = null; // Prevent infinite loop
+                  target.src = "/placeholder.svg";
+                }}
+              />
+            );
+          })()}
           {discountPercentage > 0 && (
             <Badge className="absolute top-2 left-2 bg-accent/90 text-accent-foreground shadow-sm">-{discountPercentage}%</Badge>
           )}

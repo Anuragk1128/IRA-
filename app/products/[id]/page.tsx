@@ -197,13 +197,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       We provide a reliable 7-day replacement policy that ensures a smooth and worry-free shopping experience.
                     </p>
                   </div>
-                  <div>
-                    <h2 className="text-xl font-bold mb-3 mt-2">Styling Tip:</h2>
-                    <p className="text-muted-foreground">
-                      This product is anti-tarnish with premium allows used , Check the Product box to know more about Styling.
-      
-                    </p>
-                  </div>
+                  {product.attributes?.styling && (
+                    <div>
+                      <h2 className="text-xl font-bold mb-3 mt-2">Styling Tip:</h2>
+                      <p className="text-muted-foreground">
+                        {product.attributes.styling}
+                      </p>
+                    </div>
+                  )}
                   
                   <div className="mt-6">
                     <h2 className="text-xl font-bold mb-3">Care Instructions</h2>
@@ -233,6 +234,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       <div className="flex justify-between py-2 border-b">
                         <span className="font-medium">Color:</span>
                         <span className="text-muted-foreground">{product.color || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium">Styling Tip:</span>
+                        <span className="text-muted-foreground">{product.styling || 'N/A'}</span>
                       </div>
                       {product.size && (
                         <div className="flex justify-between py-2 border-b">

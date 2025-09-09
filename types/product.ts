@@ -11,8 +11,9 @@ export interface Product {
   subcategory?: string
   subcategoryId?: string
   material: string
-  color: string
-  size?: string
+  color: string | string[]
+  size?: string | string[]
+  styling?: string
   inStock: boolean
   stock?: number
   rating: number
@@ -26,6 +27,13 @@ export interface Product {
   slug?: string
   createdAt?: string
   updatedAt?: string
+  attributes?: {
+    size?: string[]
+    color?: string[]
+    material?: string
+    fit?: string
+    styling?: string
+  }
 }
 
 export interface ProductCategory {

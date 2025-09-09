@@ -129,12 +129,20 @@ export async function fetchProductById(id: string): Promise<Product | null> {
     material: String(attrs.material ?? ""),
     color: colors[0] ? String(colors[0]) : "",
     size: sizes[0] ? String(sizes[0]) : undefined,
+    styling: typeof attrs.styling === 'string' ? attrs.styling : undefined,
     inStock: typeof it.stock === 'number' ? it.stock > 0 : true,
     rating: 0,
     reviewCount: 0,
     tags: Array.isArray(it.tags) ? it.tags.map((t: any) => String(t)) : [],
     createdAt: it.createdAt ? String(it.createdAt) : undefined,
     updatedAt: it.updatedAt ? String(it.updatedAt) : undefined,
+    attributes: {
+      size: sizes,
+      color: colors,
+      material: typeof attrs.material === 'string' ? attrs.material : undefined,
+      fit: typeof attrs.fit === 'string' ? attrs.fit : undefined,
+      styling: typeof attrs.styling === 'string' ? attrs.styling : undefined,
+    },
   }
   return mapped
 }
@@ -233,34 +241,47 @@ export async function fetchAllProductsFromBackend(): Promise<Product[]> {
     const backendProducts = Array.isArray(json.data) ? json.data : []
     
     // Map backend response to Product objects
-    const products: Product[] = backendProducts.map((item) => ({
-      id: item._id,
-      name: item.title,
-      description: item.description || '',
-      price: item.price || 0,
-      compareAtPrice: item.compareAtPrice,
-      images: item.images || ["/placeholder.svg"],
-      category: item.categoryId?.name || 'jewelry',
-      categoryId: item.categoryId?._id,
-      subcategory: item.subcategoryId?.name || '',
-      subcategoryId: item.subcategoryId?._id,
-      material: item.attributes?.material || 'Metal',
-      color: item.attributes?.color?.[0] || 'Gold', // Use first color if available
-      size: item.attributes?.size?.[0] || '', // Use first size if available
-      inStock: item.stock > 0,
-      stock: item.stock || 0,
-      rating: 4.0 + Math.random() * 1.0, // Random rating between 4.0-5.0
-      reviewCount: Math.floor(Math.random() * 100),
-      tags: item.tags || [],
-      featured: item.featured || false,
-      bestseller: item.bestseller || false,
-      newArrival: item.newArrival || false,
-      status: item.status || 'active',
-      vendorId: item.vendorId,
-      slug: item.slug || item.title.toLowerCase().replace(/\s+/g, '-'),
-      createdAt: item.createdAt || new Date().toISOString(),
-      updatedAt: item.updatedAt || new Date().toISOString(),
-    }))
+    const products: Product[] = backendProducts.map((item) => {
+      const attrs = item.attributes || {}
+      const sizes: string[] = Array.isArray(attrs.size) ? attrs.size : []
+      const colors: string[] = Array.isArray(attrs.color) ? attrs.color : []
+      return ({
+        id: item._id,
+        name: item.title,
+        description: item.description || '',
+        price: item.price || 0,
+        compareAtPrice: item.compareAtPrice,
+        images: Array.isArray(item.images) ? item.images.map((u: any) => String(u)) : ["/placeholder.svg"],
+        category: item.categoryId?.name || 'jewelry',
+        categoryId: item.categoryId?._id,
+        subcategory: item.subcategoryId?.name || '',
+        subcategoryId: item.subcategoryId?._id,
+        material: typeof attrs.material === 'string' ? attrs.material : 'Metal',
+        color: colors[0] || 'Gold',
+        size: sizes[0] || '',
+        styling: typeof attrs.styling === 'string' ? attrs.styling : undefined,
+        inStock: item.stock > 0,
+        stock: item.stock || 0,
+        rating: 4.0 + Math.random() * 1.0, // Random rating between 4.0-5.0
+        reviewCount: Math.floor(Math.random() * 100),
+        tags: Array.isArray(item.tags) ? item.tags : [],
+        featured: !!item.featured,
+        bestseller: !!item.bestseller,
+        newArrival: !!item.newArrival,
+        status: item.status || 'active',
+        vendorId: item.vendorId,
+        slug: item.slug || item.title.toLowerCase().replace(/\s+/g, '-'),
+        createdAt: item.createdAt || new Date().toISOString(),
+        updatedAt: item.updatedAt || new Date().toISOString(),
+        attributes: {
+          size: sizes,
+          color: colors,
+          material: typeof attrs.material === 'string' ? attrs.material : undefined,
+          fit: typeof attrs.fit === 'string' ? attrs.fit : undefined,
+          styling: typeof attrs.styling === 'string' ? attrs.styling : undefined,
+        },
+      })
+    })
     
     // Cache the products
     productsCache = products
@@ -275,7 +296,19 @@ export async function fetchAllProductsFromBackend(): Promise<Product[]> {
 export async function fetchProductByIdFromBackend(id: string): Promise<Product | null> {
   try {
     const products = await fetchAllProductsFromBackend()
-    return products.find(p => p.id === id || p.slug === id) || null
+    const found = products.find(p => p.id === id || p.slug === id) || null
+    // If found but styling is missing (older cached shape), fetch fresh by ID and merge
+    if (found && (!found.styling && !found.attributes?.styling)) {
+      const fresh = await fetchProductById(id)
+      if (fresh) {
+        return { ...found, ...fresh }
+      }
+    }
+    if (!found) {
+      // Try fetching directly by ID as a fallback
+      return await fetchProductById(id)
+    }
+    return found
   } catch (error) {
     console.error('Failed to fetch product by ID:', error)
     return null
