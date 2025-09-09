@@ -152,6 +152,7 @@ export function applyClientFiltersAndSort(
   filters: ProductFilters,
 ): Product[] {
   let result = [...products]
+  const ensureArray = (v: any): string[] => (Array.isArray(v) ? v : (v ? [v] : []))
 
   // Only apply category/subcategory filters when they look like backend IDs
   if (filters.category && isBackendId(filters.category)) {
@@ -168,10 +169,12 @@ export function applyClientFiltersAndSort(
     result = result.filter((p) => filters.materials!.includes(p.material))
   }
   if (filters.colors?.length) {
-    result = result.filter((p) => filters.colors!.includes(p.color))
+    const wanted = new Set(filters.colors)
+    result = result.filter((p) => ensureArray(p.color).some((c) => wanted.has(c)))
   }
   if (filters.sizes?.length) {
-    result = result.filter((p) => (p.size ? filters.sizes!.includes(p.size) : false))
+    const wanted = new Set(filters.sizes)
+    result = result.filter((p) => ensureArray(p.size).some((s) => wanted.has(s)))
   }
   if (filters.inStock !== undefined) {
     result = result.filter((p) => p.inStock === filters.inStock)
@@ -322,11 +325,12 @@ export function generateFilterGroupsFor(
   const materialCounts = new Map<string, number>()
   const colorCounts = new Map<string, number>()
   const sizeCounts = new Map<string, number>()
+  const ensureArray = (v: any): string[] => (Array.isArray(v) ? v : (v ? [v] : []))
 
   filteredProducts.forEach((p) => {
     materialCounts.set(p.material, (materialCounts.get(p.material) || 0) + 1)
-    colorCounts.set(p.color, (colorCounts.get(p.color) || 0) + 1)
-    if (p.size) sizeCounts.set(p.size, (sizeCounts.get(p.size) || 0) + 1)
+    ensureArray(p.color).forEach((c) => colorCounts.set(c, (colorCounts.get(c) || 0) + 1))
+    ensureArray(p.size).forEach((s) => sizeCounts.set(s, (sizeCounts.get(s) || 0) + 1))
   })
 
   // Generate dynamic price ranges based on actual product prices
