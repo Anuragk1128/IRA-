@@ -8,8 +8,10 @@ export interface Product {
   images: string[]
   category: string
   categoryId?: string
+  categoryLabel?: string
   subcategory?: string
   subcategoryId?: string
+  subcategoryLabel?: string
   material: string
   color: string | string[]
   size?: string | string[]

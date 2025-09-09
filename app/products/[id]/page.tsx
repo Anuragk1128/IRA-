@@ -31,9 +31,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound()
   }
 
-  // Use the category and subcategory names directly from the backend data
-  const categoryName = product.category
-  const subcategoryName = product.subcategory || ''
+  // Prefer display labels when available
+  const categoryName = product.categoryLabel || product.category
+  const subcategoryName = product.subcategoryLabel || product.subcategory || ''
   
   const relatedProducts = product.categoryId
     ? (await fetchProductsByCategory({ categoryId: product.categoryId })).filter((p) => p.id !== product.id).slice(0, 4)
@@ -242,12 +242,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                           <span className="text-muted-foreground">{product.size}</span>
                         </div>
                       )}
-                      <div className="flex justify-between py-2 border-b">
-                        <span className="font-medium">Category:
-                          {product.subcategory}
-                        </span>
-                        
-                      </div>
+                     
                       <div className="flex justify-between py-2 border-b">
                         <span className="font-medium">Stock Status:</span>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
