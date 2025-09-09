@@ -95,41 +95,62 @@ export async function fetchAllProductsForAttributes(): Promise<{
       }
     }
     
-    // Extract unique materials
-    const materials = [...new Set(allProducts.map(p => p.material).filter(Boolean))]
+    // Utility: normalize a list of attribute values coming from backend
+    // - Casts to string, trims whitespace
+    // - Filters out placeholders like "string", "null", "undefined", and dashes
+    // - Deduplicates while preserving normalized casing for slugs but original label text
+    const normalizeList = (values: any[]): string[] => {
+      const normalized = values
+        .map((value) => String(value ?? "").trim())
+        .filter((value) => {
+          if (!value) return false
+          const lower = value.toLowerCase()
+          return lower !== "string" && lower !== "null" && lower !== "undefined" && value !== "-"
+        })
+      return [...new Set(normalized)]
+    }
+
+    // Extract unique, sanitized materials
+    const materials = normalizeList(allProducts.map((p: any) => p.material))
     
     // Generate price ranges based on actual product prices
-    const prices = allProducts.map(p => p.price).sort((a, b) => a - b)
-    const minPrice = Math.floor(prices[0] / 500) * 500
-    const maxPrice = Math.ceil(prices[prices.length - 1] / 500) * 500
-    
-    const priceRanges = []
-    for (let i = minPrice; i < maxPrice; i += 500) {
-      const rangeStart = i
-      const rangeEnd = i + 500
-      const count = allProducts.filter(p => p.price >= rangeStart && p.price < rangeEnd).length
-      if (count > 0) {
+    const prices = allProducts.map((p: any) => p.price).filter((n: any) => typeof n === "number" && !Number.isNaN(n)).sort((a: number, b: number) => a - b)
+    let priceRanges: { label: string; min: number; max: number | undefined }[] = []
+    if (prices.length > 0) {
+      const minPrice = Math.floor(prices[0] / 500) * 500
+      const maxPrice = Math.ceil(prices[prices.length - 1] / 500) * 500
+      
+      for (let i = minPrice; i < maxPrice; i += 500) {
+        const rangeStart = i
+        const rangeEnd = i + 500
+        const count = allProducts.filter((p: any) => typeof p.price === "number" && p.price >= rangeStart && p.price < rangeEnd).length
+        if (count > 0) {
+          priceRanges.push({
+            label: `₹${rangeStart.toLocaleString()} - ₹${rangeEnd.toLocaleString()}`,
+            min: rangeStart,
+            max: rangeEnd
+          })
+        }
+      }
+      
+      // Add the final range for the highest prices
+      const finalRangeStart = maxPrice
+      const finalCount = allProducts.filter((p: any) => typeof p.price === "number" && p.price >= finalRangeStart).length
+      if (finalCount > 0) {
         priceRanges.push({
-          label: `₹${rangeStart.toLocaleString()} - ₹${rangeEnd.toLocaleString()}`,
-          min: rangeStart,
-          max: rangeEnd
+          label: `₹${finalRangeStart.toLocaleString()}+`,
+          min: finalRangeStart,
+          max: undefined
         })
       }
     }
     
-    // Add the final range for the highest prices
-    const finalRangeStart = maxPrice
-    const finalCount = allProducts.filter(p => p.price >= finalRangeStart).length
-    if (finalCount > 0) {
-      priceRanges.push({
-        label: `₹${finalRangeStart.toLocaleString()}+`,
-        min: finalRangeStart,
-        max: undefined
-      })
-    }
-    
-    // Extract unique occasions from tags
-    const occasions = [...new Set(allProducts.flatMap(p => p.tags).filter(Boolean))]
+    // Extract unique, sanitized occasions from tags (handles string or array)
+    const occasionRaw = allProducts.flatMap((p: any) => {
+      const tags = Array.isArray(p.tags) ? p.tags : [p.tags]
+      return tags
+    })
+    const occasions = normalizeList(occasionRaw)
     
     return {
       materials: materials.sort(),

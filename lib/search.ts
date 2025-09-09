@@ -17,27 +17,38 @@ export async function searchProducts(query = "", filters: ProductFilters = {}): 
   const products = await fetchAllProductsFromBackend()
   let filteredProducts = [...products]
 
+  // Helpers to normalize/guard
+  const toLower = (s?: string) => (s || "").toLowerCase()
+  const ensureArray = (v: any): string[] => (Array.isArray(v) ? v : (v ? [v] : []))
+
   // Text search (also includes category and subcategory label matches)
   if (query.trim()) {
     const searchTerm = query.toLowerCase()
     filteredProducts = filteredProducts.filter((product) => {
+      const name = toLower(product.name)
+      const description = toLower(product.description)
+      const tags = ensureArray(product.tags).map(toLower)
+      const material = toLower((product as any).material)
+      const colors = ensureArray((product as any).color).map(toLower)
       return (
-        product.name.toLowerCase().includes(searchTerm) ||
-        product.description.toLowerCase().includes(searchTerm) ||
-        product.tags.some((tag) => tag.toLowerCase().includes(searchTerm)) ||
-        product.material.toLowerCase().includes(searchTerm) ||
-        product.color.toLowerCase().includes(searchTerm)
+        name.includes(searchTerm) ||
+        description.includes(searchTerm) ||
+        tags.some((tag) => tag.includes(searchTerm)) ||
+        material.includes(searchTerm) ||
+        colors.some((c) => c.includes(searchTerm))
       )
     })
   }
 
   // Apply filters
   if (effectiveFilters.category) {
-    filteredProducts = filteredProducts.filter((product) => product.category === effectiveFilters.category)
+    const wanted = effectiveFilters.category
+    filteredProducts = filteredProducts.filter((product: any) => product.category === wanted || product.categoryId === wanted)
   }
 
   if (effectiveFilters.subcategory) {
-    filteredProducts = filteredProducts.filter((product) => product.subcategory === effectiveFilters.subcategory)
+    const wanted = effectiveFilters.subcategory
+    filteredProducts = filteredProducts.filter((product: any) => product.subcategory === wanted || product.subcategoryId === wanted)
   }
 
   if (effectiveFilters.priceRange) {
@@ -46,15 +57,24 @@ export async function searchProducts(query = "", filters: ProductFilters = {}): 
   }
 
   if (effectiveFilters.materials && effectiveFilters.materials.length > 0) {
-    filteredProducts = filteredProducts.filter((product) => effectiveFilters.materials!.includes(product.material))
+    const set = new Set(effectiveFilters.materials.map((m) => m.toLowerCase()))
+    filteredProducts = filteredProducts.filter((product: any) => set.has(String(product.material || "").toLowerCase()))
   }
 
   if (effectiveFilters.colors && effectiveFilters.colors.length > 0) {
-    filteredProducts = filteredProducts.filter((product) => effectiveFilters.colors!.includes(product.color))
+    const set = new Set(effectiveFilters.colors.map((c) => c.toLowerCase()))
+    filteredProducts = filteredProducts.filter((product: any) => {
+      const colors = ensureArray(product.color).map((c) => String(c).toLowerCase())
+      return colors.some((c) => set.has(c))
+    })
   }
 
   if (effectiveFilters.sizes && effectiveFilters.sizes.length > 0) {
-    filteredProducts = filteredProducts.filter((product) => product.size && effectiveFilters.sizes!.includes(product.size))
+    const set = new Set(effectiveFilters.sizes.map((s) => s.toLowerCase()))
+    filteredProducts = filteredProducts.filter((product: any) => {
+      const sizes = ensureArray(product.size).map((s) => String(s).toLowerCase())
+      return sizes.some((s) => set.has(s))
+    })
   }
 
   if (effectiveFilters.inStock !== undefined) {

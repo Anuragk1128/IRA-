@@ -63,14 +63,22 @@ export function CategoryContent({ category }: CategoryContentProps) {
     }
   }, [filters])
 
-  // Initialize category/subcategory from URL when backend IDs are provided
+  // Initialize category/subcategory and price range from URL when provided
   useEffect(() => {
     const catIdParam = searchParams.get("catId") || undefined
     const subIdParam = searchParams.get("subId") || searchParams.get("sub") || undefined
+    const minParam = searchParams.get("min")
+    const maxParam = searchParams.get("max")
+    const min = minParam !== null ? Number(minParam) : undefined
+    const max = maxParam !== null ? Number(maxParam) : undefined
     setFilters((prev) => ({
       ...prev,
       category: catIdParam && isBackendId(catIdParam) ? catIdParam : prev.category,
       subcategory: subIdParam && isBackendId(subIdParam) ? subIdParam : prev.subcategory,
+      priceRange:
+        typeof min === "number" && !Number.isNaN(min)
+          ? [min, typeof max === "number" && !Number.isNaN(max) ? max : Number.MAX_SAFE_INTEGER]
+          : undefined,
     }))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])

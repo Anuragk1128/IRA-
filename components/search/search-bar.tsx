@@ -48,18 +48,31 @@ export function SearchBar({
     }
   }
 
-  // Compute inline ghost completion when user is typing
-  const inlineSuggestion = useMemo(() => {
-    if (!showSuggestions) return ""
-    if (!query.trim()) return ""
-    const { suggestions } = searchProducts(query)
-    const best = suggestions[0] || ""
-    if (!best) return ""
-    // If best starts with current query (case-insensitive), show the tail
-    if (best.toLowerCase().startsWith(query.toLowerCase())) {
-      return best
+  // Compute inline ghost completion when user is typing (async-safe)
+  const [inlineSuggestion, setInlineSuggestion] = useState("")
+  useEffect(() => {
+    if (!showSuggestions || !query.trim()) {
+      setInlineSuggestion("")
+      return
     }
-    return ""
+    let mounted = true
+    ;(async () => {
+      try {
+        const result = await searchProducts(query)
+        const best = result?.suggestions?.[0] ?? ""
+        if (!mounted) return
+        if (best && best.toLowerCase().startsWith(query.toLowerCase())) {
+          setInlineSuggestion(best)
+        } else {
+          setInlineSuggestion("")
+        }
+      } catch {
+        if (mounted) setInlineSuggestion("")
+      }
+    })()
+    return () => {
+      mounted = false
+    }
   }, [query, showSuggestions])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
