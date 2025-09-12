@@ -10,6 +10,7 @@ import { SocialProof } from "@/components/social-proof"
 import Sale  from "@/components/sale"
 import PopularSearches from "@/components/popular-search"
 import ThemeRotator from "@/components/theme-rotator"
+import Blogs from "@/components/blogs"
 
 export default function HomePage() {
   return (
@@ -24,6 +25,7 @@ export default function HomePage() {
         
         <Reels />
         <ProductShowcase/>
+        <Blogs/>
         <BrandStory />
         <Newsletter/>
         <SocialProof />
