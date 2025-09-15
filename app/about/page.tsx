@@ -1,4 +1,6 @@
 import Image from "next/image"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 import { Card, CardContent } from "@/components/ui/card"
 import { Heart, Award, Truck, Shield } from "lucide-react"
 
@@ -6,7 +8,9 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 to-white">
       {/* Hero Section */}
+      
       <section className="py-20 px-4">
+        <Header/>
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>

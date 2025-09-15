@@ -24,7 +24,7 @@ export function AddToCartButton({
   return (
     <Button className={className} size={size} asChild>
       <a
-        href={`https://hoe-fe.vercel.app/products/${productId}`}
+        href={`https://houseofevolve.in/products/${productId}`}
         target="_blank"
         rel="noopener noreferrer"
       >
