@@ -10,27 +10,27 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 const heroImages = [
   {
-    src: "ira 3x2.jpg",
+    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1758540858/ira_3x2_s4xw9v.jpg",
     alt: "Elegant layered gold jewellery collection",
     position: "center 4%",
   },
   {
-    src: "ira post.jpg",
+    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1758540924/ira_post_o2rllz.jpg",
     alt: "Statement circular disc necklace",
     position: "center center",
   },
   {
-    src: "iramodel3.png",
+    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1758540980/iramodel3_xm47ch.png",
     alt: "Delicate crystal teardrop pendant",
     position: "center center",
   },
   {
-    src: "iramodel5.jpg",
+    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1758543376/iramodel5_wjqs5d.jpg",
     alt: "jewellery collection showcase",
     position: "center center",
   },
   {
-    src: "IRAPOST4.jpg",
+    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1758543423/iramodel4_cfukpf.jpg",
     alt: "jewellery collection showcase",
     position: "center center",
   }
