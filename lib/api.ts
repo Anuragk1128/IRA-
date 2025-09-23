@@ -20,7 +20,14 @@ export async function fetchBrandProductsByCategorySubcategory(
   if (!res.ok) throw new Error(`Failed to fetch products: ${res.status}`)
   const json = await res.json() as { data?: any[] } | any[]
   const list = Array.isArray(json) ? json : (json?.data ?? [])
-  return list.map((it: any): Product => {
+  
+  // Filter out archived products
+  const activeProducts = list.filter((item: any) => {
+    const status = item.status || 'active'
+    return status !== 'archived'
+  })
+  
+  return activeProducts.map((it: any): Product => {
     const attrs = it.attributes || {}
     const sizes: string[] = Array.isArray(attrs.size) ? attrs.size : []
     const colors: string[] = Array.isArray(attrs.color) ? attrs.color : []
@@ -119,6 +126,10 @@ export async function fetchProductById(id: string): Promise<Product | null> {
   const json = await res.json() as { data?: any }
   const it = json?.data
   if (!it) return null
+  
+  // Check if product is archived
+  const status = it.status || 'active'
+  if (status === 'archived') return null
   const attrs = it.attributes || {}
   const sizes: string[] = Array.isArray(attrs.size) ? attrs.size : []
   const colors: string[] = Array.isArray(attrs.color) ? attrs.color : []
@@ -253,8 +264,14 @@ export async function fetchAllProductsFromBackend(): Promise<Product[]> {
     const json = await res.json() as { data?: any[] }
     const backendProducts = Array.isArray(json.data) ? json.data : []
     
-    // Map backend response to Product objects
-    const products: Product[] = backendProducts.map((item) => {
+    // Map backend response to Product objects and filter out archived products
+    const products: Product[] = backendProducts
+      .filter((item) => {
+        // Hide products with archived status
+        const status = item.status || 'active'
+        return status !== 'archived'
+      })
+      .map((item) => {
       const attrs = item.attributes || {}
       const sizes: string[] = Array.isArray(attrs.size) ? attrs.size : []
       const colors: string[] = Array.isArray(attrs.color) ? attrs.color : []

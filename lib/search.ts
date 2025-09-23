@@ -132,9 +132,15 @@ async function generateFilterGroups(allProducts: Product[], filteredProducts: Pr
 
   filteredProducts.forEach((product) => {
     materialCounts.set(product.material, (materialCounts.get(product.material) || 0) + 1)
-    colorCounts.set(product.color, (colorCounts.get(product.color) || 0) + 1)
+    const colors = Array.isArray(product.color) ? product.color : [product.color]
+    colors.forEach(color => {
+      colorCounts.set(color, (colorCounts.get(color) || 0) + 1)
+    })
     if (product.size) {
-      sizeCounts.set(product.size, (sizeCounts.get(product.size) || 0) + 1)
+      const sizes = Array.isArray(product.size) ? product.size : [product.size]
+      sizes.forEach((size: string) => {
+        sizeCounts.set(size, (sizeCounts.get(size) || 0) + 1)
+      })
     }
   })
 
@@ -240,9 +246,12 @@ function generateSearchSuggestions(query: string, allProducts: Product[]): strin
     if (product.material.toLowerCase().includes(searchTerm)) {
       suggestions.add(product.material)
     }
-    if (product.color.toLowerCase().includes(searchTerm)) {
-      suggestions.add(product.color)
-    }
+    const colors = Array.isArray(product.color) ? product.color : [product.color]
+    colors.forEach(color => {
+      if (color.toLowerCase().includes(searchTerm)) {
+        suggestions.add(color)
+      }
+    })
 
     // Add tags
     product.tags.forEach((tag) => {
