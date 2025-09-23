@@ -16,11 +16,11 @@ export default function AboutPage() {
             <div>
               <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
                 Crafting Beauty,
-                <span className="text-rose-600"> Defining Elegance.</span>
+                <span className="text-rose-600"> Defining Elegance</span>
               </h1>
               <p className="text-lg text-gray-600 mb-8 leading-relaxed">
                 For over a decade, we've been creating exquisite artificial jewellery that captures the essence of luxury
-                without compromise. Our passion for craftsmanship and attention to detail ensures every piece tells a
+                without compromise Our passion for craftsmanship and attention to detail ensures every piece tells a
                 unique story.
               </p>
               <div className="grid grid-cols-2 gap-6">

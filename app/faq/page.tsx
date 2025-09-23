@@ -1,4 +1,6 @@
 "use client"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
@@ -96,6 +98,7 @@ export default function FAQPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <Header/>
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h1>
@@ -115,7 +118,7 @@ export default function FAQPage() {
                     <Card key={questionIndex} className="overflow-hidden">
                       <button
                         onClick={() => toggleItem(itemId)}
-                        className="w-full text-left p-6 hover:bg-gray-50 transition-colors"
+                        className="w-full text-left pl-6 p-0 pr-6 hover:bg-gray-50 transition-colors"
                       >
                         <div className="flex justify-between items-center">
                           <h3 className="text-lg font-semibold text-gray-900 pr-4">{faq.question}</h3>
@@ -141,7 +144,7 @@ export default function FAQPage() {
 
         {/* Contact Section */}
         <Card className="mt-12 bg-rose-50 border-rose-200">
-          <CardContent className="p-8 text-center">
+          <CardContent className="p-6 text-center">
             <h3 className="text-xl font-semibold text-gray-900 mb-2">Still have questions?</h3>
             <p className="text-gray-600 mb-4">
               Can't find what you're looking for? Our customer service team is here to help.
@@ -163,6 +166,7 @@ export default function FAQPage() {
           </CardContent>
         </Card>
       </div>
+      <Footer/>
     </div>
   )
 }
