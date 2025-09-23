@@ -1,6 +1,9 @@
+"use client"
+
 import { notFound } from "next/navigation"
 import Image from "next/image"
-import { Star, Heart, Share2, Truck, Shield, RotateCcw } from "lucide-react"
+import { useState, useEffect, use } from "react"
+import { Star, Heart, Share2, Truck, Shield, RotateCcw, ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -16,19 +19,121 @@ import { fetchCategoriesFromApi } from "@/lib/catalog"
 import { ReviewsPanel } from "@/components/product/reviews-panel"
 
 interface ProductPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
-export default async function ProductPage({ params }: ProductPageProps) {
-  const [product, categories] = await Promise.all([
-    fetchProductByIdFromBackend(params.id),
-    fetchCategoriesFromApi()
-  ])
+export default function ProductPage({ params }: ProductPageProps) {
+  const resolvedParams = use(params)
+  const [product, setProduct] = useState<any>(null)
+  const [categories, setCategories] = useState<any[]>([])
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [zoom, setZoom] = useState(1)
+  const [loading, setLoading] = useState(true)
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([])
+
+  // Fetch data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [productData, categoriesData] = await Promise.all([
+          fetchProductByIdFromBackend(resolvedParams.id),
+          fetchCategoriesFromApi()
+        ])
+        
+        if (!productData) {
+          notFound()
+        }
+        
+        setProduct(productData)
+        setCategories(categoriesData)
+      } catch (error) {
+        console.error('Error fetching product data:', error)
+        notFound()
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    fetchData()
+  }, [resolvedParams.id])
+
+  // Fetch related products
+  useEffect(() => {
+    const fetchRelated = async () => {
+      if (product?.categoryId) {
+        try {
+          const products = await fetchProductsByCategory({ categoryId: product.categoryId })
+          setRelatedProducts(products.filter((p) => p.id !== product.id).slice(0, 4))
+        } catch (error) {
+          setRelatedProducts([])
+        }
+      }
+    }
+    if (product) fetchRelated()
+  }, [product])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isPreviewOpen) return
+      
+      switch (e.key) {
+        case 'Escape':
+          closePreview()
+          break
+        case 'ArrowLeft':
+          prevImage()
+          break
+        case 'ArrowRight':
+          nextImage()
+          break
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isPreviewOpen])
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+  }
 
   if (!product) {
     notFound()
+  }
+
+  // Image navigation functions
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % product.images.length)
+  }
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + product.images.length) % product.images.length)
+  }
+
+  const selectImage = (index: number) => {
+    setCurrentImageIndex(index)
+  }
+
+  const openPreview = () => {
+    setIsPreviewOpen(true)
+    setZoom(1)
+  }
+
+  const closePreview = () => {
+    setIsPreviewOpen(false)
+    setZoom(1)
+  }
+
+  const handleZoomIn = () => {
+    setZoom(prev => Math.min(prev + 0.5, 3))
+  }
+
+  const handleZoomOut = () => {
+    setZoom(prev => Math.max(prev - 0.5, 0.5))
   }
 
   // Prefer display labels when available
@@ -40,10 +145,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
     const pick = primary && primary.toLowerCase() !== 'string' ? primary : fallback
     return pick && pick.toLowerCase() !== 'string' ? pick : 'N/A'
   })()
-  
-  const relatedProducts = product.categoryId
-    ? (await fetchProductsByCategory({ categoryId: product.categoryId })).filter((p) => p.id !== product.id).slice(0, 4)
-    : []
 
   const discountPercentage = product.compareAtPrice
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
@@ -56,27 +157,69 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Product Images */}
           <div className="space-y-4">
-            <div className="relative aspect-square overflow-hidden rounded-lg">
+              {/* Main Image */}
+              <div className="relative aspect-square overflow-hidden rounded-lg group cursor-pointer" onClick={openPreview}>
               <Image
-                src={product.images[0] || "/placeholder.svg"}
+                  src={product.images[currentImageIndex] || "/placeholder.svg"}
                 alt={product.name}
                 fill
                 className="object-cover"
                 priority
               />
+                
+                {/* Navigation Arrows */}
+                {product.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        prevImage()
+                      }}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        nextImage()
+                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+                  </>
+                )}
+                
+                {/* Discount Badge */}
               {discountPercentage > 0 && (
                 <Badge className="absolute top-4 left-4 bg-accent text-accent-foreground">
                   -{discountPercentage}% OFF
                 </Badge>
               )}
+                
+                {/* Image Counter */}
+                {product.images.length > 1 && (
+                  <div className="absolute bottom-4 right-4 bg-black/50 text-white px-2 py-1 rounded text-sm">
+                    {currentImageIndex + 1} / {product.images.length}
+                  </div>
+                )}
             </div>
+              
+              {/* Thumbnail Images */}
             {product.images.length > 1 && (
-              <div className="grid grid-cols-3 gap-2">
-                {product.images.slice(1).map((image, index) => (
-                  <div key={index} className="relative aspect-square overflow-hidden rounded-lg">
+                <div className="grid grid-cols-4 gap-2">
+                  {product.images.map((image: string, index: number) => (
+                    <div 
+                      key={index} 
+                      className={`relative aspect-square overflow-hidden rounded-lg cursor-pointer border-2 transition-colors ${
+                        index === currentImageIndex ? 'border-primary' : 'border-transparent hover:border-gray-300'
+                      }`}
+                      onClick={() => selectImage(index)}
+                    >
                     <Image
                       src={image || "/placeholder.svg"}
-                      alt={`${product.name} ${index + 2}`}
+                        alt={`${product.name} ${index + 1}`}
                       fill
                       className="object-cover"
                     />
@@ -370,6 +513,94 @@ export default async function ProductPage({ params }: ProductPageProps) {
         )}
       </main>
       <Footer />
+        
+        {/* Image Preview Modal */}
+        {isPreviewOpen && (
+          <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={closePreview}>
+            <div className="relative max-w-6xl max-h-full w-full h-full flex flex-col">
+              {/* Header Controls */}
+              <div className="flex justify-between items-center p-4 bg-black/50">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleZoomOut}
+                    className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full"
+                  >
+                    <ZoomOut className="h-5 w-5" />
+                  </button>
+                  <span className="text-white text-sm">{Math.round(zoom * 100)}%</span>
+                  <button
+                    onClick={handleZoomIn}
+                    className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full"
+                  >
+                    <ZoomIn className="h-5 w-5" />
+                  </button>
+                </div>
+                <button
+                  onClick={closePreview}
+                  className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+              
+              {/* Main Image Container */}
+              <div className="flex-1 flex items-center justify-center p-4">
+                <div className="relative max-w-full max-h-full">
+                  <Image
+                    src={product.images[currentImageIndex] || "/placeholder.svg"}
+                    alt={product.name}
+                    width={800}
+                    height={800}
+                    className="max-w-full max-h-full object-contain transition-transform duration-200"
+                    style={{ transform: `scale(${zoom})` }}
+                  />
+                  
+                  {/* Navigation Arrows */}
+                  {product.images.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevImage}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full"
+                      >
+                        <ChevronLeft className="h-6 w-6" />
+                      </button>
+                      <button
+                        onClick={nextImage}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full"
+                      >
+                        <ChevronRight className="h-6 w-6" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+              
+              {/* Thumbnail Strip */}
+              {product.images.length > 1 && (
+                <div className="flex justify-center p-4 bg-black/50">
+                  <div className="flex gap-2 max-w-full overflow-x-auto">
+                    {product.images.map((image: string, index: number) => (
+                      <div 
+                        key={index} 
+                        className={`relative w-16 h-16 overflow-hidden rounded-lg cursor-pointer border-2 flex-shrink-0 transition-colors ${
+                          index === currentImageIndex ? 'border-white' : 'border-transparent hover:border-gray-400'
+                        }`}
+                        onClick={() => selectImage(index)}
+                      >
+                        <Image
+                          src={image || "/placeholder.svg"}
+                          alt={`${product.name} ${index + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
     </div>
   )
 }
