@@ -62,8 +62,8 @@ export default function TermsPage() {
               If you have any questions about these Terms & Conditions, please contact us at admin@houseofevolve.in or
               call +91 9341330223. Our registered office is located at:
               <br /><br />
-              IRA jewellery<br />
-              Noida sec 53,<br />
+              IRA Jewellery<br />
+              Noida Sector 53,<br />
               Uttar Pradesh - 201301,<br />
               India
             </p>
