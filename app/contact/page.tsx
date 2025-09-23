@@ -1,4 +1,6 @@
 "use client"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 
 import type React from "react"
 
@@ -35,6 +37,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 to-white py-12 px-4">
+      <Header/>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
@@ -219,6 +222,7 @@ export default function ContactPage() {
           </Card>
         </div>
       </div>
+      <Footer/>
     </div>
   )
 }

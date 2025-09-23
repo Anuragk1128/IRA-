@@ -1,9 +1,12 @@
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Ruler, Download } from "lucide-react"
 
 export default function SizeGuidePage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <Header/>
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Size Guide</h1>
@@ -211,6 +214,7 @@ export default function SizeGuidePage() {
           </Card>
         </div>
       </div>
+      <Footer/>
     </div>
   )
 }
