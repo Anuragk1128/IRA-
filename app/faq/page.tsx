@@ -16,7 +16,7 @@ const faqData = [
       {
         question: "Do you ship internationally?",
         answer:
-          "Yes! We ship to most countries worldwide. International shipping times vary by location (7-21 business days). Additional customs fees may apply depending on your country's regulations.",
+          "Yes! We ship to most countries worldwide. International shipping times vary by location (7-21 business days). Additional customs fee may apply depending on your country's regulations.",
       },
       {
         question: "Can I change or cancel my order?",
