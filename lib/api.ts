@@ -348,6 +348,84 @@ export async function fetchProductByIdFromBackend(id: string): Promise<Product |
   }
 }
 
+// Helper to check if a subcategory has products
+export async function subcategoryHasProducts(
+  brandSlug: string,
+  categorySlug: string,
+  subcategorySlug: string
+): Promise<boolean> {
+  try {
+    const baseUrl = "https://hoe-be.onrender.com"
+    const url = `${baseUrl}/api/brands/${encodeURIComponent(brandSlug)}/categories/${encodeURIComponent(categorySlug)}/subcategories/${encodeURIComponent(subcategorySlug)}/products`
+    const response = await fetch(url, { headers: { accept: "*/*" } })
+    if (!response.ok) return false
+    const data = await response.json()
+    const products = Array.isArray(data) ? data : (data?.data ?? [])
+    const activeProducts = products.filter((item: any) => {
+      const status = item.status || 'active'
+      return status !== 'archived'
+    })
+    return activeProducts.length > 0
+  } catch (error) {
+    console.error('Error checking subcategory products:', error)
+    return false
+  }
+}
+
+// Helper to check if a category has products
+export async function categoryHasProducts(
+  brandSlug: string,
+  categorySlug: string
+): Promise<boolean> {
+  try {
+    const baseUrl = "https://hoe-be.onrender.com"
+    const url = `${baseUrl}/api/brands/${encodeURIComponent(brandSlug)}/categories/${encodeURIComponent(categorySlug)}/products`
+    const response = await fetch(url, { headers: { accept: "*/*" } })
+    if (!response.ok) return false
+    const data = await response.json()
+    const products = Array.isArray(data) ? data : (data?.data ?? [])
+    const activeProducts = products.filter((item: any) => {
+      const status = item.status || 'active'
+      return status !== 'archived'
+    })
+    return activeProducts.length > 0
+  } catch (error) {
+    console.error('Error checking category products:', error)
+    return false
+  }
+}
+
+// Helper to filter subcategories that have products
+export async function filterSubcategoriesWithProducts(
+  brandSlug: string,
+  categorySlug: string,
+  subcategories: Array<{ id: string; name: string; slug?: string }>
+): Promise<Array<{ id: string; name: string; slug?: string }>> {
+  const validSubcategories = await Promise.all(
+    subcategories.map(async (sub) => {
+      const hasProducts = await subcategoryHasProducts(brandSlug, categorySlug, sub.slug || sub.name)
+      return hasProducts ? sub : null
+    })
+  )
+  
+  return validSubcategories.filter((sub): sub is { id: string; name: string; slug?: string } => sub !== null)
+}
+
+// Helper to filter categories that have products
+export async function filterCategoriesWithProducts(
+  brandSlug: string,
+  categories: Array<{ id: string; name: string; slug?: string }>
+): Promise<Array<{ id: string; name: string; slug?: string }>> {
+  const validCategories = await Promise.all(
+    categories.map(async (cat) => {
+      const hasProducts = await categoryHasProducts(brandSlug, cat.slug || cat.name)
+      return hasProducts ? cat : null
+    })
+  )
+  
+  return validCategories.filter((cat): cat is { id: string; name: string; slug?: string } => cat !== null)
+}
+
 export function generateFilterGroupsFor(
   allProducts: Product[],
   filteredProducts: Product[],

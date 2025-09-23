@@ -9,16 +9,18 @@ import Link from "next/link"
 import { AddToCartButton } from "@/components/product/add-to-cart-button"
 import { Product } from "@/types/product"
 import { fetchCategoriesFromApi, fetchBrandSubcategories } from "@/lib/catalog"
-import { fetchBrandProductsByCategorySubcategory } from "@/lib/api"
+import { fetchBrandProductsByCategorySubcategory, filterCategoriesWithProducts } from "@/lib/api"
 
 // Fetch first product from each category
 async function getFirstProductFromEachCategory(): Promise<Product[]> {
   try {
     const brand = process.env.NEXT_PUBLIC_BRAND_SLUG || "ira"
     const categories = await fetchCategoriesFromApi()
+    // Filter out categories that don't have products
+    const validCategories = await filterCategoriesWithProducts(brand, categories)
     const products: Product[] = []
     
-    for (const category of categories) {
+    for (const category of validCategories) {
       try {
         const categorySlug = category.slug || category.name.toLowerCase().replace(/\s+/g, '-')
         const subcategories = await fetchBrandSubcategories(brand, categorySlug)

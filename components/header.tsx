@@ -10,6 +10,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { PincodeChecker } from "@/components/pincode-checker"
 import { fetchCategoriesFromApi, fetchBrandSubcategories, fetchAllProductsForAttributes, type BackendCategory } from "@/lib/catalog"
+import { filterCategoriesWithProducts } from "@/lib/api"
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -46,8 +47,11 @@ export function Header() {
     if (Array.isArray(existing.subcategories) && existing.subcategories.length > 0) return
     try {
       const subs = await fetchBrandSubcategories(brandSlug, slug)
+      // Filter out subcategories that don't have products
+      const { filterSubcategoriesWithProducts } = await import("@/lib/api")
+      const validSubs = await filterSubcategoriesWithProducts(brandSlug, slug, subs)
       setCategories(prev => prev.map(c => (
-        (c.slug || toSlug(c.name)) === slug ? { ...c, subcategories: subs } : c
+        (c.slug || toSlug(c.name)) === slug ? { ...c, subcategories: validSubs } : c
       )))
     } catch (e) {
       // swallow errors; UI will just show no subs
@@ -72,12 +76,16 @@ export function Header() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Fetch categories from backend
+  // Fetch categories from backend and filter out empty ones
   useEffect(() => {
     let mounted = true
     fetchCategoriesFromApi()
-      .then((cats) => {
-        if (mounted) setCategories(cats)
+      .then(async (cats) => {
+        if (mounted) {
+          // Filter out categories that don't have products
+          const validCategories = await filterCategoriesWithProducts(brandSlug, cats)
+          setCategories(validCategories)
+        }
       })
       .catch(() => {
         if (mounted) setCategories([])

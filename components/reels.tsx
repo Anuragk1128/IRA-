@@ -89,17 +89,17 @@ function VideoTile({ src, active, onEnded }: { src: string; active: boolean; onE
 
 export function Reels() {
   const mediaItems: Array<
-    | { type: "video"; src: string; aspect?: "9/16" | "1/1" }
-    | { type: "image"; src: string; aspect?: "9/16" | "1/1" }
+    | { type: "video"; src: string; aspect?: "9/16" | "1/1" | "3/2" }
+    | { type: "image"; src: string; aspect?: "9/16" | "1/1" | "2/3" }
   > = [
     { type: "video", src: "/herovideo1.mp4", aspect: "9/16" },
     // Duplicate the same reel if no others yet; replace with more files when available
     { type: "video", src: "/instareel1.mp4", aspect: "9/16" },
     // Square image posts from public assets
-    { type: "image", src: "/elegant-gold-earrings.png", aspect: "1/1" },
-    { type: "image", src: "/elegant-gold-rings.png", aspect: "1/1" },
-    { type: "image", src: "/elegant-gold-bracelets.png", aspect: "1/1" },
-    { type: "image", src: "/diamond-earrings-ear.png", aspect: "1/1" },
+     { type: "image", src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1758466860/design_12_usezb9.jpg", aspect: "9/16" },
+    { type: "image", src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1758466447/design_11_efulsd.jpg", aspect: "1/1" },
+    { type: "image", src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1758023506/hero_hoe_earring_2_hb0ncn.jpg", aspect: "1/1" },
+    { type: "image", src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1758467124/design_13.3_copy.jpg_jpeg_qudjnt.jpg", aspect: "1/1" },
   ]
 
   // Track which media index (of mediaItems) is the active video
@@ -131,7 +131,11 @@ export function Reels() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {mediaItems.map((item, idx) => (
             <div key={idx} className="relative overflow-hidden rounded-xl shadow-sm bg-black/5">
-              <div className={`relative w-full ${item.aspect === "9/16" ? "aspect-[9/16]" : "aspect-square"}`}>
+              <div className={`relative w-full ${
+                item.aspect === "9/16" ? "aspect-[9/16]" : 
+                item.aspect === "3/2" ? "aspect-[3/2]" : 
+                "aspect-square"
+              }`}>
                 {item.type === "video" ? (
                   <VideoTile
                     src={item.src}
