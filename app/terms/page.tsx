@@ -1,8 +1,11 @@
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 import { Card, CardContent } from "@/components/ui/card"
 
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <Header/>
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Terms & Conditions</h1>
@@ -59,14 +62,15 @@ export default function TermsPage() {
               If you have any questions about these Terms & Conditions, please contact us at admin@houseofevolve.in or
               call +91 9341330223. Our registered office is located at:
               <br /><br />
-              IRA jewellery<br />
-              Noida sec 53,<br />
+              IRA Jewellery<br />
+              Noida Sector 53,<br />
               Uttar Pradesh - 201301,<br />
               India
             </p>
           </CardContent>
         </Card>
       </div>
+      <Footer/>
     </div>
   )
 }
