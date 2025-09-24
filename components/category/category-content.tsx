@@ -32,36 +32,44 @@ export function CategoryContent({ category }: CategoryContentProps) {
     suggestions: [] as string[],
   })
 
+  const [allProducts, setAllProducts] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Fetch products only once when component mounts or category changes
   useEffect(() => {
     let mounted = true
     ;(async () => {
       try {
-        // Determine selected subcategory slug from the provided category model
-        const selectedSubSlug = filters.subcategory
-          ? category.subcategories?.find((s) => s.id === filters.subcategory)?.slug
-          : undefined
-        // Always use new backend by category slug; if no subcategory selected, it aggregates all subs
-        const apiProducts = await fetchBrandCategoryProducts(category.slug, selectedSubSlug)
-
-        const filtered = applyClientFiltersAndSort(apiProducts, filters)
-        const filterGroups = generateFilterGroupsFor(apiProducts, filtered)
+        setIsLoading(true)
+        const apiProducts = await fetchBrandCategoryProducts(category.slug)
         if (!mounted) return
-        setSearchResult({
-          products: filtered,
-          totalCount: filtered.length,
-          filters: filterGroups,
-          appliedFilters: filters,
-          suggestions: [],
-        })
+        setAllProducts(apiProducts)
       } catch (e) {
         if (!mounted) return
-        setSearchResult({ products: [], totalCount: 0, filters: [], appliedFilters: filters, suggestions: [] })
+        setAllProducts([])
+      } finally {
+        if (mounted) setIsLoading(false)
       }
     })()
     return () => {
       mounted = false
     }
-  }, [filters])
+  }, [category.slug])
+
+  // Apply filters to the fetched products (no API calls)
+  useEffect(() => {
+    if (allProducts.length === 0) return
+
+    const filtered = applyClientFiltersAndSort(allProducts, filters)
+    const filterGroups = generateFilterGroupsFor(allProducts, filtered)
+    setSearchResult({
+      products: filtered,
+      totalCount: filtered.length,
+      filters: filterGroups,
+      appliedFilters: filters,
+      suggestions: [],
+    })
+  }, [allProducts, filters])
 
   // Initialize category/subcategory and price range from URL when provided
   useEffect(() => {
@@ -114,62 +122,63 @@ export function CategoryContent({ category }: CategoryContentProps) {
 
   return (
     <div className="space-y-6">
-      {/* Category Header */}
-      <div className="relative h-56 md:h-64 rounded-xl overflow-hidden">
-        <Image src={category.image || "/placeholder.svg"} alt={category.name} fill className="object-cover" />
-        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-          <div className="text-center text-white">
-            <h1 className="text-3xl md:text-4xl font-elegant mb-1.5 leading-tight">{category.name}</h1>
-            <p className="text-base md:text-lg">{category.description}</p>
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading products...</p>
           </div>
         </div>
-      </div>
-
-      {/* Subcategories */}
-      {category.subcategories && category.subcategories.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="text-lg md:text-xl font-medium">Shop by Style</h2>
-          <div className="flex flex-wrap gap-1.5">
-            <button
-              onClick={() => setFilters((prev) => ({ ...prev, subcategory: undefined }))}
-              className={`px-3 py-1.5 rounded-full text-xs md:text-sm transition-colors ${
-                !filters.subcategory ? "bg-primary text-primary-foreground" : "bg-secondary hover:bg-secondary/80"
-              }`}
-            >
-              All {category.name}
-            </button>
-            {category.subcategories.map((subcategory) => (
-              <button
-                key={subcategory.id}
-                onClick={() => handleSubcategoryClick(subcategory.id)}
-                className={`px-3 py-1.5 rounded-full text-xs md:text-sm transition-colors ${
-                  filters.subcategory === subcategory.id
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary hover:bg-secondary/80"
-                }`}
-              >
-                {subcategory.name}
-              </button>
-            ))}
+      ) : (
+        <>
+          {/* Category Header */}
+          <div className="relative h-56 md:h-64 rounded-xl overflow-hidden">
+            <Image src={category.image || "/placeholder.svg"} alt={category.name} fill className="object-cover" />
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+              <div className="text-center text-white">
+                <h1 className="text-3xl md:text-4xl font-elegant mb-1.5 leading-tight">{category.name}</h1>
+                <p className="text-base md:text-lg">{category.description}</p>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
 
-      {/* Mobile filters trigger */}
-      <div className="lg:hidden">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="sm" className="inline-flex items-center gap-2">
-              <SlidersHorizontal className="h-4 w-4" />
-              Filters
-              {getActiveFilterCount() > 0 && <Badge variant="secondary">{getActiveFilterCount()}</Badge>}
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left">
-            <SheetHeader>
-              <SheetTitle>Filters</SheetTitle>
-            </SheetHeader>
-            <div className="p-4 overflow-y-auto">
+          {/* Subcategories */}
+         
+
+          {/* Mobile filters trigger */}
+          <div className="lg:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="inline-flex items-center gap-2">
+                  <SlidersHorizontal className="h-4 w-4" />
+                  Filters
+                  {getActiveFilterCount() > 0 && <Badge variant="secondary">{getActiveFilterCount()}</Badge>}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left">
+                <SheetHeader>
+                  <SheetTitle>Filters</SheetTitle>
+                </SheetHeader>
+                <div className="p-4 overflow-y-auto">
+                  <SearchFilters
+                    filterGroups={searchResult.filters}
+                    appliedFilters={searchResult.appliedFilters}
+                    onFiltersChange={handleFiltersChange}
+                    onClearFilters={handleClearFilters}
+                  />
+                </div>
+                <SheetFooter>
+                  <SheetClose asChild>
+                    <Button className="w-full">Done</Button>
+                  </SheetClose>
+                </SheetFooter>
+              </SheetContent>
+            </Sheet>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Filters Sidebar */}
+            <div className="hidden lg:block lg:col-span-1">
               <SearchFilters
                 filterGroups={searchResult.filters}
                 appliedFilters={searchResult.appliedFilters}
@@ -177,37 +186,20 @@ export function CategoryContent({ category }: CategoryContentProps) {
                 onClearFilters={handleClearFilters}
               />
             </div>
-            <SheetFooter>
-              <SheetClose asChild>
-                <Button className="w-full">Done</Button>
-              </SheetClose>
-            </SheetFooter>
-          </SheetContent>
-        </Sheet>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Filters Sidebar */}
-        <div className="hidden lg:block lg:col-span-1">
-          <SearchFilters
-            filterGroups={searchResult.filters}
-            appliedFilters={searchResult.appliedFilters}
-            onFiltersChange={handleFiltersChange}
-            onClearFilters={handleClearFilters}
-          />
-        </div>
-
-        {/* Products */}
-        <div className="lg:col-span-3">
-          <SearchResults
-            products={searchResult.products}
-            totalCount={searchResult.totalCount}
-            appliedFilters={searchResult.appliedFilters}
-            onSortChange={handleSortChange}
-            categoryName={category.name}
-          />
-        </div>
-      </div>
+            {/* Products */}
+            <div className="lg:col-span-3">
+              <SearchResults
+                products={searchResult.products}
+                totalCount={searchResult.totalCount}
+                appliedFilters={searchResult.appliedFilters}
+                onSortChange={handleSortChange}
+                categoryName={category.name}
+              />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

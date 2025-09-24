@@ -1,33 +1,116 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Heart, Trash2, ArrowLeft, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { useWishlist } from "@/contexts/wishlist-context"
 import { useToast } from "@/components/ui/use-toast"
 import { AddToCartButton } from "@/components/product/add-to-cart-button"
 import { formatCurrencyINR } from "@/lib/currency"
 
+interface WishlistItem {
+  _id: string
+  user: string
+  product: {
+    _id: string
+    brandId: string
+    categoryId: string
+    subcategoryId: string
+    title: string
+    slug: string
+    images: string[]
+    price: number
+    taxAmount: number | null
+    priceIncludingTax: number | null
+    inStock: boolean
+    isLowStock: boolean
+    id: string
+  }
+  createdAt: string
+  updatedAt: string
+  __v: number
+}
+
 export function WishlistContent() {
-  const { 
-    wishlistItems, 
-    removeFromWishlist, 
-    fetchWishlist, 
-    isLoading 
-  } = useWishlist()
-  
+  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const { toast } = useToast()
+
+  // Fetch wishlist from API
+  const fetchWishlist = async () => {
+    try {
+      setIsLoading(true)
+      const token = localStorage.getItem('token')
+      if (!token) {
+        console.error('No authentication token found')
+        setWishlistItems([])
+        return
+      }
+
+      const response = await fetch('https://hoe-be.onrender.com/api/wishlist', {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch wishlist: ${response.status}`)
+      }
+
+      const data = await response.json()
+      setWishlistItems(data)
+    } catch (error) {
+      console.error('Error fetching wishlist:', error)
+      setWishlistItems([])
+      toast({
+        title: "Error",
+        description: "Failed to fetch wishlist. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Remove item from wishlist using product ID
+  const removeFromWishlist = async (productId: string) => {
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        throw new Error('No authentication token found')
+      }
+
+      const response = await fetch(`https://hoe-be.onrender.com/api/wishlist/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'accept': '*/*',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error(`Failed to remove from wishlist: ${response.status}`)
+      }
+
+      // Remove item from local state using product ID
+      setWishlistItems(prev => prev.filter(item => item.product._id !== productId))
+    } catch (error) {
+      console.error('Error removing from wishlist:', error)
+      throw error
+    }
+  }
 
   useEffect(() => {
     fetchWishlist()
-  }, [fetchWishlist])
+  }, [])
 
-  const handleRemoveFromWishlist = async (wishlistItemId: string, productName: string) => {
+  const handleRemoveFromWishlist = async (productId: string, productName: string) => {
     try {
-      await removeFromWishlist(wishlistItemId)
+      await removeFromWishlist(productId)
       toast({
         title: "Removed from wishlist",
         description: `${productName} has been removed from your wishlist.`,
@@ -79,7 +162,7 @@ export function WishlistContent() {
             <div className="relative aspect-square">
               <Image
                 src={item.product.images?.[0] || '/placeholder.svg'}
-                alt={item.product.name}
+                alt={item.product.title}
                 fill
                 className="object-cover group-hover:opacity-90 transition-opacity"
               />
@@ -88,7 +171,7 @@ export function WishlistContent() {
                   variant="ghost"
                   size="icon"
                   className="rounded-full bg-white/90 hover:bg-white"
-                  onClick={() => handleRemoveFromWishlist(item._id, item.product.name)}
+                  onClick={() => handleRemoveFromWishlist(item.product._id, item.product.title)}
                 >
                   <Trash2 className="h-4 w-4 text-red-500" />
                 </Button>
@@ -97,7 +180,7 @@ export function WishlistContent() {
             <CardContent className="p-4">
               <div className="flex justify-between items-start mb-2">
                 <h3 className="font-medium text-foreground line-clamp-2">
-                  {item.product.name}
+                  {item.product.title}
                 </h3>
                 <div className="font-medium text-foreground ml-2 whitespace-nowrap">
                   {formatCurrencyINR(item.product.price)}
@@ -106,7 +189,7 @@ export function WishlistContent() {
               <div className="flex justify-between items-center mt-4">
                 <AddToCartButton
                   productId={item.product._id}
-                  productName={item.product.name}
+                  productName={item.product.title}
                   inStock={item.product.inStock}
                   size="sm"
                   className="flex-1 mr-2"

@@ -7,7 +7,7 @@ import Link from "next/link"
 import { Heart, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { useWishlist } from "@/contexts/wishlist-context"
+import { WishlistButton } from "@/components/wishlist/wishlist-button"
 import { useToast } from "@/hooks/use-toast"
 import type { Product } from "@/types/product"
 import { AddToCartButton } from "@/components/product/add-to-cart-button"
@@ -18,27 +18,9 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const { toggleWishlist, isInWishlist } = useWishlist()
-  const { toast } = useToast()
-
   const discountPercentage = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0
-
-  
-
-  const handleToggleWishlist = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    toggleWishlist(product.id)
-    toast({
-      title: isInWishlist(product.id) ? "Removed from wishlist" : "Added to wishlist",
-      description: isInWishlist(product.id)
-        ? `${product.name} has been removed from your wishlist.`
-        : `${product.name} has been added to your wishlist.`,
-    })
-  }
 
   return (
     <div className="group relative bg-card rounded-xl overflow-hidden border border-border/50 hover:border-primary/30 shadow-sm hover:shadow-md transition-all duration-300">
@@ -117,14 +99,12 @@ export function ProductCard({ product }: ProductCardProps) {
             productName={product.name}
             inStock={product.inStock}
           />
-          <Button
-            variant="outline"
+          <WishlistButton
+            productId={product.id}
+            productName={product.name}
             size="sm"
-            onClick={handleToggleWishlist}
-            className={isInWishlist(product.id) ? "text-red-500 border-red-200" : "hover:border-primary/30"}
-          >
-            <Heart className={`h-4 w-4 ${isInWishlist(product.id) ? "fill-red-500" : ""}`} />
-          </Button>
+            variant="outline"
+          />
         </div>
       </div>
     </div>

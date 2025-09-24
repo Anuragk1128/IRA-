@@ -67,7 +67,7 @@ export function LoginForm({ redirectToAccount = true, onSwitchToSignup }: LoginF
           <Input
             id="email"
             type="email"
-            placeholder="Enter your email"
+            placeholder=""
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -80,7 +80,7 @@ export function LoginForm({ redirectToAccount = true, onSwitchToSignup }: LoginF
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Enter your password"
+              placeholder=""
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -97,11 +97,7 @@ export function LoginForm({ redirectToAccount = true, onSwitchToSignup }: LoginF
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-            Forgot password?
-          </Link>
-        </div>
+      
 
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
