@@ -128,13 +128,13 @@ export function SearchBar({
   return (
     <div className="relative w-full">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
 
         {/* Ghost/animated suggestion layer */}
         {showSuggestions && (
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 flex items-center text-muted-foreground opacity-60"
+            className="pointer-events-none absolute inset-0 flex items-center text-gray-500 opacity-60"
           >
             <div className="pl-10 pr-10 w-full overflow-hidden whitespace-nowrap">
               {/* When typing, show inline full suggestion; otherwise show animated placeholder */}
@@ -163,7 +163,7 @@ export function SearchBar({
           placeholder={placeholder}
           aria-label="Search"
           aria-live="polite"
-          className="pl-10 pr-10 bg-white border border-black focus-visible:ring-1 focus-visible:ring-black"
+          className="pl-10 pr-10 bg-white border border-black text-black focus-visible:ring-1 focus-visible:ring-black"
         />
 
         {query && (

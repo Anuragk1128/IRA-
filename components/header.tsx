@@ -126,7 +126,7 @@ export function Header() {
             "md:hidden w-full px-4 py-3 border-b border-border/40",
             isScrolled 
               ? "bg-white text-black" 
-              : "bg-transparent text-white",
+              : "bg-transparent text-black",
             isMobileMenuOpen ? 'block' : 'hidden'
           )}>
             <SearchBar />
