@@ -10,7 +10,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 const heroImages = [
   {
-    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1758540858/ira_3x2_s4xw9v.jpg",
+    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1758793030/Navratri_Banner_-_1920_1200_gfypyy.jpg",
     alt: "Elegant layered gold jewellery collection",
     position: "center 4%",
   },
