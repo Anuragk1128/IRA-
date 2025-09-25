@@ -11,7 +11,7 @@ import Sale  from "@/components/sale"
 import PopularSearches from "@/components/popular-search"
 import ThemeRotator from "@/components/theme-rotator"
 import Blogs from "@/components/blogs"
-
+import { Festive } from "@/components/festive"
 export default function HomePage() {
   return (
     <div className="min-h-screen">
@@ -21,6 +21,7 @@ export default function HomePage() {
       <main>
         <div id="hero-sentinel" className="h-px w-full" />
         <HeroSection />
+        <Festive/>
         <FeaturedCollections />
         
         <Reels />
