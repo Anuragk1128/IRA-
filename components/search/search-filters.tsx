@@ -148,7 +148,12 @@ export function SearchFilters({ filterGroups, appliedFilters, onFiltersChange, o
         <div className="space-y-3">
           <Label className="text-sm font-medium">Availability</Label>
           <div className="flex items-center space-x-2">
-            <Checkbox id="inStock" checked={appliedFilters.inStock || false} onCheckedChange={handleInStockChange} />
+            <Checkbox 
+              id="inStock" 
+              checked={appliedFilters.inStock || false} 
+              onCheckedChange={handleInStockChange}
+              className="border-2 border-gray-300 data-[state=checked]:border-primary"
+            />
             <Label htmlFor="inStock" className="text-sm">
               In Stock Only
             </Label>
@@ -184,6 +189,7 @@ export function SearchFilters({ filterGroups, appliedFilters, onFiltersChange, o
                           if (group.id === "colors") handleColorChange(option.value, checked as boolean)
                           if (group.id === "sizes") handleSizeChange(option.value, checked as boolean)
                         }}
+                        className="border-2 border-gray-300 data-[state=checked]:border-primary"
                       />
                       <Label htmlFor={`${group.id}-${option.value}`} className="text-sm flex-1">
                         {option.label} ({option.count})
