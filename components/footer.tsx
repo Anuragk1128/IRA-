@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Twitter } from "lucide-react"
+import { Facebook, Instagram, Linkedin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function Footer() {
@@ -25,7 +25,7 @@ export function Footer() {
             </p>
             <div className="flex space-x-2">
               <a
-              href="https://www.facebook.com/ira_by_evolve"
+              href="https://www.facebook.com/share/1Ap6LGNxbt/?mibextid=wwXIfr"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Facebook - IRA by Evolve"
@@ -46,12 +46,12 @@ export function Footer() {
               </Button>
               <Button variant="ghost" size="icon" className="h-8 w-8">
                 <a
-                href="https://twitter.com/ira_by_evolve"
+                href="https://www.linkedin.com/company/house-of-evolve/"
                 target="_blank" 
                 rel="noopener noreferrer"
                 aria-label="Twitter - IRA by Evolve"
                 >
-                <Twitter className="h-4 w-4" />
+                <Linkedin className="h-4 w-4" />
                 </a>
               </Button>
             </div>
