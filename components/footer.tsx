@@ -76,11 +76,7 @@ export function Footer() {
                   Size Guide
                 </a>
               </li>
-              <li>
-                <a href="/faq" className="text-muted-foreground hover:text-primary transition-colors">
-                  Care Instructions
-                </a>
-              </li>
+              
             
             </ul>
           </div>
@@ -101,7 +97,7 @@ export function Footer() {
               </li>
               <li>
                 <a href="/shipping" className="text-muted-foreground hover:text-primary transition-colors">
-                  Returns & Exchanges
+                  Replacements
                 </a>
               </li>
               <li>

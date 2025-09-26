@@ -39,10 +39,10 @@ export default function TermsPage() {
               Standard delivery typically takes 3-7 business days. Risk of loss passes to you upon delivery to the carrier.
             </p>
 
-            <h2>5. Returns and Exchanges</h2>
+            <h2>5. Replacements</h2>
             <p>
-              We accept returns within 7 days of delivery for unworn items in original packaging with all tags attached.
-              Return shipping costs are the responsibility of the customer unless the item was defective or incorrectly shipped.
+              We accept replacements within 7 days of delivery for unworn items in original packaging with all tags attached.
+              Replacement shipping costs are the responsibility of the customer unless the item was defective or incorrectly shipped.
             </p>
 
             <h2>6. Privacy Policy</h2>
