@@ -195,20 +195,20 @@ export default function ContactPage() {
             <CardContent>
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">What is your return policy?</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">What is your replacement policy?</h3>
                   <p className="text-gray-600 mb-4">
-                    We offer a 30-day return policy for all unworn items in original packaging.
+                    We offer a 7-days replacement policy for all unworn items in original packaging.
                   </p>
 
                   <h3 className="font-semibold text-gray-900 mb-2">How long does shipping take?</h3>
                   <p className="text-gray-600 mb-4">
-                    Standard shipping takes 3-5 business days. Express shipping is available for 1-2 days.
+                    Standard shipping takes 3-5 business days. 
                   </p>
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-2">Do you offer international shipping?</h3>
                   <p className="text-gray-600 mb-4">
-                    Yes, we ship worldwide. International shipping times vary by location.
+                    No, we do not provide shipping facilities internationally. 
                   </p>
 
                   <h3 className="font-semibold text-gray-900 mb-2">Are your products hypoallergenic?</h3>

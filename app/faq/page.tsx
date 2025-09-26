@@ -28,17 +28,17 @@ const faqData = [
     ],
   },
   {
-    category: "Returns & Exchanges",
+    category: "Replacements",
     questions: [
       {
-        question: "What is your return policy?",
+        question: "What is your replacement policy?",
         answer:
-          "We offer a 30-day return policy for unworn items in original packaging with tags attached. Items must be in sellable condition. Return shipping costs are covered by the customer unless the item was defective.",
+          "We offer a 7-day replacement policy for unworn items in original packaging with tags attached. Items must be in sellable condition. Return shipping costs are covered by the customer unless the item was defective.",
       },
       {
-        question: "How do I return an item?",
+        question: "How do I replace an item?",
         answer:
-          "Log into your account, go to Order History, and select 'Return Item'. Print the prepaid return label and ship the item back to us. Refunds are processed within 5-7 business days after we receive your return.",
+          "Log into your account, go to Order History, and select 'Replace Item'. Print the prepaid return label and ship the item back to us. Refunds are processed within 5-7 business days after we receive your return.",
       },
       {
         question: "Can I exchange an item for a different size or color?",
@@ -73,12 +73,12 @@ const faqData = [
       {
         question: "Do I need an account to make a purchase?",
         answer:
-          "No, you can checkout as a guest. However, creating an account allows you to track orders, save favorites, manage addresses, and access exclusive member benefits.",
+          "Yes, you need an accont to placeorders, creating an account allows you to track orders, save favorites, manage addresses, and access exclusive member benefits.",
       },
       {
         question: "What payment methods do you accept?",
         answer:
-          "We accept all major credit cards (Visa, MasterCard, American Express, Discover), PayPal, Apple Pay, Google Pay, and Shop Pay. All transactions are secure and encrypted.",
+          "We accept all major credit cards (Visa, MasterCard, American Express), Google Pay, and Phone Pay. All transactions are secure and encrypted.",
       },
       {
         question: "Is my payment information secure?",
