@@ -10,6 +10,7 @@ import { AddToCartButton } from "@/components/product/add-to-cart-button"
 import { Product } from "@/types/product"
 import { fetchCategoriesFromApi, fetchBrandSubcategories } from "@/lib/catalog"
 import { fetchBrandProductsByCategorySubcategory, filterCategoriesWithProducts } from "@/lib/api"
+import { formatCurrencyINR } from "@/lib/currency"
 
 // Fetch first product from each category
 async function getFirstProductFromEachCategory(): Promise<Product[]> {
@@ -166,14 +167,15 @@ export function ProductShowcase() {
                     </h3>
                     <div className="flex items-center">
                       <span className="text-lg font-bold text-gray-900">
-                        ₹{product.price.toLocaleString('en-IN')}
+                        {product.priceIncludingTax ? formatCurrencyINR(product.priceIncludingTax) : formatCurrencyINR(product.price)}
                       </span>
                       {product.originalPrice && product.originalPrice > product.price && (
                         <span className="ml-2 text-sm text-gray-500 line-through">
-                          ₹{product.originalPrice.toLocaleString('en-IN')}
+                          {formatCurrencyINR(product.originalPrice)}
                         </span>
                       )}
                     </div>
+                    
                   </CardContent>
                 </Link>
                 <div className="px-4 pb-4">
