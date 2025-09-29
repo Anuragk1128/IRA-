@@ -5,6 +5,9 @@ export interface Product {
   price: number
   originalPrice?: number
   compareAtPrice?: number
+  taxAmount?: number | null
+  priceIncludingTax?: number | null
+  gstRate?: number
   images: string[]
   category: string
   categoryId?: string

@@ -253,11 +253,15 @@ export default function ProductPage({ params }: ProductPageProps) {
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="text-3xl font-bold text-foreground">{formatCurrencyINR(product.price)}</span>
+              <span className="text-3xl font-bold text-foreground">
+                {product.priceIncludingTax ? formatCurrencyINR(product.priceIncludingTax) : formatCurrencyINR(product.price)}
+              </span>
               {product.compareAtPrice && (
                 <span className="text-xl text-muted-foreground line-through">{formatCurrencyINR(product.compareAtPrice)}</span>
               )}
             </div>
+            
+        
 
            
 
@@ -496,7 +500,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-gray-900">
-                          {formatCurrencyINR(relatedProduct.price)}
+                          {relatedProduct.priceIncludingTax ? formatCurrencyINR(relatedProduct.priceIncludingTax) : formatCurrencyINR(relatedProduct.price)}
                         </span>
                         {relatedProduct.compareAtPrice && relatedProduct.compareAtPrice > relatedProduct.price && (
                           <span className="text-sm text-gray-500 line-through">

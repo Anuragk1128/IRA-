@@ -22,6 +22,16 @@ export function ProductCard({ product }: ProductCardProps) {
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0
 
+  // Debug logging to check tax fields
+  console.log('Product tax data:', {
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    priceIncludingTax: product.priceIncludingTax,
+    taxAmount: product.taxAmount,
+    gstRate: product.gstRate
+  })
+
   return (
     <div className="group relative bg-card rounded-xl overflow-hidden border border-border/50 hover:border-primary/30 shadow-sm hover:shadow-md transition-all duration-300">
       <Link href={`/products/${product.id}`}>
@@ -85,11 +95,23 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         <div className="flex items-center gap-2 mt-2">
-          <span className="text-base font-semibold text-foreground">{formatCurrencyINR(product.price)}</span>
+          <span className="text-base font-semibold text-foreground">
+            {product.priceIncludingTax ? formatCurrencyINR(product.priceIncludingTax) : formatCurrencyINR(product.price)}
+          </span>
           {product.originalPrice && (
             <span className="text-xs text-muted-foreground line-through">{formatCurrencyINR(product.originalPrice)}</span>
           )}
         </div>
+        {product.priceIncludingTax && product.priceIncludingTax !== product.price && (
+          <div className="text-xs text-muted-foreground mt-1">
+            <span>Base: {formatCurrencyINR(product.price)}</span>
+            {product.taxAmount && (
+              <span className="ml-2">
+                + GST{product.gstRate ? ` (${product.gstRate}%)` : ''}: {formatCurrencyINR(product.taxAmount)}
+              </span>
+            )}
+          </div>
+        )}
 
         <div className="flex gap-2 mt-2.5">
           <AddToCartButton
