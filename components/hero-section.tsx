@@ -10,28 +10,38 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 const heroImages = [
   {
-    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1758540858/ira_3x2_s4xw9v.jpg",
+    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1759143514/IRA_Web_Banner_Design.zip_-_1_lu7pln.jpg",
     alt: "Elegant layered gold jewellery collection",
     position: "center 4%",
   },
   {
-    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1758540924/ira_post_o2rllz.jpg",
+    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1759143342/IRA_Web_Banner_Design.jpg_tvmwqe.jpg",
     alt: "Statement circular disc necklace",
     position: "center center",
   },
   {
-    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1758540980/iramodel3_xm47ch.png",
+    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1759143811/IRA_Web_Banner_Design.zip_-_2_td4bya.jpg",
     alt: "Delicate crystal teardrop pendant",
     position: "center center",
   },
   {
-    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1758543376/iramodel5_wjqs5d.jpg",
+    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1759143902/IRA_Web_Banner_Design.zip_-_3_ve51xm.jpg",
     alt: "jewellery collection showcase",
     position: "center center",
   },
   {
-    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1758543423/iramodel4_cfukpf.jpg",
-    alt: "jewellery collection showcase",
+    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1759144012/IRA_Web_Banner_Design.zip_-_4_cpi9kn.jpg",
+    alt: "jewellery collection",
+    position: "center center",
+  },
+  {
+    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1759144273/IRA_Web_Banner_Design.zip_-_5_e7ynb7.jpg",
+    alt: "collection showcase",
+    position: "center center",
+  },
+  {
+    src: "https://res.cloudinary.com/deamrxfwp/image/upload/v1759144328/IRA_Web_Banner_Design.zip_-_6_gpqtfi.jpg",
+    alt: "jewellery showcase",
     position: "center center",
   }
 ]
