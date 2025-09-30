@@ -102,16 +102,7 @@ export function ProductCard({ product }: ProductCardProps) {
             <span className="text-xs text-muted-foreground line-through">{formatCurrencyINR(product.originalPrice)}</span>
           )}
         </div>
-        {product.priceIncludingTax && product.priceIncludingTax !== product.price && (
-          <div className="text-xs text-muted-foreground mt-1">
-            <span>Base: {formatCurrencyINR(product.price)}</span>
-            {product.taxAmount && (
-              <span className="ml-2">
-                + GST{product.gstRate ? ` (${product.gstRate}%)` : ''}: {formatCurrencyINR(product.taxAmount)}
-              </span>
-            )}
-          </div>
-        )}
+       
 
         <div className="flex gap-2 mt-2.5">
           <AddToCartButton
