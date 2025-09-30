@@ -74,6 +74,13 @@ export default function ProductPage({ params }: ProductPageProps) {
     }
     if (product) fetchRelated()
   }, [product])
+const handleShare = async () => {
+  await navigator.share({
+    title: product.name,
+    text: product.description,
+    url: `https://houseofevolve.in/products/${product.id}`
+  })
+}
 
   // Keyboard navigation
   useEffect(() => {
@@ -278,9 +285,11 @@ export default function ProductPage({ params }: ProductPageProps) {
               <Button variant="outline" size="lg">
                 <Heart className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="lg">
+              
+              <Button variant="outline" size="lg" onClick={handleShare}>
                 <Share2 className="h-4 w-4" />
               </Button>
+              
             </div>
 
             <div className="grid grid-cols-3 gap-4 pt-4 border-t">
