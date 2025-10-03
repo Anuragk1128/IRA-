@@ -1,8 +1,8 @@
 // Utility function to add product to wishlist
-export const addToWishlist = async (productId: string): Promise<boolean> => {
+export const addToWishlist = async (productId: string, token?: string): Promise<boolean> => {
   try {
-    const token = localStorage.getItem('token')
-    if (!token) {
+    const authToken = token || localStorage.getItem('token')
+    if (!authToken) {
       throw new Error('No authentication token found')
     }
 
@@ -10,7 +10,7 @@ export const addToWishlist = async (productId: string): Promise<boolean> => {
       method: 'POST',
       headers: {
         'accept': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${authToken}`
       }
     })
 
@@ -28,10 +28,10 @@ export const addToWishlist = async (productId: string): Promise<boolean> => {
 }
 
 // Utility function to remove product from wishlist
-export const removeFromWishlist = async (productId: string): Promise<boolean> => {
+export const removeFromWishlist = async (productId: string, token?: string): Promise<boolean> => {
   try {
-    const token = localStorage.getItem('token')
-    if (!token) {
+    const authToken = token || localStorage.getItem('token')
+    if (!authToken) {
       throw new Error('No authentication token found')
     }
 
@@ -39,7 +39,7 @@ export const removeFromWishlist = async (productId: string): Promise<boolean> =>
       method: 'DELETE',
       headers: {
         'accept': '*/*',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${authToken}`
       }
     })
 
@@ -56,10 +56,10 @@ export const removeFromWishlist = async (productId: string): Promise<boolean> =>
 }
 
 // Utility function to check if product is in wishlist
-export const checkWishlistStatus = async (productId: string): Promise<boolean> => {
+export const checkWishlistStatus = async (productId: string, token?: string): Promise<boolean> => {
   try {
-    const token = localStorage.getItem('token')
-    if (!token) {
+    const authToken = token || localStorage.getItem('token')
+    if (!authToken) {
       return false
     }
 
@@ -67,7 +67,7 @@ export const checkWishlistStatus = async (productId: string): Promise<boolean> =
       method: 'GET',
       headers: {
         'accept': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${authToken}`
       }
     })
 

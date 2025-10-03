@@ -5,6 +5,7 @@ import { Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { addToWishlist, removeFromWishlist, checkWishlistStatus } from "@/lib/wishlist-utils"
+import { useAuth } from "@/contexts/auth-context"
 
 interface WishlistButtonProps {
   productId: string
@@ -26,35 +27,51 @@ export function WishlistButton({
   const [isInWishlist, setIsInWishlist] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
+  const { user, isAuthenticated } = useAuth()
 
   // Check initial wishlist status
   useEffect(() => {
     const checkStatus = async () => {
+      if (!isAuthenticated || !user?.token) {
+        setIsInWishlist(false)
+        return
+      }
+      
       try {
-        const status = await checkWishlistStatus(productId)
+        const status = await checkWishlistStatus(productId, user.token)
         setIsInWishlist(status)
       } catch (error) {
         console.error('Error checking wishlist status:', error)
+        setIsInWishlist(false)
       }
     }
     checkStatus()
-  }, [productId])
+  }, [productId, isAuthenticated, user?.token])
 
   const handleToggleWishlist = async () => {
-    if (isLoading) return
+    if (isLoading || !isAuthenticated || !user?.token) {
+      if (!isAuthenticated) {
+        toast({
+          title: "Please sign in",
+          description: "You need to be signed in to add items to your wishlist.",
+          variant: "destructive",
+        })
+      }
+      return
+    }
 
     try {
       setIsLoading(true)
       
       if (isInWishlist) {
-        await removeFromWishlist(productId)
+        await removeFromWishlist(productId, user.token)
         setIsInWishlist(false)
         toast({
           title: "Removed from wishlist",
           description: `${productName} has been removed from your wishlist.`,
         })
       } else {
-        await addToWishlist(productId)
+        await addToWishlist(productId, user.token)
         setIsInWishlist(true)
         toast({
           title: "Added to wishlist",

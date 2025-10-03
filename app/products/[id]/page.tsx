@@ -17,6 +17,7 @@ import { formatCurrencyINR } from "@/lib/currency"
 import { fetchProductByIdFromBackend, fetchProductsByCategory } from "@/lib/api"
 import { fetchCategoriesFromApi } from "@/lib/catalog"
 import { ReviewsPanel } from "@/components/product/reviews-panel"
+import { WishlistButton } from "@/components/wishlist/wishlist-button"
 
 interface ProductPageProps {
   params: Promise<{
@@ -282,9 +283,12 @@ const handleShare = async () => {
                 productName={product.name}
                 inStock={product.inStock}
               />
-              <Button variant="outline" size="lg">
-                <Heart className="h-4 w-4" />
-              </Button>
+              <WishlistButton
+                productId={product.id}
+                productName={product.name}
+                size="lg"
+                variant="outline"
+              />
               
               <Button variant="outline" size="lg" onClick={handleShare}>
                 <Share2 className="h-4 w-4" />

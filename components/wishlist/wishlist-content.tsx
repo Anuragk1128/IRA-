@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Heart, Trash2, ArrowLeft, Loader2 } from "lucide-react"
+import { Heart, Trash2, ArrowLeft, Loader2, LogIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import { AddToCartButton } from "@/components/product/add-to-cart-button"
 import { formatCurrencyINR } from "@/lib/currency"
+import { useAuth } from "@/contexts/auth-context"
 
 interface WishlistItem {
   _id: string
@@ -37,23 +38,24 @@ export function WishlistContent() {
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { toast } = useToast()
+  const { user, isAuthenticated } = useAuth()
 
   // Fetch wishlist from API
   const fetchWishlist = async () => {
+    if (!isAuthenticated || !user?.token) {
+      setWishlistItems([])
+      setIsLoading(false)
+      return
+    }
+
     try {
       setIsLoading(true)
-      const token = localStorage.getItem('token')
-      if (!token) {
-        console.error('No authentication token found')
-        setWishlistItems([])
-        return
-      }
 
       const response = await fetch('https://hoe-be.onrender.com/api/wishlist', {
         method: 'GET',
         headers: {
           'accept': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${user.token}`
         }
       })
 
@@ -62,7 +64,11 @@ export function WishlistContent() {
       }
 
       const data = await response.json()
-      setWishlistItems(data)
+      // Filter out Jerseymise products (brand ID: 68b6dbf0979adf12e46f273c)
+      const filteredData = data.filter((item: WishlistItem) => 
+        item.product.brandId !== '68b6dbf0979adf12e46f273c'
+      )
+      setWishlistItems(filteredData)
     } catch (error) {
       console.error('Error fetching wishlist:', error)
       setWishlistItems([])
@@ -78,17 +84,17 @@ export function WishlistContent() {
 
   // Remove item from wishlist using product ID
   const removeFromWishlist = async (productId: string) => {
+    if (!isAuthenticated || !user?.token) {
+      throw new Error('User not authenticated')
+    }
+
     try {
-      const token = localStorage.getItem('token')
-      if (!token) {
-        throw new Error('No authentication token found')
-      }
 
       const response = await fetch(`https://hoe-be.onrender.com/api/wishlist/${productId}`, {
         method: 'DELETE',
         headers: {
           'accept': '*/*',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${user.token}`
         }
       })
 
@@ -106,7 +112,7 @@ export function WishlistContent() {
 
   useEffect(() => {
     fetchWishlist()
-  }, [])
+  }, [isAuthenticated, user?.token])
 
   const handleRemoveFromWishlist = async (productId: string, productName: string) => {
     try {
@@ -123,6 +129,31 @@ export function WishlistContent() {
         variant: "destructive",
       })
     }
+  }
+
+  // Show login prompt if user is not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-2xl mx-auto text-center py-12">
+        <Heart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+        <h1 className="text-2xl font-elegant text-foreground mb-2">Sign in to view your wishlist</h1>
+        <p className="text-muted-foreground mb-6">Please sign in to access your saved items and wishlist.</p>
+        <div className="flex gap-4 justify-center">
+          <Button asChild>
+            <Link href="/login">
+              <LogIn className="h-4 w-4 mr-2" />
+              Sign In
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/products">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Continue Shopping
+            </Link>
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   if (isLoading && wishlistItems.length === 0) {
