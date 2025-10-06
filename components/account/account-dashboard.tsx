@@ -2,18 +2,21 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Package, Heart, Settings, LogOut, Edit } from "lucide-react"
+import { Package, Heart, Settings, LogOut, Edit,ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/contexts/auth-context"
 import { ProfileSettings } from "./profile-settings"
+import { CartContent } from "../cart/cart-content"
+import { useCart } from "@/contexts/cart-context"
 // Removed AddressBook as Addresses tab is no longer used
 
 export function AccountDashboard() {
   const { user, signOut } = useAuth()
   const [activeTab, setActiveTab] = useState("overview")
+  const { cart } = useCart()
 
   if (!user) return null
 
@@ -39,6 +42,7 @@ export function AccountDashboard() {
           
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
+          <TabsTrigger value="cart">Cart</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -55,6 +59,10 @@ export function AccountDashboard() {
               </CardContent>
             </Card>
             <Card>
+              <CardHeader>
+                Cart
+                <CardTitle>Cart Items</CardTitle>
+              </CardHeader>
             
             
             </Card>
@@ -110,6 +118,23 @@ export function AccountDashboard() {
                 <div>
                   <p className="font-medium">No wishlist items</p>
                   <p className="text-sm text-muted-foreground">Items you save will appear here</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="cart">
+          <CartContent />
+          <Card>
+            <CardHeader>
+              <CardTitle>My Cart</CardTitle>
+              <CardDescription>Items you've added to your cart</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <p className="font-medium">No cart items</p>
+                  <p className="text-sm text-muted-foreground">Items you add will appear here</p>
                 </div>
               </div>
             </CardContent>
