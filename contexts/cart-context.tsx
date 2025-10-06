@@ -90,8 +90,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           originalPrice: product.originalPrice,
           image: product.images[0] || "/placeholder.svg",
           material: product.material,
-          color: product.color,
-          size: product.size,
+          color: Array.isArray(product.color) ? product.color[0] : product.color,
+          size: Array.isArray(product.size) ? product.size[0] : product.size,
           quantity,
           inStock: product.inStock,
         }

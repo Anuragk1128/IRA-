@@ -9,9 +9,9 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-full overflow-hidden ring-1 ring-border bg-muted flex items-center justify-center">
+              <div className="h-14 w-14 rounded-full overflow-hidden ring-1 ring-border bg-muted flex items-center justify-center">
                 <img
-                  src="/ira-logo.jpg"
+                  src="/IRA-LOGO.PNG"
                   alt="IRA by House of Evolve logo"
                   className="h-full w-full object-cover"
                   loading="eager"

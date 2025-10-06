@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ShoppingBag, User, Heart, Menu, LogOut, X } from "lucide-react"
+import { ShoppingBag, User, Heart, Menu, LogOut, X, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SearchBar } from "@/components/search/search-bar"
 import { useAuth } from "@/contexts/auth-context"
@@ -93,9 +93,9 @@ export function Header() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="h-12 w-12 rounded-full overflow-hidden ring-1 ring-border bg-muted flex items-center justify-center">
+            <div className="h-14 w-14 rounded-full overflow-hidden ring-1 ring-border bg-muted flex items-center justify-center">
               <img
-                src="/ira-logo.jpg"
+                src="/IRA-LOGO.PNG"
                 alt="IRA by House of Evolve logo"
                 className="h-full w-full object-cover"
                 loading="eager"
@@ -126,6 +126,16 @@ export function Header() {
 
           {/* Action buttons (right) */}
           <div className="flex items-center space-x-2">
+            <Button variant="ghost" size="icon" className="relative text-black hover:bg-gray-100">
+              <Link href="/cart">
+                <ShoppingCart className="h-5 w-5" />
+              </Link>
+              {cart.items.length > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-accent-foreground text-xs flex items-center justify-center">
+                  {cart.items.length}
+                </span>
+              )}
+            </Button>
             <Button variant="ghost" size="icon" className="relative text-black hover:bg-gray-100">
               <Link href="/wishlist">
                 <Heart className="h-5 w-5" />

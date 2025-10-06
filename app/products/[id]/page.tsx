@@ -3,7 +3,7 @@
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import { useState, useEffect, use } from "react"
-import { Star, Heart, Share2, Truck, Shield, RotateCcw, ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from "lucide-react"
+import { Star, Heart, Share2, Truck, Shield, RotateCcw, ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut,ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -18,6 +18,10 @@ import { fetchProductByIdFromBackend, fetchProductsByCategory } from "@/lib/api"
 import { fetchCategoriesFromApi } from "@/lib/catalog"
 import { ReviewsPanel } from "@/components/product/reviews-panel"
 import { WishlistButton } from "@/components/wishlist/wishlist-button"
+import { useAuth } from "@/contexts/auth-context"
+import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
+
 
 interface ProductPageProps {
   params: Promise<{
@@ -34,7 +38,11 @@ export default function ProductPage({ params }: ProductPageProps) {
   const [zoom, setZoom] = useState(1)
   const [loading, setLoading] = useState(true)
   const [relatedProducts, setRelatedProducts] = useState<any[]>([])
-
+  const [isAddingToCart, setIsAddingToCart] = useState(false)
+  const { isAuthenticated } = useAuth()
+  const router = useRouter()
+  const { toast } = useToast()
+ 
   // Fetch data
   useEffect(() => {
     const fetchData = async () => {
@@ -111,6 +119,88 @@ const handleShare = async () => {
 
   if (!product) {
     notFound()
+  }
+
+  const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      router.push('/login')
+      return
+    }
+
+    if (!product.inStock) {
+      toast({
+        title: 'Out of Stock',
+        description: 'This item is currently out of stock',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    // Check if product has low stock warning
+    if (product.isLowStock) {
+      toast({
+        title: 'Stock Limited',
+        description: 'Only 1 item available due to low stock',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    // Check stock quantity if available
+    if (product.stock && product.stock <= 0) {
+      toast({
+        title: 'Out of Stock',
+        description: 'This item is currently out of stock',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    setIsAddingToCart(true)
+    try {
+      const token = localStorage.getItem("auth-token")
+      if (!token) {
+        router.push('/login')
+        return
+      }
+
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://hoe-be.onrender.com/api'
+      const response = await fetch(`${API_URL}/cart/${product.id}`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          quantity: 1
+        })
+      })
+
+      if (response.ok) {
+        const cartItem = await response.json()
+        toast({
+          title: 'Added to cart',
+          description: `${product.name} has been added to your cart`,
+        })
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        toast({
+          title: 'Error',
+          description: errorData.message || 'Failed to add to cart',
+          variant: 'destructive'
+        })
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error)
+      toast({
+        title: 'Error',
+        description: 'Network error. Please try again.',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsAddingToCart(false)
+    }
   }
 
   // Image navigation functions
@@ -283,6 +373,19 @@ const handleShare = async () => {
                 productName={product.name}
                 inStock={product.inStock}
               />
+              <Button 
+                variant="outline" 
+                size="lg" 
+                onClick={handleAddToCart}
+                disabled={
+                  !product.inStock || 
+                  isAddingToCart || 
+                  product.isLowStock || 
+                  (product.stock && product.stock <= 0)
+                }
+              >
+                <ShoppingCart className="h-4 w-4" />
+              </Button>
               <WishlistButton
                 productId={product.id}
                 productName={product.name}
