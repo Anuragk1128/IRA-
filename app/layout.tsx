@@ -11,9 +11,9 @@ import { RouteLoader } from "@/components/route-loader"
 // Removed Google font imports and variables to use system fonts only
 
 export const metadata: Metadata = {
-  title: "IRA jewellery - Elegant Artificial jewellery Collection",
+  title: "IRA by House of Evolve - Online Anti Tarnish Jewellery Shopping",
   description:
-    "Discover our exquisite collection of artificial jewellery. Affordable luxury that doesn't compromise on style.",
+    "At IRA by House of Evolve, every piece is a narrative of artisanship, precision, and emotion. We blend contemporary aesthetics with timeless craftsmanship to create anti tarnish, sustainable jewellery that celebrates artistry and tells your story, one detail at a time.",
   generator: "v0.app",
   icons: {
     icon: "/Ira_Logo.svg",
