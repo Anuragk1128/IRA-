@@ -18,6 +18,7 @@ interface CartItem {
   user: string
   product: {
     _id: string
+    brandId?: string
     title: string
     slug: string
     images: string[]
@@ -34,6 +35,9 @@ interface CartItem {
   createdAt: string
   updatedAt: string
 }
+
+// Jerseymise brand ID to filter out
+const JERSEYMISE_BRAND_ID = '68b6dbf0979adf12e46f273c'
 
 export function CartContent() { 
   const [cartItems, setCartItems] = useState<CartItem[]>([])
@@ -68,8 +72,11 @@ export function CartContent() {
 
       if (response.ok) {
         const items = await response.json()
-        // Filter out items with null products
-        const validItems = items.filter((item: CartItem) => item.product !== null)
+        // Filter out items with null products and Jerseymise brand products
+        const validItems = items.filter((item: CartItem) => 
+          item.product !== null && 
+          item.product.brandId !== JERSEYMISE_BRAND_ID
+        )
         setCartItems(validItems)
       } else {
         const errorData = await response.json().catch(() => ({}))

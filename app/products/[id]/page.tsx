@@ -136,35 +136,55 @@ const handleShare = async () => {
       return
     }
 
-    // Check if product has low stock warning
-    if (product.isLowStock) {
-      toast({
-        title: 'Stock Limited',
-        description: 'Only 1 item available due to low stock',
-        variant: 'destructive'
-      })
-      return
-    }
-
-    // Check stock quantity if available
-    if (product.stock && product.stock <= 0) {
-      toast({
-        title: 'Out of Stock',
-        description: 'This item is currently out of stock',
-        variant: 'destructive'
-      })
-      return
-    }
-
     setIsAddingToCart(true)
     try {
       const token = localStorage.getItem("auth-token")
       if (!token) {
         router.push('/login')
+        setIsAddingToCart(false)
         return
       }
 
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://hoe-be.onrender.com/api'
+      
+      // First, fetch current cart to check existing quantity
+      const cartResponse = await fetch(`${API_URL}/cart`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+
+      if (cartResponse.ok) {
+        const cartItems = await cartResponse.json()
+        const existingItem = cartItems.find((item: any) => item.product?._id === product.id)
+        const currentQuantityInCart = existingItem ? existingItem.quantity : 0
+        
+        // Check if product has low stock warning
+        if (product.isLowStock && currentQuantityInCart >= 1) {
+          toast({
+            title: 'Stock Limited',
+            description: 'Only 1 item available due to low stock',
+            variant: 'destructive'
+          })
+          setIsAddingToCart(false)
+          return
+        }
+
+        // Check stock quantity if available
+        if (product.stock && currentQuantityInCart >= product.stock) {
+          toast({
+            title: 'Stock Limited',
+            description: `Only ${product.stock} item${product.stock > 1 ? 's' : ''} available in stock`,
+            variant: 'destructive'
+          })
+          setIsAddingToCart(false)
+          return
+        }
+      }
+
+      // Now add to cart
       const response = await fetch(`${API_URL}/cart/${product.id}`, {
         method: 'POST',
         headers: {

@@ -28,7 +28,7 @@ export function AddToCartButton({
         target="_blank"
         rel="noopener noreferrer"
       >
-        Shop Now
+        Buy Now
       </a>
     </Button>
   )
