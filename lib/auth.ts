@@ -100,6 +100,99 @@ export async function signIn(email: string, password: string): Promise<{ user: U
   return { user, token: data.token }
 }
 
+// Send OTP to email for registration
+export async function sendRegistrationOTP(email: string): Promise<{ message: string }> {
+  const API_URL = 'https://hoe-be.onrender.com/api'
+  
+  const res = await fetch(`${API_URL}/auth/register/send-otp`, {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  })
+
+  if (!res.ok) {
+    let message = 'Failed to send OTP'
+    try {
+      const err = await res.json()
+      message = err?.message || err?.error || message
+    } catch {}
+    throw new Error(message)
+  }
+
+  const data = await res.json()
+  return data
+}
+
+// Register user with OTP
+export async function signUpWithOTP(data: {
+  email: string
+  password: string
+  name: string
+  otp: string
+}): Promise<{ user: User; token: string }> {
+  const API_URL = 'https://hoe-be.onrender.com/api'
+
+  const res = await fetch(`${API_URL}/auth/register`, {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ 
+      name: data.name, 
+      email: data.email, 
+      password: data.password,
+      otp: data.otp 
+    }),
+  })
+
+  if (!res.ok) {
+    let message = 'Failed to register'
+    try {
+      const err = await res.json()
+      message = err?.message || err?.error || message
+    } catch {}
+    throw new Error(message)
+  }
+
+  const payload = await res.json() as {
+    token: string
+    user: { id: string; name: string; email: string; role?: string }
+  }
+
+  if (!payload?.token || !payload?.user?.id) {
+    throw new Error('Invalid registration response')
+  }
+
+  // Split name into first/last
+  const fullName = String(payload.user.name ?? '')
+  const [firstName, ...rest] = fullName.split(' ').filter(Boolean)
+  const lastName = rest.join(' ')
+
+  const user: User = {
+    id: String(payload.user.id),
+    email: String(payload.user.email),
+    firstName: firstName || '',
+    lastName: lastName || '',
+    addresses: [],
+    preferences: {
+      emailNotifications: true,
+      smsNotifications: false,
+      marketingEmails: true,
+      currency: 'INR',
+      language: 'en',
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    token: String(payload.token),
+  }
+
+  return { user, token: payload.token }
+}
+
 export async function signUp(data: {
   email: string
   password: string
