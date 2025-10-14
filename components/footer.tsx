@@ -1,5 +1,6 @@
 import { Facebook, Instagram, Linkedin } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 export function Footer() {
   return (
@@ -7,9 +8,11 @@ export function Footer() {
       <div className="container mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Brand */}
+        
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <div className="h-14 w-14 rounded-full overflow-hidden ring-1 ring-border bg-muted flex items-center justify-center">
+              <Link href="/">
+              <div className="h-14 w-14 hover:scale-105">
                 <img
                   src="/IRA-LOGO.PNG"
                   alt="IRA by House of Evolve logo"
@@ -17,6 +20,7 @@ export function Footer() {
                   loading="eager"
                 />
               </div>
+              </Link>
               <span className="sr-only">IRA by House of Evolve</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
