@@ -139,7 +139,7 @@ export function SearchFilters({ filterGroups, appliedFilters, onFiltersChange, o
             />
             <div className="flex justify-between text-sm text-muted-foreground mt-2">
               <span>₹{priceRange[0]}</span>
-              <span>₹{priceRange[1]}</span>
+              <span>₹{priceRange[1] >= 3000 ? '3000+' : priceRange[1]}</span>
             </div>
           </div>
         </div>
