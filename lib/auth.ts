@@ -275,3 +275,63 @@ export function setAuthToken(token: string): void {
 export function removeAuthToken(): void {
   localStorage.removeItem("auth-token")
 }
+
+// Send OTP to email for password reset
+export async function sendPasswordResetOTP(email: string): Promise<{ message: string }> {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://hoe-be.onrender.com/api'
+
+  const res = await fetch(`${API_URL}/auth/forgot-password/send-otp`, {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  })
+
+  if (!res.ok) {
+    let message = 'Failed to send password reset OTP'
+    try {
+      const err = await res.json()
+      message = err?.message || err?.error || message
+    } catch {}
+    throw new Error(message)
+  }
+
+  const data = await res.json()
+  return data
+}
+
+// Reset password with OTP
+export async function resetPassword(data: {
+  email: string
+  otp: string
+  newPassword: string
+}): Promise<{ message: string }> {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://hoe-be.onrender.com/api'
+
+  const res = await fetch(`${API_URL}/auth/forgot-password/reset`, {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email: data.email,
+      otp: data.otp,
+      newPassword: data.newPassword
+    }),
+  })
+
+  if (!res.ok) {
+    let message = 'Failed to reset password'
+    try {
+      const err = await res.json()
+      message = err?.message || err?.error || message
+    } catch {}
+    throw new Error(message)
+  }
+
+  const payload = await res.json()
+  return payload
+}
