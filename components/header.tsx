@@ -126,7 +126,7 @@ export function Header() {
 
           {/* Action buttons (right) */}
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="icon" className="relative text-black hover:bg-gray-100">
+            <Button variant="ghost" size="icon" className="hover:scale-105">
               <Link href="/cart">
                 <ShoppingCart className="h-5 w-5" />
               </Link>
@@ -136,7 +136,7 @@ export function Header() {
                 </span>
               )}
             </Button>
-            <Button variant="ghost" size="icon" className="relative text-black hover:bg-gray-100">
+            <Button variant="ghost" size="icon" className="hover:scale-105">
               <Link href="/wishlist">
                 <Heart className="h-5 w-5" />
               </Link>
@@ -154,7 +154,7 @@ export function Header() {
                 </Link>
               </Button>
             ) : (
-              <Button variant="ghost" size="icon" asChild className="text-black hover:bg-gray-100">
+              <Button variant="ghost" size="icon" asChild className="hover:scale-105">
                 <Link href="/login">
                   <User className="h-5 w-5" />
                 </Link>
