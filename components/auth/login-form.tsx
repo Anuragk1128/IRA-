@@ -97,7 +97,14 @@ export function LoginForm({ redirectToAccount = true, onSwitchToSignup }: LoginF
           </div>
         </div>
 
-      
+        <div className="flex justify-end">
+          <Link
+            href="/forgot-password"
+            className="text-sm text-muted-foreground hover:text-primary hover:underline"
+          >
+            Forgot password?
+          </Link>
+        </div>
 
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
